@@ -1,10 +1,11 @@
-import { useState, useRef, ChangeEvent } from "react";
+import { useState, useRef, ChangeEvent, useEffect } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { UploadCloud, FileImage, Download, RefreshCw, AlertCircle, Info } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useLocation } from "wouter";
 
 export default function ImageToWebp() {
   const [file, setFile] = useState<File | null>(null);
@@ -13,6 +14,19 @@ export default function ImageToWebp() {
   const [progress, setProgress] = useState(0);
   const [webpUrl, setWebpUrl] = useState<string | null>(null);
   const [webpSize, setWebpSize] = useState<number>(0);
+  const [location] = useLocation();
+
+  const canonicalUrl = `https://microwow.replit.app${location}`;
+
+  useEffect(() => {
+    let link: HTMLLinkElement | null = document.querySelector("link[rel='canonical']");
+    if (!link) {
+      link = document.createElement("link");
+      link.setAttribute("rel", "canonical");
+      document.head.appendChild(link);
+    }
+    link.setAttribute("href", canonicalUrl);
+  }, [canonicalUrl]);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 

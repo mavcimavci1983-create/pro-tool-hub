@@ -4,12 +4,27 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FileText, Download, RefreshCw, AlertCircle, Info, FileEdit, ArrowRight } from "lucide-react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 
 export default function GenericPdfTool({ title = "PDF Tool", desc = "Professional PDF processing tool." }) {
   const [isProcessing, setIsProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [isDone, setIsDone] = useState(false);
+  const [location] = useLocation();
+
+  const canonicalUrl = `https://microwow.replit.app${location}`;
+
+  useEffect(() => {
+    // Add canonical tag dynamically
+    let link: HTMLLinkElement | null = document.querySelector("link[rel='canonical']");
+    if (!link) {
+      link = document.createElement("link");
+      link.setAttribute("rel", "canonical");
+      document.head.appendChild(link);
+    }
+    link.setAttribute("href", canonicalUrl);
+  }, [canonicalUrl]);
 
   const handleAction = () => {
     setIsProcessing(true);
