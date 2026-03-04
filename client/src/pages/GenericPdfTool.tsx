@@ -30,7 +30,7 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
     setIsProcessing(true);
     let p = 0;
     const interval = setInterval(() => {
-      p += 1.25; // ~8 seconds
+      p += 2; // ~5 seconds for better UX as requested "Upload -> Process -> Download"
       setProgress(Math.min(p, 100));
       if (p >= 100) {
         clearInterval(interval);

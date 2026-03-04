@@ -28,9 +28,8 @@ export default function VideoTool({ title = "Video Tool", desc = "Free online vi
   const handleAction = () => {
     setIsProcessing(true);
     let p = 0;
-    // Dwell Time: 10 seconds for max ad exposure
     const interval = setInterval(() => {
-      p += 1; 
+      p += 2; 
       setProgress(Math.min(p, 100));
       if (p >= 100) {
         clearInterval(interval);

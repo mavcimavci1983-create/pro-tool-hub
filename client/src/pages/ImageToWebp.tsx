@@ -57,10 +57,9 @@ export default function ImageToWebp() {
     setIsProcessing(true);
     setProgress(0);
     
-    // Simulate 8 seconds processing time for Ad viewability (Dwell Time)
     let currentProgress = 0;
     const interval = setInterval(() => {
-      currentProgress += 1.25;
+      currentProgress += 2;
       setProgress(Math.min(currentProgress, 100));
       
       if (currentProgress >= 100) {
