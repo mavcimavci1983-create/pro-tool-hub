@@ -30,7 +30,7 @@ export default function Home() {
           </h1>
           
           <p className="text-muted-foreground text-lg md:text-xl mb-10 max-w-2xl">
-            We offer PDF, video, image and online tools for developers and creators.
+            Professional PDF, Image, and Writing tools. 100% Free & Secure.
           </p>
           
           <div className="w-full max-w-2xl relative mb-8 flex items-center shadow-lg rounded-full">
@@ -55,24 +55,23 @@ export default function Home() {
             <ToolGrid />
             
             {/* SEO Content for Homepage */}
-            <article className="prose prose-sm max-w-none border-t pt-12 text-muted-foreground">
-              <h2 className="text-2xl font-bold text-foreground mb-6 underline decoration-primary/30">Ücretsiz Online Araçlar Platformu</h2>
-              <p className="mb-6 leading-relaxed">
-                MicroWow, modern dijital dünyanın ihtiyaç duyduğu tüm küçük araçları tek bir çatıda birleştiren, kullanıcı dostu bir platformdur. PDF birleştirme, görsel formatı dönüştürme ve arka plan silme gibi karmaşık işlemleri saniyeler içinde, hiçbir yazılım yüklemeden tarayıcınız üzerinden halledebilirsiniz.
+            <article className="prose prose-slate max-w-none border-t pt-12 text-muted-foreground">
+              <h2 className="text-3xl font-extrabold text-foreground mb-8">Ücretsiz Online PDF ve Dosya Araçları</h2>
+              <p className="mb-8 leading-relaxed text-lg">
+                MicroWow, modern dijital dünyanın ihtiyaç duyduğu tüm PDF ve görsel işleme araçlarını tek bir platformda sunar. İster <strong>PDF to Word</strong> çevirisi yapın, ister <strong>Image to WebP</strong> ile web sitenizi hızlandırın; tüm işlemleriniz en yüksek güvenlik standartlarında gerçekleştirilir.
               </p>
-              <div className="grid md:grid-cols-2 gap-8">
-                <div>
-                  <h3 className="text-lg font-bold text-foreground mb-3">Neden Bizi Seçmelisiniz?</h3>
-                  <ul className="list-disc pl-5 space-y-2">
-                    <li>Hız: Tüm araçlarımız Core Web Vitals optimizasyonuna sahiptir.</li>
-                    <li>Gizlilik: Verileriniz işlemden 1 saat sonra otomatik silinir.</li>
-                    <li>Mobil Uyumlu: Tüm araçlar telefon ve tabletlerde kusursuz çalışır.</li>
-                  </ul>
+              
+              <div className="grid md:grid-cols-2 gap-12">
+                <div className="bg-muted/30 p-8 rounded-2xl border">
+                  <h3 className="text-xl font-bold text-foreground mb-4">Güvenlik ve Gizlilik</h3>
+                  <p className="mb-4">
+                    Kullanıcı verilerinin güvenliği bizim önceliğimizdir. Sunucularımızda barındırılan tüm dosyalar, işlemin tamamlanmasından tam 1 saat sonra <strong>otonom node-cron</strong> sistemimiz tarafından kalıcı olarak silinir.
+                  </p>
                 </div>
-                <div>
-                  <h3 className="text-lg font-bold text-foreground mb-3">SEO Odaklı Çözümler</h3>
-                  <p>
-                    Web geliştiricileri için hazırladığımız WebP dönüştürücü gibi araçlar, sitenizin Google PageSpeed puanlarını artırmanıza yardımcı olur. LCP ve CLS gibi metriklerde iyileşme sağlayarak SEO başarınızı garantileyin.
+                <div className="bg-primary/5 p-8 rounded-2xl border border-primary/10">
+                  <h3 className="text-xl font-bold text-primary mb-4">Hız ve Performans</h3>
+                  <p className="mb-4">
+                    Tüm araçlarımız <strong>Google Core Web Vitals</strong> metriklerine uygun olarak optimize edilmiştir. Hızlı yükleme süreleri ve kesintisiz kullanıcı deneyimi ile işlemlerinizi saniyeler içinde tamamlayın.
                   </p>
                 </div>
               </div>
@@ -83,8 +82,8 @@ export default function Home() {
             <div className="sticky top-24">
               <div className="w-full h-[600px] bg-card border border-dashed border-muted-foreground/30 rounded-2xl flex flex-col items-center justify-center p-4 text-center">
                 <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4">Advertisement</span>
-                <div className="w-full h-full bg-muted/10 rounded flex items-center justify-center text-xs text-muted-foreground italic">
-                  Sticky Sidebar Ad<br/>(300x600)
+                <div className="w-full h-full bg-muted/10 rounded flex items-center justify-center text-xs text-muted-foreground italic font-bold">
+                  STICKY SIDEBAR AD<br/>(300x600)
                 </div>
               </div>
             </div>
@@ -92,7 +91,7 @@ export default function Home() {
         </div>
 
         {/* Bottom Ad Space */}
-        <div className="w-full py-10 bg-muted/5 flex items-center justify-center">
+        <div className="w-full py-16 bg-muted/5 border-t flex items-center justify-center">
           <div className="w-[728px] h-[90px] bg-muted/20 border border-dashed border-muted-foreground/30 flex items-center justify-center text-xs text-muted-foreground rounded">
             Footer Leaderboard Ad (728x90)
           </div>

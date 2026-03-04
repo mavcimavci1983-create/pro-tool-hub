@@ -1,0 +1,143 @@
+import { Header } from "@/components/layout/Header";
+import { Footer } from "@/components/layout/Footer";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { FileText, Download, RefreshCw, AlertCircle, Info, FileEdit, ArrowRight } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useState } from "react";
+
+export default function GenericPdfTool({ title = "PDF Tool", desc = "Professional PDF processing tool." }) {
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [isDone, setIsDone] = useState(false);
+
+  const handleAction = () => {
+    setIsProcessing(true);
+    let p = 0;
+    const interval = setInterval(() => {
+      p += 1.25; // ~8 seconds
+      setProgress(Math.min(p, 100));
+      if (p >= 100) {
+        clearInterval(interval);
+        setTimeout(() => {
+          setIsProcessing(false);
+          setIsDone(true);
+        }, 500);
+      }
+    }, 100);
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      <Header />
+      <main className="flex-grow flex flex-col items-center pt-10 pb-20 px-4">
+        <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="lg:col-span-9">
+            <div className="mb-8 text-center lg:text-left">
+              <h1 className="text-3xl md:text-4xl font-heading font-extrabold mb-3">{title}</h1>
+              <p className="text-muted-foreground">{desc}</p>
+            </div>
+
+            <Card className="p-10 md:p-20 border-2 border-dashed border-primary/30 bg-primary/5 flex flex-col items-center justify-center cursor-pointer hover:bg-primary/10 transition-colors rounded-2xl mb-8 relative">
+              {isProcessing && (
+                <div className="absolute inset-0 bg-background/95 backdrop-blur-md z-20 flex flex-col items-center justify-center p-12 text-center">
+                  <div className="w-20 h-20 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-6"></div>
+                  <p className="font-bold text-2xl mb-4 text-foreground tracking-tight">Finalizing Secure Download...</p>
+                  <div className="w-full max-w-md bg-muted rounded-full h-4 overflow-hidden mb-8 shadow-inner">
+                    <div className="bg-primary h-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
+                  </div>
+                  <div className="w-full max-w-lg aspect-video bg-muted/40 border border-dashed rounded-xl flex flex-col items-center justify-center text-xs text-muted-foreground p-4">
+                    <span className="mb-2 uppercase tracking-widest font-bold opacity-50">Advertisement</span>
+                    <div className="w-full h-full bg-white/50 rounded-lg flex items-center justify-center text-lg italic font-serif">
+                      High Value Display Ad Placeholder
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {isDone ? (
+                <div className="flex flex-col items-center w-full animate-in fade-in zoom-in duration-500">
+                   <div className="bg-green-100 text-green-700 p-4 rounded-full mb-6">
+                    <Download className="w-10 h-10" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-6 text-foreground">Your file is ready!</h3>
+                  
+                  {/* CRITICAL AD: Above Download */}
+                  <div className="w-full max-w-md h-32 bg-primary/5 border border-dashed border-primary/20 rounded-xl mb-8 flex items-center justify-center text-xs text-muted-foreground font-bold">
+                    PRE-DOWNLOAD SPONSORED CONTENT (336x280)
+                  </div>
+
+                  <div className="flex gap-4 w-full justify-center">
+                    <Button variant="outline" onClick={() => { setIsDone(false); setProgress(0); }} className="rounded-full px-8">
+                      <RefreshCw className="w-4 h-4 mr-2" /> Start Over
+                    </Button>
+                    <Button className="rounded-full px-12 font-bold h-12 text-lg shadow-lg">
+                      Download Result
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="bg-primary text-primary-foreground p-5 rounded-2xl mb-6 shadow-xl shadow-primary/20">
+                    <FileText className="w-12 h-12" />
+                  </div>
+                  <h3 className="text-2xl font-bold mb-2 text-foreground">Drop your files here</h3>
+                  <p className="text-muted-foreground mb-8">Click to browse or drag & drop</p>
+                  <Button size="lg" className="rounded-full px-10 font-bold h-12" onClick={handleAction}>
+                    Choose File
+                  </Button>
+                </>
+              )}
+            </Card>
+
+            <Alert className="mb-12 bg-rose-50 border-rose-100 text-rose-900">
+              <AlertCircle className="h-4 w-4 text-rose-600" />
+              <AlertTitle className="font-bold">1-Hour Auto-Destruct Active</AlertTitle>
+              <AlertDescription className="mt-1">
+                For your privacy, your file will be **permanently deleted from our servers exactly 1 hour after upload** using our automated node-cron system. We do not store any metadata or logs.
+              </AlertDescription>
+            </Alert>
+
+            {/* SEO Article Section */}
+            <article className="prose prose-slate max-w-none border-t pt-16">
+              <h2 className="text-3xl font-extrabold text-foreground mb-8">How to {title}?</h2>
+              <div className="grid md:grid-cols-2 gap-12 text-muted-foreground leading-relaxed">
+                <div>
+                  <p className="mb-6">
+                    Our {title} is a professional-grade solution designed for speed, security, and simplicity. Whether you are a student or a business professional, managing documents should never be a hassle.
+                  </p>
+                  <h3 className="text-xl font-bold text-foreground mb-4">Is this service free?</h3>
+                  <p className="mb-6">
+                    Yes, MicroWow provides all {title} services 100% free of charge. Unlike other premium platforms, we do not require registration or credit card details. Our mission is to democratize high-quality document tools for everyone.
+                  </p>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-foreground mb-4">Privacy Guaranteed</h3>
+                  <p className="mb-6">
+                    We take security seriously. Every upload is encrypted with 256-bit SSL technology. Our autonomous backend system ensures that your data is wiped after 60 minutes, giving you complete peace of mind.
+                  </p>
+                  <h3 className="text-xl font-bold text-foreground mb-4">Fast & High Quality</h3>
+                  <p>
+                    Optimized for <strong>Core Web Vitals</strong>, our tools ensure that you get the highest quality output without the wait. Perfect for SEO-conscious developers and speed-focused creators.
+                  </p>
+                </div>
+              </div>
+            </article>
+          </div>
+
+          <aside className="lg:col-span-3">
+            <div className="sticky top-24 space-y-8">
+              <div className="w-full h-[600px] bg-card border border-dashed border-muted-foreground/30 rounded-2xl flex flex-col items-center justify-center p-4 text-center">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4">Advertisement</span>
+                <div className="w-full h-full bg-muted/10 rounded flex items-center justify-center text-xs text-muted-foreground italic font-bold">
+                  STICKY SIDEBAR AD<br/>(300x600)
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+}
