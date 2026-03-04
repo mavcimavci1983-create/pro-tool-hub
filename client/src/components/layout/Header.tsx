@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+import { Input } from "@/components/ui/input";
 import { 
   Search, 
   Menu, 
@@ -23,6 +23,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import { Button } from "@/components/ui/button";
 
 const pdfTools = {
   featured: [
@@ -161,5 +162,3 @@ export function Header() {
     </header>
   );
 }
-
-import { Input } from "@/components/ui/button"; // Bu yanlış import, Header'da Button kullanılıyor ama Input için ayrı bileşen lazım. Header.tsx içinde Input zaten kullanılıyordu. Fix: import { Input } from "@/components/ui/input";
