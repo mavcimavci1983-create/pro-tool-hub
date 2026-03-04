@@ -1,7 +1,7 @@
 import { Link } from "wouter";
 import { 
   FileText, 
-  Image as ImageIcon, 
+  ImageIcon, 
   Video, 
   File, 
   PenTool,
@@ -23,17 +23,17 @@ const tools = [
   },
   {
     title: "Remove Background",
-    desc: "Easily Remove the Background from an image",
+    desc: "AI-powered background removal with 60-min auto-wipe security.",
     cat: "Image Tools",
     icon: <Scissors className="w-5 h-5 text-green-500" />,
-    link: "#"
+    link: "/tool/remove-background"
   },
   {
     title: "Merge PDF",
-    desc: "Merge 2 or more PDF files into a single PDF file",
+    desc: "Securely combine multiple PDF files on our Node.js backend.",
     cat: "Pdf Tools",
     icon: <Merge className="w-5 h-5 text-purple-500" />,
-    link: "#"
+    link: "/tool/merge-pdf"
   },
   {
     title: "Edit PDF",

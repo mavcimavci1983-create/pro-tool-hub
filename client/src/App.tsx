@@ -6,12 +6,16 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import ImageToWebp from "@/pages/ImageToWebp";
+import MergePdf from "@/pages/MergePdf";
+import RemoveBackground from "@/pages/RemoveBackground";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
       <Route path="/tool/image-to-webp" component={ImageToWebp} />
+      <Route path="/tool/merge-pdf" component={MergePdf} />
+      <Route path="/tool/remove-background" component={RemoveBackground} />
       {/* Fallback to 404 */}
       <Route component={NotFound} />
     </Switch>

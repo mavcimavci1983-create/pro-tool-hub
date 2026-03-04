@@ -30,11 +30,16 @@ export function Footer() {
           <div className="font-heading font-bold text-xl tracking-tight">
             Micro<span className="text-primary">Wow</span>
           </div>
-          <div className="flex gap-6 text-sm font-medium text-muted-foreground">
-            <a href="#" className="hover:text-primary">Navigate</a>
-            <a href="#" className="hover:text-primary">Tools</a>
-            <a href="#" className="hover:text-primary">Privacy</a>
-            <a href="#" className="hover:text-primary">Terms</a>
+          <div className="flex flex-col items-center md:items-end gap-2">
+            <div className="flex gap-6 text-sm font-medium text-muted-foreground">
+              <a href="#" className="hover:text-primary transition-colors">Navigate</a>
+              <a href="#" className="hover:text-primary transition-colors">Tools</a>
+              <a href="#" className="hover:text-primary transition-colors">Privacy</a>
+              <a href="#" className="hover:text-primary transition-colors">Terms</a>
+            </div>
+            <div className="text-xs text-muted-foreground mt-2">
+              Powered by <a href="https://xoxo.gossip.ai" target="_blank" rel="noopener noreferrer" className="text-primary font-bold hover:underline">XOXO Gossip AI</a>
+            </div>
           </div>
           <div className="text-sm text-muted-foreground">
             © 2024 MicroWow. All rights reserved.
