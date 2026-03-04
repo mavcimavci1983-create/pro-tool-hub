@@ -43,15 +43,15 @@ export default function ImageToWebp() {
     setIsProcessing(true);
     setProgress(0);
     
-    // Simulate 5 seconds processing time for Ad viewability
+    // Simulate 8 seconds processing time for Ad viewability (Dwell Time)
     let currentProgress = 0;
     const interval = setInterval(() => {
-      currentProgress += 2;
-      setProgress(currentProgress);
+      currentProgress += 1.25;
+      setProgress(Math.min(currentProgress, 100));
       
       if (currentProgress >= 100) {
         clearInterval(interval);
-        convertToWebp();
+        setTimeout(convertToWebp, 500);
       }
     }, 100);
   };
@@ -68,11 +68,8 @@ export default function ImageToWebp() {
       
       if (ctx) {
         ctx.drawImage(img, 0, 0);
-        // Convert to webp with 0.8 quality
         const dataUrl = canvas.toDataURL("image/webp", 0.8);
         setWebpUrl(dataUrl);
-        
-        // Estimate size
         const base64str = dataUrl.split(',')[1];
         const decoded = atob(base64str);
         setWebpSize(decoded.length);
@@ -106,166 +103,156 @@ export default function ImageToWebp() {
       <Header />
       
       <main className="flex-grow flex flex-col items-center pt-10 pb-20 px-4">
-        <div className="w-full max-w-4xl">
+        <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-8">
           
-          <div className="mb-8 text-center">
-            <h1 className="text-3xl md:text-4xl font-heading font-extrabold mb-3">
-              Image to WebP Converter
-            </h1>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Convert your images (JPG, PNG, GIF) to highly optimized WebP format instantly. 
-              Reduce file size without losing quality.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            
-            {/* Left Ad Sidebar Placeholder */}
-            <div className="hidden lg:block col-span-1">
-              <div className="h-[600px] w-full bg-muted/20 border border-dashed border-muted-foreground/30 flex flex-col items-center justify-center rounded-xl text-muted-foreground text-sm text-center p-4">
-                <span className="block mb-2 font-bold">Advertisement</span>
-                Placeholder (160x600)
-              </div>
+          {/* Main Content */}
+          <div className="lg:col-span-9">
+            <div className="mb-8 text-center lg:text-left">
+              <h1 className="text-3xl md:text-4xl font-heading font-extrabold mb-3">
+                Image to WebP Converter
+              </h1>
+              <p className="text-muted-foreground max-w-2xl">
+                Convert your images (JPG, PNG, GIF) to highly optimized WebP format instantly. 
+                Reduce file size without losing quality.
+              </p>
             </div>
 
-            {/* Main Tool Area */}
-            <div className="col-span-1 lg:col-span-3">
-              
-              <Card className="p-1 md:p-2 border-2 shadow-sm rounded-2xl overflow-hidden bg-card">
-                
-                {!file && !webpUrl && (
-                  <div 
-                    className="border-2 border-dashed border-primary/30 rounded-xl p-10 md:p-20 flex flex-col items-center justify-center text-center bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer"
-                    onClick={() => fileInputRef.current?.click()}
-                    onDragOver={(e) => e.preventDefault()}
-                    onDrop={handleDrop}
-                  >
-                    <input 
-                      type="file" 
-                      className="hidden" 
-                      ref={fileInputRef} 
-                      onChange={handleFileChange}
-                      accept="image/png, image/jpeg, image/jpg, image/gif, image/bmp" 
-                    />
-                    <div className="bg-primary text-primary-foreground p-4 rounded-full mb-6 shadow-lg shadow-primary/20">
-                      <UploadCloud className="w-10 h-10" />
-                    </div>
-                    <h3 className="text-2xl font-bold mb-2">Upload from PC or Mobile</h3>
-                    <p className="text-muted-foreground mb-6">or drag and drop your image here</p>
-                    <p className="text-xs text-muted-foreground flex items-center gap-1">
-                      <Info className="w-3 h-3" /> Max file size: 10MB. Supported formats: JPG, PNG, GIF.
-                    </p>
+            <Card className="p-1 md:p-2 border-2 shadow-sm rounded-2xl overflow-hidden bg-card mb-8">
+              {!file && !webpUrl && (
+                <div 
+                  className="border-2 border-dashed border-primary/30 rounded-xl p-10 md:p-20 flex flex-col items-center justify-center text-center bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer"
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={handleDrop}
+                >
+                  <input type="file" className="hidden" ref={fileInputRef} onChange={handleFileChange} accept="image/*" />
+                  <div className="bg-primary text-primary-foreground p-4 rounded-full mb-6 shadow-lg shadow-primary/20">
+                    <UploadCloud className="w-10 h-10" />
                   </div>
-                )}
+                  <h3 className="text-2xl font-bold mb-2 text-foreground">Upload from PC or Mobile</h3>
+                  <p className="text-muted-foreground mb-6">or drag and drop your image here</p>
+                </div>
+              )}
 
-                {file && !webpUrl && (
-                  <div className="p-6 md:p-10 flex flex-col items-center">
-                    <div className="w-full max-w-sm aspect-video bg-muted rounded-lg overflow-hidden mb-6 flex items-center justify-center border relative group">
-                      {previewUrl ? (
-                        <img src={previewUrl} alt="Preview" className="max-w-full max-h-full object-contain" />
-                      ) : (
-                        <FileImage className="w-16 h-16 text-muted-foreground/50" />
-                      )}
-                      
-                      {isProcessing && (
-                        <div className="absolute inset-0 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center p-6">
-                          <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4"></div>
-                          <p className="font-bold text-lg mb-2">Processing...</p>
-                          <div className="w-full bg-muted rounded-full h-2">
-                            <div className="bg-primary h-2 rounded-full transition-all duration-100" style={{ width: `${progress}%` }}></div>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-2">Optimizing your image...</p>
+              {file && !webpUrl && (
+                <div className="p-6 md:p-10 flex flex-col items-center">
+                  <div className="w-full max-w-sm aspect-video bg-muted rounded-lg overflow-hidden mb-6 flex items-center justify-center border relative group">
+                    {previewUrl ? <img src={previewUrl} alt="Preview" className="max-w-full max-h-full object-contain" loading="lazy" /> : <FileImage className="w-16 h-16 text-muted-foreground/50" />}
+                    {isProcessing && (
+                      <div className="absolute inset-0 bg-background/90 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center">
+                        <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4"></div>
+                        <p className="font-bold text-lg mb-2">Processing Your Image...</p>
+                        <div className="w-full bg-muted rounded-full h-3 mb-4 overflow-hidden">
+                          <div className="bg-primary h-full transition-all duration-300 ease-out" style={{ width: `${progress}%` }}></div>
                         </div>
-                      )}
-                    </div>
-                    
-                    <div className="text-center mb-8">
-                      <h4 className="font-bold truncate max-w-xs">{file.name}</h4>
-                      <p className="text-sm text-muted-foreground">{formatSize(file.size)}</p>
-                    </div>
-
-                    {!isProcessing && (
-                      <div className="flex gap-4 w-full justify-center">
-                        <Button variant="outline" onClick={resetTool} className="w-32">Cancel</Button>
-                        <Button onClick={processImage} className="w-48 font-bold text-md">
-                          Convert to WebP
-                        </Button>
+                        <div className="w-full h-32 bg-muted/50 border border-dashed flex items-center justify-center text-[10px] text-muted-foreground rounded italic">
+                          Special Offer Loading...
+                        </div>
                       </div>
                     )}
                   </div>
-                )}
-
-                {webpUrl && (
-                  <div className="p-6 md:p-10 flex flex-col items-center">
-                    
-                    <div className="w-full bg-green-50 border border-green-200 text-green-800 rounded-lg p-4 mb-8 flex items-start gap-3">
-                      <div className="bg-green-100 p-1.5 rounded-full mt-0.5">
-                        <svg className="w-4 h-4 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                        </svg>
+                  {!isProcessing && (
+                    <div className="flex flex-col items-center w-full">
+                      <div className="text-center mb-6">
+                        <h4 className="font-bold truncate max-w-xs">{file.name}</h4>
+                        <p className="text-sm text-muted-foreground">{formatSize(file.size)}</p>
                       </div>
-                      <div>
-                        <h4 className="font-bold">Conversion Successful!</h4>
-                        <p className="text-sm">Your image is ready to download.</p>
+                      {/* Ad Placeholder above trigger */}
+                      <div className="w-full max-w-md h-24 bg-muted/20 border border-dashed flex items-center justify-center text-xs text-muted-foreground mb-6 rounded">
+                        Advertisement (320x100)
                       </div>
-                    </div>
-
-                    <div className="w-full max-w-sm aspect-video bg-muted rounded-lg overflow-hidden mb-6 flex items-center justify-center border">
-                      <img src={webpUrl} alt="Converted to WebP" className="max-w-full max-h-full object-contain" />
-                    </div>
-                    
-                    <div className="grid grid-cols-2 gap-4 w-full max-w-sm mb-8">
-                      <div className="bg-muted/50 p-3 rounded-lg text-center border">
-                        <p className="text-xs text-muted-foreground mb-1">Original Size</p>
-                        <p className="font-bold">{file && formatSize(file.size)}</p>
-                      </div>
-                      <div className="bg-primary/5 p-3 rounded-lg text-center border border-primary/20">
-                        <p className="text-xs text-primary mb-1">New Size</p>
-                        <p className="font-bold text-primary">{formatSize(webpSize)}</p>
+                      <div className="flex gap-4 w-full justify-center">
+                        <Button variant="outline" onClick={resetTool} className="w-32">Cancel</Button>
+                        <Button onClick={processImage} className="w-48 font-bold">Convert to WebP</Button>
                       </div>
                     </div>
-                    
-                    {/* Native ad placeholder right above download button */}
-                    <div className="w-full max-w-sm bg-muted/20 border border-dashed border-muted-foreground/30 h-24 mb-6 flex items-center justify-center text-xs text-muted-foreground rounded">
-                      Ad Placeholder
-                    </div>
+                  )}
+                </div>
+              )}
 
-                    <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
-                      <Button variant="outline" onClick={resetTool} className="w-full sm:w-40 flex items-center gap-2">
-                        <RefreshCw className="w-4 h-4" /> Convert Another
-                      </Button>
-                      <Button asChild className="w-full sm:w-64 font-bold text-md flex items-center gap-2">
-                        <a href={webpUrl} download={file?.name.replace(/\.[^/.]+$/, "") + ".webp"}>
-                          <Download className="w-5 h-5" /> Download WebP
-                        </a>
-                      </Button>
-                    </div>
-
+              {webpUrl && (
+                <div className="p-6 md:p-10 flex flex-col items-center">
+                  <div className="w-full max-w-sm aspect-video bg-muted rounded-lg overflow-hidden mb-8 flex items-center justify-center border">
+                    <img src={webpUrl} alt="Converted" className="max-w-full max-h-full object-contain" />
                   </div>
-                )}
-                
-              </Card>
+                  
+                  {/* CRITICAL AD PLACEMENT: Above Download */}
+                  <div className="w-full max-w-md h-32 bg-primary/5 border-2 border-primary/10 border-dashed flex flex-col items-center justify-center text-xs text-muted-foreground mb-8 rounded-xl p-4 animate-in fade-in slide-in-from-bottom-2 duration-700">
+                    <span className="font-bold text-primary mb-2 tracking-widest uppercase">Sponsored Result</span>
+                    <div className="w-full h-full bg-white/50 rounded border flex items-center justify-center">
+                      Ad Placeholder (Display Ad 336x280)
+                    </div>
+                  </div>
 
-              {/* Security & Privacy Notice */}
-              <Alert className="mt-6 bg-blue-50 border-blue-200 text-blue-900">
-                <AlertCircle className="h-4 w-4 text-blue-600" />
-                <AlertTitle className="text-blue-800 font-bold">Privacy Guaranteed</AlertTitle>
-                <AlertDescription className="text-blue-700/80 mt-1">
-                  Your files are safe. We don't store them on our database. Uploaded and converted files are <strong>permanently deleted from our servers after 1 hour</strong>.
-                </AlertDescription>
-              </Alert>
+                  <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
+                    <Button variant="outline" onClick={resetTool} className="w-full sm:w-40"><RefreshCw className="w-4 h-4 mr-2" /> Another</Button>
+                    <Button asChild className="w-full sm:w-64 font-bold h-12 text-lg shadow-lg shadow-primary/20">
+                      <a href={webpUrl} download={file?.name.replace(/\.[^/.]+$/, "") + ".webp"}>
+                        <Download className="w-5 h-5 mr-2" /> Download WebP
+                      </a>
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </Card>
 
-              {/* Bottom Ad Placeholder */}
-              <div className="mt-8 w-full bg-muted/20 border border-dashed border-muted-foreground/30 h-24 flex items-center justify-center text-xs text-muted-foreground rounded-lg">
-                Advertisement Placeholder (728x90)
+            <Alert className="mb-12 bg-blue-50/50 border-blue-100">
+              <AlertCircle className="h-4 w-4 text-blue-500" />
+              <AlertTitle className="font-bold text-blue-900">Privacy & Security</AlertTitle>
+              <AlertDescription className="text-blue-800/80">
+                Your images are processed locally or on our secure Node.js backend. All temporary data is automatically purged after 60 minutes.
+              </AlertDescription>
+            </Alert>
+
+            {/* SEO Content Section */}
+            <article className="prose prose-sm max-w-none border-t pt-12 text-muted-foreground">
+              <h2 className="text-2xl font-bold text-foreground mb-6">Neden WebP Kullanmalıyız?</h2>
+              <p className="mb-4">
+                WebP, Google tarafından geliştirilen modern bir görsel formatıdır. Geleneksel JPEG ve PNG formatlarına göre çok daha üstün sıkıştırma algoritmaları sunar. Bir görseli WebP formatına dönüştürdüğünüzde, görüntü kalitesinde gözle görülür bir kayıp olmadan dosya boyutunu %30 ile %80 arasında küçültebilirsiniz.
+              </p>
+              <h3 className="text-xl font-bold text-foreground mb-4">WebP Dönüştürücü Nasıl Kullanılır?</h3>
+              <ol className="list-decimal pl-5 mb-6 space-y-2">
+                <li>Dönüştürmek istediğiniz JPG veya PNG dosyasını yukarıdaki yükleme alanına sürükleyin.</li>
+                <li>"Convert to WebP" butonuna tıklayarak işlemi başlatın.</li>
+                <li>İşlem tamamlandığında optimize edilmiş görselinizi anında indirin.</li>
+              </ol>
+              <p>
+                Sitemiz üzerinden yapacağınız tüm işlemler ücretsizdir ve Core Web Vitals skorlarınızı iyileştirmek için en iyi yoldur. LCP (Largest Contentful Paint) sürenizi düşürerek Google aramalarında daha üst sıralara çıkabilirsiniz.
+              </p>
+            </article>
+          </div>
+
+          {/* Sticky Sidebar Ad Column */}
+          <aside className="lg:col-span-3">
+            <div className="sticky top-24 space-y-6">
+              <div className="w-full h-[600px] bg-card border border-dashed border-muted-foreground/30 rounded-2xl flex flex-col items-center justify-center p-4 text-center">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4">Advertisement</span>
+                <div className="w-full h-full bg-muted/10 rounded flex items-center justify-center text-xs text-muted-foreground italic">
+                  Sticky Sidebar Ad<br/>(300x600)
+                </div>
               </div>
               
+              <div className="bg-primary/5 rounded-2xl p-6 border border-primary/10">
+                <h4 className="font-bold text-primary mb-2">Core Web Vitals Tip</h4>
+                <p className="text-xs text-muted-foreground">
+                  WebP formatı sitenizi hızlandırır ve kullanıcı deneyimini iyileştirir.
+                </p>
+              </div>
             </div>
-          </div>
-          
+          </aside>
         </div>
       </main>
-      
+
+      {/* Mobile Anchor Ad */}
+      <div className="fixed bottom-0 left-0 right-0 h-[100px] bg-background/80 backdrop-blur-md border-t z-[100] md:hidden flex items-center justify-center">
+        <div className="w-[320px] h-[50px] bg-muted/20 border border-dashed flex items-center justify-center text-[10px] text-muted-foreground">
+          Mobile Anchor Ad (320x50)
+        </div>
+        <Button variant="ghost" size="icon" className="absolute -top-4 right-2 h-8 w-8 rounded-full bg-background border shadow-sm">
+          ×
+        </Button>
+      </div>
+
       <Footer />
     </div>
   );

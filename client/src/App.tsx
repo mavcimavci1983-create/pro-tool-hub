@@ -13,9 +13,9 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
-      <Route path="/tool/image-to-webp" component={ImageToWebp} />
-      <Route path="/tool/merge-pdf" component={MergePdf} />
-      <Route path="/tool/remove-background" component={RemoveBackground} />
+      <Route path="/tools/image-to-webp" component={ImageToWebp} />
+      <Route path="/tools/merge-pdf" component={MergePdf} />
+      <Route path="/tools/remove-background" component={RemoveBackground} />
       {/* Fallback to 404 */}
       <Route component={NotFound} />
     </Switch>

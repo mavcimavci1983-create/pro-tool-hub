@@ -19,21 +19,21 @@ const tools = [
     desc: "Convert your images to highly optimized WebP format.",
     cat: "Image Tools",
     icon: <ImageIcon className="w-5 h-5 text-orange-500" />,
-    link: "/tool/image-to-webp"
+    link: "/tools/image-to-webp"
   },
   {
     title: "Remove Background",
     desc: "AI-powered background removal with 60-min auto-wipe security.",
     cat: "Image Tools",
     icon: <Scissors className="w-5 h-5 text-green-500" />,
-    link: "/tool/remove-background"
+    link: "/tools/remove-background"
   },
   {
     title: "Merge PDF",
     desc: "Securely combine multiple PDF files on our Node.js backend.",
     cat: "Pdf Tools",
     icon: <Merge className="w-5 h-5 text-purple-500" />,
-    link: "/tool/merge-pdf"
+    link: "/tools/merge-pdf"
   },
   {
     title: "Edit PDF",
