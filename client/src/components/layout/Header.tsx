@@ -1,4 +1,5 @@
 import { Input } from "@/components/ui/input";
+import { Link } from "wouter";
 import { 
   Search, 
   Menu, 
