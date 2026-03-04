@@ -10,10 +10,33 @@ import {
   Type,
   Trash2,
   Minimize2,
-  Maximize2
+  Maximize2,
+  VolumeX,
+  Minimize
 } from "lucide-react";
 
 const tools = [
+  {
+    title: "Video to GIF",
+    desc: "Free online video to gif converter - No Watermark",
+    cat: "Video Tools",
+    icon: <Scissors className="w-5 h-5 text-rose-500" />,
+    link: "/tools/video-to-gif"
+  },
+  {
+    title: "Mute Video",
+    desc: "Remove audio from video online for free - Fast & Secure",
+    cat: "Video Tools",
+    icon: <VolumeX className="w-5 h-5 text-indigo-500" />,
+    link: "/tools/mute-video"
+  },
+  {
+    title: "Video Resizer",
+    desc: "Resize video online for social media - No Watermark",
+    cat: "Video Tools",
+    icon: <Minimize className="w-5 h-5 text-blue-500" />,
+    link: "/tools/video-resizer"
+  },
   {
     title: "Image to WebP",
     desc: "Convert your images to highly optimized WebP format.",

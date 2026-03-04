@@ -7,6 +7,8 @@ import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import ImageToWebp from "@/pages/ImageToWebp";
 import GenericPdfTool from "@/pages/GenericPdfTool";
+import VideoTool from "@/pages/VideoTool";
+import { Scissors, VolumeX, Minimize } from "lucide-react";
 
 function Router() {
   return (
@@ -52,6 +54,17 @@ function Router() {
       </Route>
       <Route path="/tools/extract-text">
         <GenericPdfTool title="Extract Text from PDF" desc="Get all the text from your PDF using advanced OCR technology." />
+      </Route>
+
+      {/* Video Silo Tools */}
+      <Route path="/tools/video-to-gif">
+        <VideoTool title="Video to GIF" desc="Free online video to gif converter - No Watermark" icon={Scissors} />
+      </Route>
+      <Route path="/tools/mute-video">
+        <VideoTool title="Mute Video" desc="Remove audio from video online for free - Fast & Secure" icon={VolumeX} />
+      </Route>
+      <Route path="/tools/video-resizer">
+        <VideoTool title="Video Resizer" desc="Resize video online for social media - No Watermark" icon={Minimize} />
       </Route>
 
       {/* Image Tools */}
