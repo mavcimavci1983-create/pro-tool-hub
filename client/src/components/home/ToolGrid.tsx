@@ -45,7 +45,8 @@ import {
   CheckCircle2,
   MessageSquare,
   Building2,
-  Clapperboard
+  Clapperboard,
+  Contrast
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -114,12 +115,22 @@ const allTools = [
   { title: "Tone of Voice", desc: "Tone of Voice Tool", cat: "AI Write", icon: <MessageSquare className="w-5 h-5 text-green-500" />, link: "/tools/tone-of-voice" },
   { title: "YouTube Script Writer", desc: "Generate a YouTube script", cat: "AI Write", icon: <Youtube className="w-5 h-5 text-red-500" />, link: "/tools/youtube-script-writer" },
 
-  // Image Tools (Hiyerarşik eksik tamamlama)
-  { title: "Remove Background", desc: "Easily Remove the Background from an image", cat: "Image Tools", icon: <Eraser className="w-5 h-5 text-orange-400" />, link: "/tools/remove-background" },
-  { title: "Image to WebP", desc: "Convert your images to highly optimized WebP format.", cat: "Image Tools", icon: <ImageIcon className="w-5 h-5 text-orange-400" />, link: "/tools/image-to-webp" },
-  { title: "Upscale Image", desc: "Increase the resolution of your image", cat: "Image Tools", icon: <Maximize2 className="w-5 h-5 text-orange-400" />, link: "/tools/upscale-image" },
-  { title: "Restore Photos", desc: "Restore old photos with AI", cat: "Image Tools", icon: <Wand2 className="w-5 h-5 text-purple-400" />, link: "/tools/restore-photos" },
-  { title: "AI Image Generator", desc: "Text to image AI", cat: "Image Tools", icon: <Sparkles className="w-5 h-5 text-yellow-400" />, link: "/tools/ai-generator" }
+  { title: "Remove Background", desc: "Easily remove the background from any image using AI.", cat: "Image Tools", icon: <Eraser className="w-5 h-5 text-rose-500" />, link: "/tools/remove-background" },
+  { title: "Image to WebP", desc: "Convert your images to highly optimized WebP format.", cat: "Image Tools", icon: <ImageIcon className="w-5 h-5 text-blue-500" />, link: "/tools/image-to-webp" },
+  { title: "Upscale Image", desc: "Increase the resolution and quality of your image.", cat: "Image Tools", icon: <Maximize2 className="w-5 h-5 text-emerald-500" />, link: "/tools/upscale-image" },
+  { title: "AI Image Generator", desc: "Create beautiful images from text descriptions.", cat: "Image Tools", icon: <Sparkles className="w-5 h-5 text-amber-500" />, link: "/tools/ai-image-generator" },
+  { title: "JPG to PDF", desc: "Convert JPG images to PDF documents instantly.", cat: "Image Tools", icon: <FileText className="w-5 h-5 text-primary" />, link: "/tools/jpg-to-pdf" },
+  { title: "PDF to JPG", desc: "Extract pages from PDF as high-quality JPG images.", cat: "Image Tools", icon: <ImageIcon className="w-5 h-5 text-primary" />, link: "/tools/pdf-to-jpg" },
+  { title: "HEIC to JPG", desc: "Convert iPhone HEIC photos to compatible JPG format.", cat: "Image Tools", icon: <ImageIcon className="w-5 h-5 text-primary" />, link: "/tools/heic-to-jpg" },
+  { title: "PNG to JPG", desc: "Convert PNG images to JPG with adjustable quality.", cat: "Image Tools", icon: <RefreshCw className="w-5 h-5 text-primary" />, link: "/tools/png-to-jpg" },
+  { title: "WebP to JPG", desc: "Convert WebP images to high-quality JPG format.", cat: "Image Tools", icon: <ImageIcon className="w-5 h-5 text-primary" />, link: "/tools/webp-to-jpg" },
+  { title: "Resize Image", desc: "Change image dimensions while maintaining quality.", cat: "Image Tools", icon: <Maximize2 className="w-5 h-5 text-primary" />, link: "/tools/resize-image" },
+  { title: "Compress Image", desc: "Reduce image file size with minimal quality loss.", cat: "Image Tools", icon: <Zap className="w-5 h-5 text-primary" />, link: "/tools/compress-image" },
+  { title: "Crop Image", desc: "Crop images to specific aspect ratios or selections.", cat: "Image Tools", icon: <Scissors className="w-5 h-5 text-primary" />, link: "/tools/crop-image" },
+  { title: "Add Text to Image", desc: "Overlay text on your images with custom fonts.", cat: "Image Tools", icon: <Type className="w-5 h-5 text-primary" />, link: "/tools/add-text-to-image" },
+  { title: "Blur Background", desc: "Apply professional bokeh blur to image backgrounds.", cat: "Image Tools", icon: <Sparkles className="w-5 h-5 text-primary" />, link: "/tools/blur-background" },
+  { title: "Profile Picture Maker", desc: "Create professional social media profile pictures.", cat: "Image Tools", icon: <Smile className="w-5 h-5 text-primary" />, link: "/tools/profile-picture-maker" },
+  { title: "Black and White", desc: "Convert color images to artistic black and white.", cat: "Image Tools", icon: <Contrast className="w-5 h-5 text-primary" />, link: "/tools/black-and-white" }
 ];
 
 export function ToolGrid() {

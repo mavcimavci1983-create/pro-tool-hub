@@ -30,7 +30,7 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
     setIsProcessing(true);
     let p = 0;
     const interval = setInterval(() => {
-      p += 2; // ~5 seconds for better UX as requested "Upload -> Process -> Download"
+      p += 1; // 10 seconds (100ms * 100 = 10s)
       setProgress(Math.min(p, 100));
       if (p >= 100) {
         clearInterval(interval);
@@ -64,7 +64,7 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
               {isProcessing && (
                 <div className="absolute inset-0 bg-background/95 backdrop-blur-md z-20 flex flex-col items-center justify-center p-12 text-center">
                   <div className="w-20 h-20 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-6"></div>
-                  <p className="font-bold text-2xl mb-4 text-foreground tracking-tight">Finalizing Secure Download...</p>
+                  <p className="font-bold text-2xl mb-4 text-foreground tracking-tight">AI processing and securing...</p>
                   <div className="w-full max-w-md bg-muted rounded-full h-4 overflow-hidden mb-8 shadow-inner">
                     <div className="bg-primary h-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
                   </div>
@@ -128,6 +128,12 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
                   <p className="mb-6">
                     Our {title} is a professional-grade solution designed for speed, security, and simplicity. Whether you are a student or a business professional, managing documents should never be a hassle.
                   </p>
+                  <h3 className="text-xl font-bold text-foreground mb-4">Step-by-Step Guide</h3>
+                  <ol className="list-decimal pl-5 mb-6 space-y-2">
+                    <li>Upload your file using the secure drop zone above.</li>
+                    <li>Wait for our AI-powered engine to process and secure your data.</li>
+                    <li>Download your high-quality result instantly.</li>
+                  </ol>
                   <h3 className="text-xl font-bold text-foreground mb-4">Is this service free?</h3>
                   <p className="mb-6">
                     Yes, MicroWow provides all {title} services 100% free of charge. Unlike other premium platforms, we do not require registration or credit card details. Our mission is to democratize high-quality document tools for everyone.
@@ -139,8 +145,12 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
                     We take security seriously. Every upload is encrypted with 256-bit SSL technology. Our autonomous backend system ensures that your data is wiped after 60 minutes, giving you complete peace of mind.
                   </p>
                   <h3 className="text-xl font-bold text-foreground mb-4">Fast & High Quality</h3>
-                  <p>
+                  <p className="mb-6">
                     Optimized for <strong>Core Web Vitals</strong>, our tools ensure that you get the highest quality output without the wait. Perfect for SEO-conscious developers and speed-focused creators.
+                  </p>
+                  <h3 className="text-xl font-bold text-foreground mb-4">Why use MicroWow?</h3>
+                  <p>
+                    MicroWow offers a comprehensive suite of tools that are not only free but also respect your privacy. With our 60-minute auto-delete policy, your files are never stored longer than necessary, making it the safest choice for processing sensitive documents.
                   </p>
                 </div>
               </div>

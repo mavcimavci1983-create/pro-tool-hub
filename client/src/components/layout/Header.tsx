@@ -142,6 +142,29 @@ const writeTools = {
   ]
 };
 
+const imageTools = {
+  featured: [
+    { title: "Remove Background", desc: "AI-powered background removal tool with 100% privacy.", icon: <Eraser className="w-5 h-5 text-rose-500" />, href: "/tools/remove-background" },
+    { title: "Image to WebP", desc: "Convert images to highly optimized WebP format instantly.", icon: <ImageIcon className="w-5 h-5 text-blue-500" />, href: "/tools/image-to-webp" },
+    { title: "Upscale Image", desc: "Increase resolution and quality of your images with AI.", icon: <Maximize2 className="w-5 h-5 text-emerald-500" />, href: "/tools/upscale-image" },
+    { title: "AI Image Generator", desc: "Create beautiful images from text descriptions using AI.", icon: <Sparkles className="w-5 h-5 text-amber-500" />, href: "/tools/ai-image-generator" },
+  ],
+  others: [
+    { title: "JPG to PDF", href: "/tools/jpg-to-pdf" },
+    { title: "PDF to JPG", href: "/tools/pdf-to-jpg" },
+    { title: "HEIC to JPG", href: "/tools/heic-to-jpg" },
+    { title: "PNG to JPG", href: "/tools/png-to-jpg" },
+    { title: "WebP to JPG", href: "/tools/webp-to-jpg" },
+    { title: "Resize Image", href: "/tools/resize-image" },
+    { title: "Compress Image", href: "/tools/compress-image" },
+    { title: "Crop Image", href: "/tools/crop-image" },
+    { title: "Add Text to Image", href: "/tools/add-text-to-image" },
+    { title: "Blur Background", href: "/tools/blur-background" },
+    { title: "Profile Picture Maker", href: "/tools/profile-picture-maker" },
+    { title: "Black and White", href: "/tools/black-and-white" },
+  ]
+};
+
 const otherTools = {
   featured: [
     { title: "QR Generator", desc: "Create QR codes", icon: <QrCode className="w-5 h-5 text-orange-400" />, href: "/tools/qr-generator" },
@@ -259,6 +282,54 @@ export function Header() {
                             </Link>
                           </div>
                         ))}
+                      </div>
+                    </div>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+
+              {/* Image Menu */}
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3">
+                  Image
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="grid grid-cols-[300px_450px] p-6 gap-6 bg-white rounded-xl shadow-2xl min-w-[750px]">
+                    <div className="border-r pr-6">
+                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Featured Tools</h4>
+                      <div className="space-y-4 text-left">
+                        {imageTools.featured.map((tool) => (
+                          <div key={tool.title}>
+                            <Link href={tool.href}>
+                              <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
+                                <div className="mt-1">{tool.icon}</div>
+                                <div>
+                                  <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
+                                  <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
+                                </div>
+                              </div>
+                            </Link>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Other Image Tools</h4>
+                      <div className="grid grid-cols-2 gap-y-3 gap-x-8 text-left">
+                        {imageTools.others.map((tool) => (
+                          <div key={tool.title}>
+                            <Link href={tool.href}>
+                              <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
+                                {tool.title}
+                              </span>
+                            </Link>
+                          </div>
+                        ))}
+                        <div>
+                          <Link href="/tools/all-image">
+                            <span className="text-[13px] font-bold text-primary hover:underline cursor-pointer">All Image Tools</span>
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   </div>

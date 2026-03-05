@@ -182,83 +182,48 @@ function Router() {
         <GenericPdfTool title="XML to JSON" desc="Convert XML data into JSON format for developers." />
       </Route>
 
-      {/* Image Tools */}
       <Route path="/tools/image-to-webp" component={ImageToWebp} />
       <Route path="/tools/remove-background">
-        <GenericPdfTool title="Remove Background" desc="AI-powered background removal tool." />
+        <GenericPdfTool title="Remove Background" desc="AI-powered background removal tool. Processed locally in your browser for 100% privacy." />
       </Route>
-      
-      {/* New Image Silo Tools */}
-      <Route path="/tools/restore-photos">
-        <GenericPdfTool title="Restore Photos" desc="Restore old and blurry photos with AI technology." />
+      <Route path="/tools/jpg-to-pdf">
+        <GenericPdfTool title="JPG to PDF" desc="Convert JPG images to PDF documents instantly." />
       </Route>
-      <Route path="/tools/profile-photo-maker">
-        <GenericPdfTool title="Profile Photo Maker" desc="Generate professional-looking profile pictures instantly." />
+      <Route path="/tools/pdf-to-jpg">
+        <GenericPdfTool title="PDF to JPG" desc="Extract pages from PDF as high-quality JPG images." />
       </Route>
-      <Route path="/tools/remove-person">
-        <GenericPdfTool title="Remove Person from Photo" desc="Erase unwanted people or objects from your images." />
+      <Route path="/tools/webp-to-jpg">
+        <GenericPdfTool title="WebP to JPG" desc="Convert WebP images to high-quality JPG format." />
       </Route>
-      <Route path="/tools/extract-text-image">
-        <GenericPdfTool title="Extract Text from Image" desc="Convert image files into editable text using OCR." />
-      </Route>
-      <Route path="/tools/ai-generator">
-        <GenericPdfTool title="AI Image Generator" desc="Turn your text descriptions into stunning AI art." />
+      <Route path="/tools/png-to-jpg">
+        <GenericPdfTool title="PNG to JPG" desc="Convert PNG images to JPG with adjustable quality." />
       </Route>
       <Route path="/tools/resize-image">
-        <GenericPdfTool title="Resize Dimensions" desc="Change the width and height of your images accurately." />
+        <GenericPdfTool title="Resize Image" desc="Change image dimensions while maintaining quality." />
       </Route>
       <Route path="/tools/compress-image">
-        <GenericPdfTool title="Compress Image" desc="Reduce file size of your images while keeping original quality." />
-      </Route>
-      <Route path="/tools/upscale-image">
-        <GenericPdfTool title="Increase Image Resolution" desc="Upscale and enhance image resolution with AI." />
-      </Route>
-      <Route path="/tools/blur-background">
-        <GenericPdfTool title="Blur Background" desc="Add professional bokeh effect to your photos." />
-      </Route>
-      <Route path="/tools/transparent-background">
-        <GenericPdfTool title="Transparent Background" desc="Make the background of your image transparent." />
-      </Route>
-      <Route path="/tools/round-image">
-        <GenericPdfTool title="Make Round Image" desc="Crop your image into a circle format." />
-      </Route>
-      <Route path="/tools/heic-to-jpg">
-        <GenericPdfTool title="HEIC to JPG" desc="Convert iPhone HEIC images to standard JPG format." />
-      </Route>
-
-      {/* Additional Image Tools from Sitemap/Header */}
-      <Route path="/tools/colorize-photo">
-        <GenericPdfTool title="Colorize Photo" desc="Bring old black and white photos to life with AI colorization." />
+        <GenericPdfTool title="Compress Image" desc="Reduce image file size with minimal quality loss." />
       </Route>
       <Route path="/tools/crop-image">
-        <GenericPdfTool title="Crop Image" desc="Crop your images to the perfect size and aspect ratio." />
+        <GenericPdfTool title="Crop Image" desc="Crop images to specific aspect ratios or selections." />
       </Route>
-      <Route path="/tools/black-white">
-        <GenericPdfTool title="Black & White" desc="Convert any color image to a professional black and white photo." />
+      <Route path="/tools/add-text-to-image">
+        <GenericPdfTool title="Add Text to Image" desc="Overlay text on your images with custom fonts." />
       </Route>
-      <Route path="/tools/combine-images">
-        <GenericPdfTool title="Combine Images" desc="Merge multiple images into a single file easily." />
+      <Route path="/tools/blur-background">
+        <GenericPdfTool title="Blur Background" desc="Apply professional bokeh blur to image backgrounds." />
       </Route>
-      <Route path="/tools/add-border">
-        <GenericPdfTool title="Add Border" desc="Add customizable borders and frames to your images." />
+      <Route path="/tools/profile-picture-maker">
+        <GenericPdfTool title="Profile Picture Maker" desc="Create professional social media profile pictures." />
       </Route>
-      <Route path="/tools/flip-image">
-        <GenericPdfTool title="Flip Image" desc="Flip your images horizontally or vertically in one click." />
+      <Route path="/tools/ai-image-generator">
+        <GenericPdfTool title="AI Image Generator" desc="Create beautiful images from text descriptions using advanced AI." />
       </Route>
-      <Route path="/tools/collage-maker">
-        <GenericPdfTool title="Collage Maker" desc="Create beautiful photo collages from your favorite images." />
+      <Route path="/tools/black-and-white">
+        <GenericPdfTool title="Black and White" desc="Convert color images to artistic black and white." />
       </Route>
-      <Route path="/tools/image-splitter">
-        <GenericPdfTool title="Image Splitter" desc="Split a single image into multiple pieces for social media." />
-      </Route>
-      <Route path="/tools/unblur-image">
-        <GenericPdfTool title="Unblur Image" desc="Fix blurry photos and sharpen details with AI technology." />
-      </Route>
-      <Route path="/tools/remove-watermark">
-        <GenericPdfTool title="Remove Watermark" desc="Clean up your images by removing unwanted watermarks." />
-      </Route>
-      <Route path="/tools/add-text-image">
-        <GenericPdfTool title="Add Text to Image" desc="Add custom text, captions, and quotes to your images." />
+      <Route path="/tools/upscale-image">
+        <GenericPdfTool title="Upscale Image" desc="Increase the resolution and quality of your image using AI." />
       </Route>
 
       <Route path="/tools/all-pdf">
@@ -266,6 +231,9 @@ function Router() {
       </Route>
       <Route path="/tools/all-image">
         <GenericPdfTool title="All Image Tools" desc="Explore 30+ AI-powered image editing and optimization tools." />
+      </Route>
+      <Route path="/tools/webp-to-jpg">
+        <GenericPdfTool title="WebP to JPG" desc="Convert WebP images to high-quality JPG format." />
       </Route>
       <Route path="/tools/all-video">
         <VideoTool title="All Video Tools" desc="Access all our video compression, trimming, and downloading tools." icon={Video} />
