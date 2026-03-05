@@ -26,7 +26,12 @@ import {
   Palette,
   RotateCw,
   Square,
-  Circle
+  Circle,
+  Sparkles,
+  VolumeX,
+  Minimize,
+  Languages,
+  Pen
 } from "lucide-react";
 import {
   NavigationMenu,
@@ -91,6 +96,29 @@ const imageTools = {
     { title: "Remove Watermark", href: "/tools/remove-watermark" },
     { title: "Add Text to Image", href: "/tools/add-text-image" },
     { title: "HEIC to JPG", href: "/tools/heic-to-jpg" },
+  ]
+};
+
+const writeTools = {
+  featured: [
+    { title: "Paragraph Writer", desc: "Paragraph Writer", icon: <FileText className="w-5 h-5 text-green-500" />, href: "/tools/paragraph-writer" },
+    { title: "Sentence Rewriter", desc: "Sentence Rewriter", icon: <RefreshCw className="w-5 h-5 text-blue-500" />, href: "/tools/sentence-rewriter" },
+    { title: "Essay Writer", desc: "Easily create an essay with AI", icon: <Pen className="w-5 h-5 text-purple-500" />, href: "/tools/essay-writer" },
+    { title: "Article Writer", desc: "Create an article from a title", icon: <FileEdit className="w-5 h-5 text-teal-500" />, href: "/tools/article-writer" },
+  ],
+  others: [
+    { title: "FB Headline Generator", href: "/tools/fb-headline-generator" },
+    { title: "FAQ Generator", href: "/tools/faq-generator" },
+    { title: "Real Estate Descriptions", href: "/tools/real-estate-descriptions" },
+    { title: "Paragraph Completer", href: "/tools/paragraph-completer" },
+    { title: "Business Name Generator", href: "/tools/business-name-generator" },
+    { title: "Blog Outline Generator", href: "/tools/blog-outline-generator" },
+    { title: "Blog Post Ideas", href: "/tools/blog-post-ideas" },
+    { title: "Instagram Caption Generator", href: "/tools/instagram-caption-generator" },
+    { title: "LinkedIn Post Generator", href: "/tools/linkedin-post-generator" },
+    { title: "Grammar Fixer", href: "/tools/grammar-fixer" },
+    { title: "Content Improver", href: "/tools/content-improver" },
+    { title: "All AI Write", href: "/tools/all-write" },
   ]
 };
 
@@ -208,14 +236,47 @@ export function Header() {
                   </div>
                 </NavigationMenuContent>
               </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3">
+                  Write
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="grid grid-cols-[300px_450px] p-6 gap-6 bg-white rounded-xl shadow-2xl min-w-[750px]">
+                    <div className="border-r pr-6">
+                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Featured Tools</h4>
+                      <div className="space-y-4 text-left">
+                        {writeTools.featured.map((tool) => (
+                          <Link key={tool.title} href={tool.href}>
+                            <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
+                              <div className="mt-1">{tool.icon}</div>
+                              <div>
+                                <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
+                                <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
+                              </div>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Other Write Tools</h4>
+                      <div className="grid grid-cols-2 gap-y-3 gap-x-8 text-left">
+                        {writeTools.others.map((tool) => (
+                          <Link key={tool.title} href={tool.href}>
+                            <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
+                              {tool.title}
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
           
-          <Link href="/">
-            <span className="flex items-center gap-1 text-sm font-medium cursor-pointer px-3 py-2 rounded-md hover:bg-muted transition-colors">
-              Write <ChevronDown className="h-4 w-4 text-muted-foreground" />
-            </span>
-          </Link>
           <Link href="/">
             <span className="flex items-center gap-1 text-sm font-medium cursor-pointer px-3 py-2 rounded-md hover:bg-muted transition-colors">
               Video <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -258,5 +319,3 @@ export function Header() {
     </header>
   );
 }
-
-import { Sparkles } from "lucide-react";

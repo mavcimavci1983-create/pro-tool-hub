@@ -67,6 +67,53 @@ function Router() {
         <VideoTool title="Video Resizer" desc="Resize video online for social media - No Watermark" icon={Minimize} />
       </Route>
 
+      {/* Write Silo Tools */}
+      <Route path="/tools/paragraph-writer">
+        <GenericPdfTool title="Paragraph Writer" desc="Generate high-quality paragraphs on any topic using AI." />
+      </Route>
+      <Route path="/tools/sentence-rewriter">
+        <GenericPdfTool title="Sentence Rewriter" desc="Rewrite sentences to improve clarity, tone, and style." />
+      </Route>
+      <Route path="/tools/essay-writer">
+        <GenericPdfTool title="Essay Writer" desc="Create structured essays from a single prompt using AI." />
+      </Route>
+      <Route path="/tools/article-writer">
+        <GenericPdfTool title="Article Writer" desc="Generate complete articles and blog posts from a title." />
+      </Route>
+      <Route path="/tools/fb-headline-generator">
+        <GenericPdfTool title="Facebook Headline Generator" desc="Create catchy headlines for your Facebook ads and posts." />
+      </Route>
+      <Route path="/tools/faq-generator">
+        <GenericPdfTool title="FAQ Generator" desc="Generate frequently asked questions for your website or product." />
+      </Route>
+      <Route path="/tools/real-estate-descriptions">
+        <GenericPdfTool title="Real Estate Descriptions" desc="Create compelling descriptions for your property listings." />
+      </Route>
+      <Route path="/tools/paragraph-completer">
+        <GenericPdfTool title="Paragraph Completer" desc="Finish your thoughts and complete paragraphs automatically." />
+      </Route>
+      <Route path="/tools/business-name-generator">
+        <GenericPdfTool title="Business Name Generator" desc="Find the perfect name for your new business or startup." />
+      </Route>
+      <Route path="/tools/blog-outline-generator">
+        <GenericPdfTool title="Blog Outline Generator" desc="Generate structured outlines for your next blog post." />
+      </Route>
+      <Route path="/tools/blog-post-ideas">
+        <GenericPdfTool title="Blog Post Ideas" desc="Get endless inspiration for your next content piece." />
+      </Route>
+      <Route path="/tools/instagram-caption-generator">
+        <GenericPdfTool title="Instagram Caption Generator" desc="Create engaging captions for your Instagram photos." />
+      </Route>
+      <Route path="/tools/linkedin-post-generator">
+        <GenericPdfTool title="LinkedIn Post Generator" desc="Generate professional posts for your LinkedIn network." />
+      </Route>
+      <Route path="/tools/grammar-fixer">
+        <GenericPdfTool title="Grammar Fixer" desc="Instantly fix grammar and spelling errors in your text." />
+      </Route>
+      <Route path="/tools/content-improver">
+        <GenericPdfTool title="Content Improver" desc="Enhance the quality and readability of your existing content." />
+      </Route>
+
       {/* Image Tools */}
       <Route path="/tools/image-to-webp" component={ImageToWebp} />
       <Route path="/tools/remove-background">
