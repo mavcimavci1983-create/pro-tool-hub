@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { 
   FileText, 
   ImageIcon, 
@@ -27,7 +27,8 @@ import {
   Sparkles,
   FileEdit,
   ArrowRight,
-  Search
+  Search,
+  Lock
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -40,7 +41,8 @@ const toolCategories = [
     color: "bg-[#A855F7]",
     icon: <FileText className="w-6 h-6 text-white" />,
     featured: { name: "Merge PDF", href: "/tools/merge-pdf" },
-    cat: "Pdf Tools"
+    cat: "Pdf Tools",
+    href: "/tools/all-pdf"
   },
   {
     title: "Image Tools",
@@ -49,7 +51,8 @@ const toolCategories = [
     color: "bg-[#F97316]",
     icon: <ImageIcon className="w-6 h-6 text-white" />,
     featured: { name: "Remove Background", href: "/tools/remove-background" },
-    cat: "Image Tools"
+    cat: "Image Tools",
+    href: "/tools/all-image"
   },
   {
     title: "Video Tools",
@@ -58,7 +61,8 @@ const toolCategories = [
     color: "bg-[#EC4899]",
     icon: <Video className="w-6 h-6 text-white" />,
     featured: { name: "Mute Video", href: "/tools/mute-video" },
-    cat: "Video Tools"
+    cat: "Video Tools",
+    href: "/tools/all-video"
   },
   {
     title: "AI Write",
@@ -67,7 +71,8 @@ const toolCategories = [
     color: "bg-[#3B82F6]",
     icon: <PenTool className="w-6 h-6 text-white" />,
     featured: { name: "Paragraph Writer", href: "/tools/paragraph-writer" },
-    cat: "AI Write"
+    cat: "AI Write",
+    href: "/tools/all-write"
   },
   {
     title: "File Tools",
@@ -76,7 +81,8 @@ const toolCategories = [
     color: "bg-[#10B981]",
     icon: <FileCode className="w-6 h-6 text-white" />,
     featured: { name: "Split Excel", href: "/tools/split-excel" },
-    cat: "Converter Tools"
+    cat: "Converter Tools",
+    href: "/tools/all-file"
   }
 ];
 
@@ -106,7 +112,7 @@ const allTools = [
   { title: "MP4 to MP3", desc: "Convert MP4 to MP3 audio", cat: "Video Tools", icon: <Music className="w-5 h-5 text-yellow-400" />, link: "/tools/mp4-to-mp3" },
 
   // AI Write
-  { title: "Paragraph Writer", desc: "Paragraph Writer", cat: "AI Write", icon: <Type className="w-5 h-5 text-blue-500" />, link: "/tools/paragraph-writer" },
+  { title: "Paragraph Writer", desc: "AI Paragraph Writer", cat: "AI Write", icon: <Type className="w-5 h-5 text-blue-500" />, link: "/tools/paragraph-writer" },
   { title: "Sentence Rewriter", desc: "Improve your writing", cat: "AI Write", icon: <RefreshCw className="w-5 h-5 text-blue-400" />, link: "/tools/sentence-rewriter" },
   { title: "Essay Writer", desc: "Easily create an essay with AI", cat: "AI Write", icon: <PenTool className="w-5 h-5 text-purple-400" />, link: "/tools/essay-writer" },
   { title: "Article Writer", desc: "Create an article from a title", cat: "AI Write", icon: <FileEdit className="w-5 h-5 text-teal-400" />, link: "/tools/article-writer" }
@@ -115,6 +121,7 @@ const allTools = [
 export function ToolGrid() {
   const [activeTab, setActiveTab] = useState("All Tools");
   const [searchQuery, setSearchQuery] = useState("");
+  const [, setLocation] = useLocation();
 
   const filteredTools = (activeTab === "All Tools" 
     ? allTools 
@@ -123,6 +130,11 @@ export function ToolGrid() {
     tool.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
     tool.desc.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleCategoryClick = (category: any) => {
+    // Navigate to category page
+    setLocation(category.href);
+  };
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 pb-20 pt-12">
@@ -144,11 +156,14 @@ export function ToolGrid() {
         </div>
       </div>
 
-      {/* Category Cards (Horizontal Scroll on Mobile) */}
+      {/* Category Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-16">
         {toolCategories.map((category) => (
-          <div key={category.title} className="group cursor-pointer" onClick={() => setActiveTab(category.cat)}>
-            <div className={`relative overflow-hidden rounded-2xl p-6 text-white shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl ${category.color} ${activeTab === category.cat ? 'ring-4 ring-offset-2 ring-primary scale-[1.02]' : ''}`}>
+          <div key={category.title} className="flex flex-col">
+            <div 
+              className={`relative overflow-hidden rounded-2xl p-6 text-white shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl cursor-pointer ${category.color} ${activeTab === category.cat ? 'ring-4 ring-offset-2 ring-primary scale-[1.02]' : ''}`}
+              onClick={() => handleCategoryClick(category)}
+            >
               <div className="flex justify-between items-start mb-10">
                 <div className="bg-white/20 p-3 rounded-xl backdrop-blur-md">
                   {category.icon}
@@ -164,13 +179,53 @@ export function ToolGrid() {
               </p>
             </div>
             
-            <div className="mt-3 bg-white border border-slate-100 rounded-2xl p-4 flex items-center justify-between shadow-sm group-hover:border-primary/20 transition-all">
+            <div className="mt-3 bg-white border border-slate-100 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:border-primary/20 transition-all">
               <span className="text-[11px] text-muted-foreground font-bold uppercase tracking-wider">Featured Tool:</span>
               <Link href={category.featured.href}>
-                <span className="text-xs font-bold text-primary hover:text-primary/80 transition-colors">{category.featured.name}</span>
+                <span className="text-xs font-bold text-primary hover:text-primary/80 transition-colors cursor-pointer">{category.featured.name}</span>
               </Link>
             </div>
           </div>
+        ))}
+      </div>
+
+      <div className="text-center mb-10">
+        <h2 className="text-3xl font-heading font-bold mb-3">
+          {activeTab === "All Tools" ? "Our Most Popular Tools" : `${activeTab} Category`}
+        </h2>
+        <p className="text-muted-foreground">We present the best of the best. All free, no catch</p>
+      </div>
+
+      {/* Filter Tabs */}
+      <div className="flex flex-wrap justify-center gap-2 mb-10 bg-card p-1.5 rounded-full border border-border shadow-sm mx-auto w-fit">
+        <button 
+          onClick={() => setActiveTab("All Tools")}
+          className={`px-5 py-2 rounded-full text-sm font-semibold flex items-center gap-2 transition-all ${
+            activeTab === "All Tools" 
+              ? "bg-primary text-primary-foreground shadow-sm" 
+              : "text-muted-foreground hover:bg-muted"
+          }`}
+        >
+          <span className="w-4 h-4 grid grid-cols-2 gap-0.5">
+            <span className="bg-current rounded-sm opacity-80"></span>
+            <span className="bg-current rounded-sm opacity-80"></span>
+            <span className="bg-current rounded-sm opacity-80"></span>
+            <span className="bg-current rounded-sm opacity-80"></span>
+          </span>
+          All Tools
+        </button>
+        {["Pdf Tools", "Video Tools", "Image Tools", "Converter Tools", "AI Write"].map((tab) => (
+          <button 
+            key={tab} 
+            onClick={() => setActiveTab(tab)}
+            className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
+              activeTab === tab 
+                ? "bg-primary text-primary-foreground shadow-sm" 
+                : "text-muted-foreground hover:bg-muted"
+            }`}
+          >
+            {tab}
+          </button>
         ))}
       </div>
 
@@ -183,7 +238,7 @@ export function ToolGrid() {
                 <ArrowRight className="h-4 w-4 text-primary" />
               </div>
               
-              <div className="bg-slate-50 p-4 rounded-2xl w-fit mb-4 group-hover:bg-primary/10 transition-colors">
+              <div className="bg-slate-50 p-4 rounded-2xl w-fit mb-4 group-hover:bg-primary/10 transition-colors transform group-hover:scale-110">
                 {tool.icon}
               </div>
               
@@ -201,22 +256,5 @@ export function ToolGrid() {
         ))}
       </div>
     </div>
-  );
-}
-
-function Lock({ className }: { className?: string }) {
-  return (
-    <svg 
-      className={className} 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-    >
-      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-    </svg>
   );
 }
