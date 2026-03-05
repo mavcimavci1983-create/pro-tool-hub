@@ -131,7 +131,7 @@ export function ToolGrid() {
   );
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 pb-20 pt-12 relative">
+    <div className="w-full max-w-7xl mx-auto px-4 pb-20 pt-12 relative overflow-visible">
       <div className="text-center mb-12">
         <h1 className="text-5xl font-bold tracking-tight mb-4">{activeTab === "All Tools" ? "All Tools" : activeTab}</h1>
         <p className="text-muted-foreground text-lg mb-8">Free Online {activeTab === "All Tools" ? "" : activeTab} Tools</p>
@@ -153,34 +153,48 @@ export function ToolGrid() {
       {/* Category Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-16 relative">
         {toolCategories.map((category) => (
-          <div key={category.title} className="flex flex-col relative group">
-            {/* FORCE WRAP ENTIRE CARD AREA IN LINK */}
+          <div key={category.title} className="flex flex-col relative">
+            {/* 
+              Kritik Düzeltme: 
+              1. Link bileşenini en dışa aldık.
+              2. wouter Link otomatik olarak children'ı render eder, <a> etiketi ekleyerek tarayıcı seviyesinde tıklanabilir yaptık.
+              3. onClick eventini doğrudan Link üzerinde veya içindeki kapsayıcıda zorunlu kıldık.
+            */}
             <Link href={category.href}>
-              <a className="block w-full cursor-pointer transition-all duration-300 hover:-translate-y-2 relative z-10">
+              <a 
+                className="group block w-full relative transition-all duration-300 hover:-translate-y-2 no-underline"
+                style={{ cursor: 'pointer', display: 'block' }}
+                data-testid={`category-card-${category.title.toLowerCase().replace(' ', '-')}`}
+              >
                 <div 
                   className={`relative overflow-hidden rounded-2xl p-6 text-white shadow-lg ${category.color} ${activeTab === category.cat ? 'ring-4 ring-offset-2 ring-primary' : ''}`}
                 >
+                  {/* Dekoratif Işık Efekti */}
+                  <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-2xl group-hover:bg-white/20 transition-all" />
+                  
                   <div className="flex justify-between items-start mb-10">
                     <div className="bg-white/20 p-3 rounded-xl backdrop-blur-md">
                       {category.icon}
                     </div>
-                    <span className="text-[10px] font-bold bg-black/10 px-2 py-1 rounded-full backdrop-blur-sm uppercase">
+                    <span className="text-[10px] font-bold bg-black/20 px-3 py-1.5 rounded-full backdrop-blur-sm uppercase">
                       {category.count}
                     </span>
                   </div>
                   
-                  <h3 className="text-xl font-bold mb-1">{category.title}</h3>
-                  <div className="text-sm text-white/90 flex items-center gap-1">
-                    {category.desc} <ArrowRight className="h-4 w-4" />
+                  <h3 className="text-2xl font-bold mb-1 tracking-tight">{category.title}</h3>
+                  <div className="text-sm text-white/90 flex items-center gap-1 font-medium">
+                    {category.desc} <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </div>
                 </div>
               </a>
             </Link>
             
-            <div className="mt-3 bg-white border border-slate-100 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:border-primary/20 transition-all relative z-20">
-              <span className="text-[11px] text-muted-foreground font-bold uppercase tracking-wider">Featured Tool:</span>
+            <div className="mt-3 bg-white border border-slate-100 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:border-primary/20 transition-all relative z-10">
+              <span className="text-[11px] text-muted-foreground font-bold uppercase tracking-wider">Featured:</span>
               <Link href={category.featured.href}>
-                <a className="text-xs font-bold text-primary hover:text-primary/80 transition-colors">{category.featured.name}</a>
+                <a className="text-xs font-bold text-primary hover:underline transition-all cursor-pointer">
+                  {category.featured.name}
+                </a>
               </Link>
             </div>
           </div>
@@ -191,7 +205,7 @@ export function ToolGrid() {
         <h2 className="text-3xl font-heading font-bold mb-3">
           {activeTab === "All Tools" ? "Our Most Popular Tools" : `${activeTab} Category`}
         </h2>
-        <p className="text-muted-foreground">We present the best of the best. All free, no catch</p>
+        <p className="text-muted-foreground">Premium tools, 100% free, forever.</p>
       </div>
 
       {/* Filter Tabs */}
@@ -231,8 +245,8 @@ export function ToolGrid() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {filteredTools.map((tool, i) => (
           <Link href={tool.link} key={i}>
-            <a className="block h-full group cursor-pointer transition-all duration-300 hover:-translate-y-1">
-              <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-xl flex flex-col h-full relative overflow-hidden">
+            <a className="group block h-full no-underline">
+              <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col h-full relative overflow-hidden cursor-pointer">
                 <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
                   <ArrowRight className="h-4 w-4 text-primary" />
                 </div>
