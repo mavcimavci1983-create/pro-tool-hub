@@ -121,7 +121,6 @@ const allTools = [
 export function ToolGrid() {
   const [activeTab, setActiveTab] = useState("All Tools");
   const [searchQuery, setSearchQuery] = useState("");
-  const [, setLocation] = useLocation();
 
   const filteredTools = (activeTab === "All Tools" 
     ? allTools 
@@ -131,11 +130,6 @@ export function ToolGrid() {
     tool.desc.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleCategoryClick = (category: any) => {
-    // Navigate to category page
-    setLocation(category.href);
-  };
-
   return (
     <div className="w-full max-w-7xl mx-auto px-4 pb-20 pt-12">
       <div className="text-center mb-12">
@@ -144,42 +138,44 @@ export function ToolGrid() {
         
         <div className="relative max-w-2xl mx-auto">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
-          <Input 
-            className="w-full pl-12 pr-24 py-6 rounded-full border-2 border-slate-100 shadow-sm text-lg focus:ring-primary/20"
+          <input 
+            className="w-full pl-12 pr-24 py-4 rounded-full border-2 border-slate-100 shadow-sm text-lg focus:outline-none focus:border-primary/50 transition-all"
             placeholder="Search tools"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <Button className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full px-8 py-5 h-auto bg-[#0091FF] hover:bg-[#007EE6]">
+          <Button className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full px-8 bg-[#0091FF] hover:bg-[#007EE6]">
             Search
           </Button>
         </div>
       </div>
 
       {/* Category Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-16">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-16 relative z-10">
         {toolCategories.map((category) => (
-          <div key={category.title} className="flex flex-col">
-            <div 
-              className={`relative overflow-hidden rounded-2xl p-6 text-white shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl cursor-pointer ${category.color} ${activeTab === category.cat ? 'ring-4 ring-offset-2 ring-primary scale-[1.02]' : ''}`}
-              onClick={() => handleCategoryClick(category)}
-            >
-              <div className="flex justify-between items-start mb-10">
-                <div className="bg-white/20 p-3 rounded-xl backdrop-blur-md">
-                  {category.icon}
+          <div key={category.title} className="flex flex-col relative z-20">
+            <Link href={category.href}>
+              <div 
+                className={`relative overflow-hidden rounded-2xl p-6 text-white shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl cursor-pointer ${category.color} ${activeTab === category.cat ? 'ring-4 ring-offset-2 ring-primary scale-[1.02]' : ''}`}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className="flex justify-between items-start mb-10">
+                  <div className="bg-white/20 p-3 rounded-xl backdrop-blur-md">
+                    {category.icon}
+                  </div>
+                  <span className="text-[10px] font-bold bg-black/10 px-2 py-1 rounded-full backdrop-blur-sm uppercase">
+                    {category.count}
+                  </span>
                 </div>
-                <span className="text-[10px] font-bold bg-black/10 px-2 py-1 rounded-full backdrop-blur-sm uppercase">
-                  {category.count}
-                </span>
+                
+                <h3 className="text-xl font-bold mb-1">{category.title}</h3>
+                <p className="text-sm text-white/90 flex items-center gap-1 group-hover:gap-2 transition-all">
+                  {category.desc} <ArrowRight className="h-4 w-4" />
+                </p>
               </div>
-              
-              <h3 className="text-xl font-bold mb-1">{category.title}</h3>
-              <p className="text-sm text-white/90 flex items-center gap-1 group-hover:gap-2 transition-all">
-                {category.desc} <ArrowRight className="h-4 w-4" />
-              </p>
-            </div>
+            </Link>
             
-            <div className="mt-3 bg-white border border-slate-100 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:border-primary/20 transition-all">
+            <div className="mt-3 bg-white border border-slate-100 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:border-primary/20 transition-all relative z-30">
               <span className="text-[11px] text-muted-foreground font-bold uppercase tracking-wider">Featured Tool:</span>
               <Link href={category.featured.href}>
                 <span className="text-xs font-bold text-primary hover:text-primary/80 transition-colors cursor-pointer">{category.featured.name}</span>
@@ -233,7 +229,10 @@ export function ToolGrid() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {filteredTools.map((tool, i) => (
           <Link href={tool.link} key={i}>
-            <div className="bg-white border border-slate-100 rounded-2xl p-6 cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group flex flex-col h-full relative overflow-hidden">
+            <div 
+              className="bg-white border border-slate-100 rounded-2xl p-6 cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group flex flex-col h-full relative overflow-hidden"
+              style={{ cursor: 'pointer' }}
+            >
               <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
                 <ArrowRight className="h-4 w-4 text-primary" />
               </div>
