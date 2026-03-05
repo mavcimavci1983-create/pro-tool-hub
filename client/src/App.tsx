@@ -260,6 +260,22 @@ function Router() {
         <GenericPdfTool title="Add Text to Image" desc="Add custom text, captions, and quotes to your images." />
       </Route>
 
+      <Route path="/tools/all-pdf">
+        <GenericPdfTool title="All PDF Tools" desc="Browse our complete collection of 45+ PDF processing tools." />
+      </Route>
+      <Route path="/tools/all-image">
+        <GenericPdfTool title="All Image Tools" desc="Explore 30+ AI-powered image editing and optimization tools." />
+      </Route>
+      <Route path="/tools/all-video">
+        <VideoTool title="All Video Tools" desc="Access all our video compression, trimming, and downloading tools." icon={Video} />
+      </Route>
+      <Route path="/tools/all-write">
+        <GenericPdfTool title="All AI Writing Tools" desc="Full suite of AI-powered content generation and editing tools." />
+      </Route>
+      <Route path="/tools/all-file">
+        <GenericPdfTool title="All File Tools" desc="Complete set of CSV, Excel, XML, and JSON conversion utilities." />
+      </Route>
+
       {/* Fallback to 404 */}
       <Route component={NotFound} />
     </Switch>
