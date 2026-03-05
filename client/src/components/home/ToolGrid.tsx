@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useLocation } from "wouter";
+import { Link } from "wouter";
 import { 
   FileText, 
   ImageIcon, 
@@ -131,7 +131,7 @@ export function ToolGrid() {
   );
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 pb-20 pt-12">
+    <div className="w-full max-w-7xl mx-auto px-4 pb-20 pt-12 relative">
       <div className="text-center mb-12">
         <h1 className="text-5xl font-bold tracking-tight mb-4">{activeTab === "All Tools" ? "All Tools" : activeTab}</h1>
         <p className="text-muted-foreground text-lg mb-8">Free Online {activeTab === "All Tools" ? "" : activeTab} Tools</p>
@@ -151,34 +151,36 @@ export function ToolGrid() {
       </div>
 
       {/* Category Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-16 relative z-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-16 relative">
         {toolCategories.map((category) => (
-          <div key={category.title} className="flex flex-col relative z-20">
+          <div key={category.title} className="flex flex-col relative group">
+            {/* FORCE WRAP ENTIRE CARD AREA IN LINK */}
             <Link href={category.href}>
-              <div 
-                className={`relative overflow-hidden rounded-2xl p-6 text-white shadow-lg transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl cursor-pointer ${category.color} ${activeTab === category.cat ? 'ring-4 ring-offset-2 ring-primary scale-[1.02]' : ''}`}
-                style={{ cursor: 'pointer' }}
-              >
-                <div className="flex justify-between items-start mb-10">
-                  <div className="bg-white/20 p-3 rounded-xl backdrop-blur-md">
-                    {category.icon}
+              <a className="block w-full cursor-pointer transition-all duration-300 hover:-translate-y-2 relative z-10">
+                <div 
+                  className={`relative overflow-hidden rounded-2xl p-6 text-white shadow-lg ${category.color} ${activeTab === category.cat ? 'ring-4 ring-offset-2 ring-primary' : ''}`}
+                >
+                  <div className="flex justify-between items-start mb-10">
+                    <div className="bg-white/20 p-3 rounded-xl backdrop-blur-md">
+                      {category.icon}
+                    </div>
+                    <span className="text-[10px] font-bold bg-black/10 px-2 py-1 rounded-full backdrop-blur-sm uppercase">
+                      {category.count}
+                    </span>
                   </div>
-                  <span className="text-[10px] font-bold bg-black/10 px-2 py-1 rounded-full backdrop-blur-sm uppercase">
-                    {category.count}
-                  </span>
+                  
+                  <h3 className="text-xl font-bold mb-1">{category.title}</h3>
+                  <div className="text-sm text-white/90 flex items-center gap-1">
+                    {category.desc} <ArrowRight className="h-4 w-4" />
+                  </div>
                 </div>
-                
-                <h3 className="text-xl font-bold mb-1">{category.title}</h3>
-                <p className="text-sm text-white/90 flex items-center gap-1 group-hover:gap-2 transition-all">
-                  {category.desc} <ArrowRight className="h-4 w-4" />
-                </p>
-              </div>
+              </a>
             </Link>
             
-            <div className="mt-3 bg-white border border-slate-100 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:border-primary/20 transition-all relative z-30">
+            <div className="mt-3 bg-white border border-slate-100 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:border-primary/20 transition-all relative z-20">
               <span className="text-[11px] text-muted-foreground font-bold uppercase tracking-wider">Featured Tool:</span>
               <Link href={category.featured.href}>
-                <span className="text-xs font-bold text-primary hover:text-primary/80 transition-colors cursor-pointer">{category.featured.name}</span>
+                <a className="text-xs font-bold text-primary hover:text-primary/80 transition-colors">{category.featured.name}</a>
               </Link>
             </div>
           </div>
@@ -229,28 +231,27 @@ export function ToolGrid() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {filteredTools.map((tool, i) => (
           <Link href={tool.link} key={i}>
-            <div 
-              className="bg-white border border-slate-100 rounded-2xl p-6 cursor-pointer hover:shadow-xl transition-all duration-300 hover:-translate-y-1 group flex flex-col h-full relative overflow-hidden"
-              style={{ cursor: 'pointer' }}
-            >
-              <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                <ArrowRight className="h-4 w-4 text-primary" />
+            <a className="block h-full group cursor-pointer transition-all duration-300 hover:-translate-y-1">
+              <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-xl flex flex-col h-full relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <ArrowRight className="h-4 w-4 text-primary" />
+                </div>
+                
+                <div className="bg-slate-50 p-4 rounded-2xl w-fit mb-4 group-hover:bg-primary/10 transition-colors transform group-hover:scale-110">
+                  {tool.icon}
+                </div>
+                
+                <h3 className="font-bold text-lg mb-1 group-hover:text-primary transition-colors pr-6">{tool.title}</h3>
+                <span className="text-[10px] font-bold text-primary uppercase tracking-widest block mb-3">{tool.cat}</span>
+                <p className="text-sm text-muted-foreground mb-6 line-clamp-2 flex-grow">{tool.desc}</p>
+                
+                <div className="mt-auto">
+                  <Button variant="ghost" className="w-full justify-start p-0 h-auto font-bold text-primary group-hover:translate-x-1 transition-transform">
+                    Hemen Başla <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </div>
               </div>
-              
-              <div className="bg-slate-50 p-4 rounded-2xl w-fit mb-4 group-hover:bg-primary/10 transition-colors transform group-hover:scale-110">
-                {tool.icon}
-              </div>
-              
-              <h3 className="font-bold text-lg mb-1 group-hover:text-primary transition-colors pr-6">{tool.title}</h3>
-              <span className="text-[10px] font-bold text-primary uppercase tracking-widest block mb-3">{tool.cat}</span>
-              <p className="text-sm text-muted-foreground mb-6 line-clamp-2 flex-grow">{tool.desc}</p>
-              
-              <div className="mt-auto">
-                <Button variant="ghost" className="w-full justify-start p-0 h-auto font-bold text-primary group-hover:translate-x-1 transition-transform">
-                  Hemen Başla <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
-              </div>
-            </div>
+            </a>
           </Link>
         ))}
       </div>
