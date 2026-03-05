@@ -73,6 +73,44 @@ function Router() {
         <GenericPdfTool title="Remove Background" desc="AI-powered background removal tool." />
       </Route>
       
+      {/* New Image Silo Tools */}
+      <Route path="/tools/restore-photos">
+        <GenericPdfTool title="Restore Photos" desc="Restore old and blurry photos with AI technology." />
+      </Route>
+      <Route path="/tools/profile-photo-maker">
+        <GenericPdfTool title="Profile Photo Maker" desc="Generate professional-looking profile pictures instantly." />
+      </Route>
+      <Route path="/tools/remove-person">
+        <GenericPdfTool title="Remove Person from Photo" desc="Erase unwanted people or objects from your images." />
+      </Route>
+      <Route path="/tools/extract-text-image">
+        <GenericPdfTool title="Extract Text from Image" desc="Convert image files into editable text using OCR." />
+      </Route>
+      <Route path="/tools/ai-generator">
+        <GenericPdfTool title="AI Image Generator" desc="Turn your text descriptions into stunning AI art." />
+      </Route>
+      <Route path="/tools/resize-image">
+        <GenericPdfTool title="Resize Dimensions" desc="Change the width and height of your images accurately." />
+      </Route>
+      <Route path="/tools/compress-image">
+        <GenericPdfTool title="Compress Image" desc="Reduce file size of your images while keeping original quality." />
+      </Route>
+      <Route path="/tools/upscale-image">
+        <GenericPdfTool title="Increase Image Resolution" desc="Upscale and enhance image resolution with AI." />
+      </Route>
+      <Route path="/tools/blur-background">
+        <GenericPdfTool title="Blur Background" desc="Add professional bokeh effect to your photos." />
+      </Route>
+      <Route path="/tools/transparent-background">
+        <GenericPdfTool title="Transparent Background" desc="Make the background of your image transparent." />
+      </Route>
+      <Route path="/tools/round-image">
+        <GenericPdfTool title="Make Round Image" desc="Crop your image into a circle format." />
+      </Route>
+      <Route path="/tools/heic-to-jpg">
+        <GenericPdfTool title="HEIC to JPG" desc="Convert iPhone HEIC images to standard JPG format." />
+      </Route>
+
       {/* Fallback to 404 */}
       <Route component={NotFound} />
     </Switch>
