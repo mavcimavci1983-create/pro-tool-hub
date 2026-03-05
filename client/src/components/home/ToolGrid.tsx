@@ -24,7 +24,8 @@ import {
   Brush,
   Palette,
   Layers,
-  Sparkles
+  Sparkles,
+  FileEdit
 } from "lucide-react";
 
 const toolCategories = [
