@@ -46,8 +46,15 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
     <div className="min-h-screen flex flex-col">
       <Header />
       <main className="flex-grow flex flex-col items-center pt-10 pb-20 px-4">
-        <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-9">
+        <div className="w-full max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-[1fr_160px] lg:grid-cols-[160px_1fr_160px] gap-6">
+          {/* Left Skyscraper */}
+          <aside className="hidden lg:block w-[160px]">
+            <div className="sticky top-24 h-[600px] bg-muted/5 border border-dashed border-muted-foreground/20 rounded-xl flex items-center justify-center text-[10px] text-muted-foreground font-bold uppercase tracking-tighter p-2 text-center">
+              Skyscraper Ad<br/>(160x600)
+            </div>
+          </aside>
+
+          <div className="w-full max-w-[1000px] mx-auto">
             <div className="mb-8 text-center lg:text-left">
               <h1 className="text-3xl md:text-4xl font-heading font-extrabold mb-3">{title}</h1>
               <p className="text-muted-foreground">{desc}</p>
@@ -140,14 +147,10 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
             </article>
           </div>
 
-          <aside className="lg:col-span-3">
-            <div className="sticky top-24 space-y-8">
-              <div className="w-full h-[600px] bg-card border border-dashed border-muted-foreground/30 rounded-2xl flex flex-col items-center justify-center p-4 text-center">
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4">Advertisement</span>
-                <div className="w-full h-full bg-muted/10 rounded flex items-center justify-center text-xs text-muted-foreground italic font-bold">
-                  STICKY SIDEBAR AD<br/>(300x600)
-                </div>
-              </div>
+          {/* Right Skyscraper */}
+          <aside className="hidden md:block w-[160px]">
+            <div className="sticky top-24 h-[600px] bg-muted/5 border border-dashed border-muted-foreground/20 rounded-xl flex items-center justify-center text-[10px] text-muted-foreground font-bold uppercase tracking-tighter p-2 text-center">
+              Skyscraper Ad<br/>(160x600)
             </div>
           </aside>
         </div>

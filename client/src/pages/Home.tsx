@@ -16,8 +16,15 @@ export default function Home() {
         </div>
 
         {/* All Tools Section (Moved to Top, CategoryCards Removed) */}
-        <div className="container mx-auto px-4 py-16 grid grid-cols-1 lg:grid-cols-12 gap-8 mb-20">
-          <div className="lg:col-span-9">
+        <div className="w-full max-w-[1400px] mx-auto px-4 py-16 grid grid-cols-1 md:grid-cols-[1fr_160px] lg:grid-cols-[160px_1fr_160px] gap-6 mb-20">
+          {/* Left Skyscraper - Hidden on Tablet and Mobile */}
+          <aside className="hidden lg:block w-[160px]">
+            <div className="sticky top-24 h-[600px] bg-muted/5 border border-dashed border-muted-foreground/20 rounded-xl flex items-center justify-center text-[10px] text-muted-foreground font-bold uppercase tracking-tighter p-2 text-center">
+              Skyscraper Ad<br/>(160x600)
+            </div>
+          </aside>
+
+          <div className="w-full max-w-[1000px] mx-auto">
             <ToolGrid />
             
             {/* SEO Content for Homepage */}
@@ -44,14 +51,10 @@ export default function Home() {
             </article>
           </div>
 
-          <aside className="lg:col-span-3">
-            <div className="sticky top-24">
-              <div className="w-full h-[600px] bg-card border border-dashed border-muted-foreground/30 rounded-2xl flex flex-col items-center justify-center p-4 text-center">
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4">Advertisement</span>
-                <div className="w-full h-full bg-muted/10 rounded flex items-center justify-center text-xs text-muted-foreground italic font-bold">
-                  STICKY SIDEBAR AD<br/>(300x600)
-                </div>
-              </div>
+          {/* Right Skyscraper - Hidden on Mobile */}
+          <aside className="hidden md:block w-[160px]">
+            <div className="sticky top-24 h-[600px] bg-muted/5 border border-dashed border-muted-foreground/20 rounded-xl flex items-center justify-center text-[10px] text-muted-foreground font-bold uppercase tracking-tighter p-2 text-center">
+              Skyscraper Ad<br/>(160x600)
             </div>
           </aside>
         </div>
