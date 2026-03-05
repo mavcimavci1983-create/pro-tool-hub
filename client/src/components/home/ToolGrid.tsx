@@ -197,9 +197,9 @@ export function ToolGrid() {
       {/* Tools Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {filteredTools.map((tool, i) => (
-          <Link href={tool.link} key={i}>
-            <a className="group block h-full no-underline">
-              <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col h-full relative overflow-hidden cursor-pointer">
+          <div key={i}>
+            <Link href={tool.link}>
+              <div className="group bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col h-full relative overflow-hidden cursor-pointer">
                 <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
                   <ArrowRight className="h-4 w-4 text-primary" />
                 </div>
@@ -218,8 +218,8 @@ export function ToolGrid() {
                   </Button>
                 </div>
               </div>
-            </a>
-          </Link>
+            </Link>
+          </div>
         ))}
       </div>
     </div>

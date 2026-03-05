@@ -7,7 +7,6 @@ export default function Home() {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
       <main className="flex-grow flex flex-col items-center">
         {/* Header Ad Space */}
         <div className="w-full h-[120px] bg-muted/10 border-b flex items-center justify-center overflow-hidden">

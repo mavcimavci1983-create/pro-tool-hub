@@ -154,7 +154,7 @@ const otherTools = {
   ]
 };
 
-export default function Header() {
+export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
@@ -185,15 +185,17 @@ export default function Header() {
                       <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Featured Tools</h4>
                       <div className="space-y-4 text-left">
                         {pdfTools.featured.map((tool) => (
-                          <Link key={tool.title} href={tool.href}>
-                            <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
-                              <div className="mt-1">{tool.icon}</div>
-                              <div>
-                                <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
-                                <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
+                          <div key={tool.title} className="p-0">
+                            <Link href={tool.href}>
+                              <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
+                                <div className="mt-1">{tool.icon}</div>
+                                <div>
+                                  <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
+                                  <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
+                                </div>
                               </div>
-                            </div>
-                          </Link>
+                            </Link>
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -201,15 +203,19 @@ export default function Header() {
                       <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Other PDF Tools</h4>
                       <div className="grid grid-cols-2 gap-y-3 gap-x-8 text-left">
                         {pdfTools.others.map((tool) => (
-                          <Link key={tool.title} href={tool.href}>
-                            <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
-                              {tool.title}
-                            </span>
-                          </Link>
+                          <div key={tool.title}>
+                            <Link href={tool.href}>
+                              <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
+                                {tool.title}
+                              </span>
+                            </Link>
+                          </div>
                         ))}
-                        <Link href="/tools/all-pdf">
-                          <span className="text-[13px] font-bold text-primary hover:underline cursor-pointer">All Pdf Tools</span>
-                        </Link>
+                        <div>
+                          <Link href="/tools/all-pdf">
+                            <span className="text-[13px] font-bold text-primary hover:underline cursor-pointer">All Pdf Tools</span>
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -227,15 +233,17 @@ export default function Header() {
                       <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Featured Tools</h4>
                       <div className="space-y-4 text-left">
                         {videoTools.featured.map((tool) => (
-                          <Link key={tool.title} href={tool.href}>
-                            <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
-                              <div className="mt-1">{tool.icon}</div>
-                              <div>
-                                <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
-                                <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
+                          <div key={tool.title}>
+                            <Link href={tool.href}>
+                              <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
+                                <div className="mt-1">{tool.icon}</div>
+                                <div>
+                                  <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
+                                  <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
+                                </div>
                               </div>
-                            </div>
-                          </Link>
+                            </Link>
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -243,11 +251,13 @@ export default function Header() {
                       <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Other Video Tools</h4>
                       <div className="grid grid-cols-2 gap-y-3 gap-x-8 text-left">
                         {videoTools.others.map((tool) => (
-                          <Link key={tool.title} href={tool.href}>
-                            <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
-                              {tool.title}
-                            </span>
-                          </Link>
+                          <div key={tool.title}>
+                            <Link href={tool.href}>
+                              <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
+                                {tool.title}
+                              </span>
+                            </Link>
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -266,15 +276,17 @@ export default function Header() {
                       <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Featured Tools</h4>
                       <div className="space-y-4 text-left">
                         {converterTools.featured.map((tool) => (
-                          <Link key={tool.title} href={tool.href}>
-                            <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
-                              <div className="mt-1">{tool.icon}</div>
-                              <div>
-                                <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
-                                <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
+                          <div key={tool.title}>
+                            <Link href={tool.href}>
+                              <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
+                                <div className="mt-1">{tool.icon}</div>
+                                <div>
+                                  <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
+                                  <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
+                                </div>
                               </div>
-                            </div>
-                          </Link>
+                            </Link>
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -282,11 +294,13 @@ export default function Header() {
                       <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Other Converter Tools</h4>
                       <div className="grid grid-cols-2 gap-y-3 gap-x-8 text-left">
                         {converterTools.others.map((tool) => (
-                          <Link key={tool.title} href={tool.href}>
-                            <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
-                              {tool.title}
-                            </span>
-                          </Link>
+                          <div key={tool.title}>
+                            <Link href={tool.href}>
+                              <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
+                                {tool.title}
+                              </span>
+                            </Link>
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -305,15 +319,17 @@ export default function Header() {
                       <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Featured Tools</h4>
                       <div className="space-y-4 text-left">
                         {writeTools.featured.map((tool) => (
-                          <Link key={tool.title} href={tool.href}>
-                            <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
-                              <div className="mt-1">{tool.icon}</div>
-                              <div>
-                                <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
-                                <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
+                          <div key={tool.title}>
+                            <Link href={tool.href}>
+                              <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
+                                <div className="mt-1">{tool.icon}</div>
+                                <div>
+                                  <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
+                                  <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
+                                </div>
                               </div>
-                            </div>
-                          </Link>
+                            </Link>
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -321,11 +337,13 @@ export default function Header() {
                       <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Other AI Tools</h4>
                       <div className="grid grid-cols-2 gap-y-3 gap-x-8 text-left">
                         {writeTools.others.map((tool) => (
-                          <Link key={tool.title} href={tool.href}>
-                            <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
-                              {tool.title}
-                            </span>
-                          </Link>
+                          <div key={tool.title}>
+                            <Link href={tool.href}>
+                              <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
+                                {tool.title}
+                              </span>
+                            </Link>
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -344,15 +362,17 @@ export default function Header() {
                       <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Featured Tools</h4>
                       <div className="space-y-4 text-left">
                         {otherTools.featured.map((tool) => (
-                          <Link key={tool.title} href={tool.href}>
-                            <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
-                              <div className="mt-1">{tool.icon}</div>
-                              <div>
-                                <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
-                                <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
+                          <div key={tool.title}>
+                            <Link href={tool.href}>
+                              <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
+                                <div className="mt-1">{tool.icon}</div>
+                                <div>
+                                  <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
+                                  <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
+                                </div>
                               </div>
-                            </div>
-                          </Link>
+                            </Link>
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -360,11 +380,13 @@ export default function Header() {
                       <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Other Tools</h4>
                       <div className="grid grid-cols-2 gap-y-3 gap-x-8 text-left">
                         {otherTools.others.map((tool) => (
-                          <Link key={tool.title} href={tool.href}>
-                            <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
-                              {tool.title}
-                            </span>
-                          </Link>
+                          <div key={tool.title}>
+                            <Link href={tool.href}>
+                              <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
+                                {tool.title}
+                              </span>
+                            </Link>
+                          </div>
                         ))}
                       </div>
                     </div>
