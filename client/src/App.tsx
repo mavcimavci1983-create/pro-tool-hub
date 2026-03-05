@@ -8,7 +8,7 @@ import Home from "@/pages/Home";
 import ImageToWebp from "@/pages/ImageToWebp";
 import GenericPdfTool from "@/pages/GenericPdfTool";
 import VideoTool from "@/pages/VideoTool";
-import { Scissors, VolumeX, Minimize, Music, Play, Download, ImageIcon, Video } from "lucide-react";
+import { Scissors, VolumeX, Minimize, Music, Play, Download, ImageIcon, Video, Youtube, FileText, Type, Presentation } from "lucide-react";
 
 function Router() {
   return (

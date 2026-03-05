@@ -18,8 +18,6 @@ import {
   Minimize2,
   Type,
   RefreshCw,
-  Crop,
-  Layers,
   Eraser,
   Wand2,
   Brush,
@@ -39,7 +37,19 @@ import {
   FileJson,
   FileCode,
   Table,
-  Play
+  Play,
+  Youtube,
+  Presentation,
+  QrCode,
+  StickyNote,
+  Smile,
+  Zap,
+  Clock,
+  BookOpen,
+  CheckCircle2,
+  MessageSquare,
+  Clapperboard,
+  History
 } from "lucide-react";
 import {
   NavigationMenu,
@@ -54,123 +64,97 @@ import { Input } from "@/components/ui/input";
 
 const pdfTools = {
   featured: [
-    { title: "Edit PDF", desc: "Free PDF Editor", icon: <FileEdit className="w-5 h-5 text-blue-500" />, href: "/tools/edit-pdf" },
-    { title: "PDF to Word", desc: "Convert a PDF to Word Document", icon: <FileText className="w-5 h-5 text-blue-400" />, href: "/tools/pdf-to-word" },
-    { title: "JPG to PDF", desc: "Upload images and receive as a PDF", icon: <ImageIcon className="w-5 h-5 text-emerald-500" />, href: "/tools/jpg-to-pdf" },
     { title: "Merge PDF", desc: "Merge 2 or more PDF files", icon: <FileStack className="w-5 h-5 text-rose-500" />, href: "/tools/merge-pdf" },
+    { title: "Edit PDF", desc: "Free PDF Editor", icon: <FileEdit className="w-5 h-5 text-blue-500" />, href: "/tools/edit-pdf" },
+    { title: "PDF to JPG", desc: "Convert PDF pages to images", icon: <ImageIcon className="w-5 h-5 text-blue-400" />, href: "/tools/pdf-to-jpg" },
+    { title: "JPG to PDF", desc: "Upload images and receive as a PDF", icon: <ImageIcon className="w-5 h-5 text-emerald-500" />, href: "/tools/jpg-to-pdf" },
   ],
   others: [
-    { title: "Create PDF", href: "/tools/create-pdf" },
-    { title: "PDF to JPG", href: "/tools/pdf-to-jpg" },
     { title: "Compress PDF", href: "/tools/compress-pdf" },
+    { title: "Split PDF", href: "/tools/split-pdf" },
+    { title: "PDF to Word", href: "/tools/pdf-to-word" },
     { title: "Word to PDF", href: "/tools/word-to-pdf" },
-    { title: "Split", href: "/tools/split-pdf" },
-    { title: "Remove Password", href: "/tools/remove-password" },
+    { title: "Unlock PDF", href: "/tools/remove-password" },
+    { title: "PDF to Excel", href: "/tools/pdf-to-excel" },
+    { title: "PDF to PowerPoint", href: "/tools/pdf-to-powerpoint" },
+    { title: "PNG to PDF", href: "/tools/png-to-pdf" },
     { title: "PDF Translator", href: "/tools/pdf-translator" },
-    { title: "eSign", href: "/tools/esign" },
-    { title: "Protect", href: "/tools/protect-pdf" },
-    { title: "Rearrange", href: "/tools/rearrange-pdf" },
+    { title: "eSign PDF", href: "/tools/esign" },
+    { title: "Protect PDF", href: "/tools/protect-pdf" },
     { title: "Extract Text", href: "/tools/extract-text" },
-  ]
-};
-
-const imageTools = {
-  ai: [
-    { title: "Background Remover", desc: "Easily Remove the Background", icon: <Eraser className="w-5 h-5 text-orange-500" />, href: "/tools/remove-background" },
-    { title: "Restore Photos", desc: "Restore old photos with AI", icon: <Wand2 className="w-5 h-5 text-purple-500" />, href: "/tools/restore-photos" },
-    { title: "Profile Photo Maker", desc: "Create professional avatars", icon: <ImageIcon className="w-5 h-5 text-blue-500" />, href: "/tools/profile-photo-maker" },
-    { title: "Remove Person", desc: "Erase people from photos", icon: <Brush className="w-5 h-5 text-rose-500" />, href: "/tools/remove-person" },
-    { title: "Extract Text", desc: "OCR text from image", icon: <Type className="w-5 h-5 text-teal-500" />, href: "/tools/extract-text-image" },
-    { title: "AI Image Generator", desc: "Text to image AI", icon: <Sparkles className="w-5 h-5 text-yellow-500" />, href: "/tools/ai-generator" },
-  ],
-  featured: [
-    { title: "Resize Dimensions", desc: "Resize your image", icon: <Maximize2 className="w-5 h-5 text-blue-600" />, href: "/tools/resize-image" },
-    { title: "Compress", desc: "Compress your image", icon: <Minimize2 className="w-5 h-5 text-emerald-600" />, href: "/tools/compress-image" },
-    { title: "Increase Resolution", desc: "Upscale your images", icon: <Layers className="w-5 h-5 text-purple-600" />, href: "/tools/upscale-image" },
-  ],
-  others: [
-    { title: "Blur Background", href: "/tools/blur-background" },
-    { title: "Transparent Background", href: "/tools/transparent-background" },
-    { title: "Make Round Image", href: "/tools/round-image" },
-    { title: "Colorize Photo", href: "/tools/colorize-photo" },
-    { title: "Crop Image", href: "/tools/crop-image" },
-    { title: "Black & White", href: "/tools/black-white" },
-    { title: "Combine Images", href: "/tools/combine-images" },
-    { title: "Add Border", href: "/tools/add-border" },
-    { title: "Flip Image", href: "/tools/flip-image" },
-    { title: "Collage Maker", href: "/tools/collage-maker" },
-    { title: "Image Splitter", href: "/tools/image-splitter" },
-    { title: "Unblur IMG", href: "/tools/unblur-image" },
-    { title: "Remove Watermark", href: "/tools/remove-watermark" },
-    { title: "Add Text to Image", href: "/tools/add-text-image" },
-    { title: "HEIC to JPG", href: "/tools/heic-to-jpg" },
-  ]
-};
-
-const writeTools = {
-  featured: [
-    { title: "Paragraph Writer", desc: "Paragraph Writer", icon: <FileText className="w-5 h-5 text-green-500" />, href: "/tools/paragraph-writer" },
-    { title: "Sentence Rewriter", desc: "Sentence Rewriter", icon: <RefreshCw className="w-5 h-5 text-blue-500" />, href: "/tools/sentence-rewriter" },
-    { title: "Essay Writer", desc: "Easily create an essay with AI", icon: <Pen className="w-5 h-5 text-purple-500" />, href: "/tools/essay-writer" },
-    { title: "Article Writer", desc: "Create an article from a title", icon: <FileEdit className="w-5 h-5 text-teal-500" />, href: "/tools/article-writer" },
-  ],
-  others: [
-    { title: "FB Headline Generator", href: "/tools/fb-headline-generator" },
-    { title: "FAQ Generator", href: "/tools/faq-generator" },
-    { title: "Real Estate Descriptions", href: "/tools/real-estate-descriptions" },
-    { title: "Paragraph Completer", href: "/tools/paragraph-completer" },
-    { title: "Business Name Generator", href: "/tools/business-name-generator" },
-    { title: "Blog Outline Generator", href: "/tools/blog-outline-generator" },
-    { title: "Blog Post Ideas", href: "/tools/blog-post-ideas" },
-    { title: "Instagram Caption Generator", href: "/tools/instagram-caption-generator" },
-    { title: "LinkedIn Post Generator", href: "/tools/linkedin-post-generator" },
-    { title: "Grammar Fixer", href: "/tools/grammar-fixer" },
-    { title: "Content Improver", href: "/tools/content-improver" },
-    { title: "All AI Write", href: "/tools/all-write" },
   ]
 };
 
 const videoTools = {
   featured: [
-    { title: "Compress Video", desc: "Lessen the file size of a Video file", icon: <Minimize className="w-5 h-5 text-orange-500" />, href: "/tools/compress-video" },
-    { title: "Video to Gif", desc: "Upload an MP4 and convert to animated GIF", icon: <ImageIcon className="w-5 h-5 text-blue-500" />, href: "/tools/video-to-gif" },
-    { title: "Trim Video", desc: "Select a start and stop of a video and download", icon: <Scissors className="w-5 h-5 text-purple-500" />, href: "/tools/trim-video" },
-    { title: "MP4 to MP3", desc: "Convert MP4 to MP3 audio", icon: <Music className="w-5 h-5 text-yellow-500" />, href: "/tools/mp4-to-mp3" },
+    { title: "YouTube to Text", desc: "Convert video to text", icon: <Youtube className="w-5 h-5 text-red-500" />, href: "/tools/youtube-to-text" },
+    { title: "Compress Video", desc: "Lessen video file size", icon: <Minimize className="w-5 h-5 text-orange-500" />, href: "/tools/compress-video" },
+    { title: "Instagram Download", desc: "Download from Instagram", icon: <Download className="w-5 h-5 text-pink-500" />, href: "/tools/instagram-download" },
+    { title: "TikTok Download", desc: "Download from TikTok", icon: <Download className="w-5 h-5 text-black" />, href: "/tools/tiktok-downloader" },
   ],
   others: [
     { title: "Audio to Text", href: "/tools/audio-to-text" },
-    { title: "Resize Video", href: "/tools/video-resizer" },
+    { title: "MP4 to MP3", href: "/tools/mp4-to-mp3" },
     { title: "Extract Audio", href: "/tools/extract-audio" },
-    { title: "MOV to MP4", href: "/tools/mov-to-mp4" },
-    { title: "MKV to MP4", href: "/tools/mkv-to-mp4" },
-    { title: "Facebook Download", href: "/tools/facebook-download" },
-    { title: "TikTok Video Downloader", href: "/tools/tiktok-downloader" },
-    { title: "Instagram Download", href: "/tools/instagram-download" },
+    { title: "YouTube Transcript", href: "/tools/youtube-transcript" },
+    { title: "Video to GIF", href: "/tools/video-to-gif" },
+    { title: "Video to Text", href: "/tools/video-to-text" },
     { title: "Twitter Download", href: "/tools/twitter-download" },
-    { title: "M4A to MP3", href: "/tools/m4a-to-mp3" },
-    { title: "Video to WebP", href: "/tools/video-to-webp" },
-    { title: "All Video Tools", href: "/tools/all-video" },
+    { title: "Trim Video", href: "/tools/trim-video" },
   ]
 };
 
-const fileTools = {
-  conversion: [
-    { title: "Split CSV", desc: "Split into one or multiple CSV files", icon: <Table className="w-5 h-5 text-emerald-500" />, href: "/tools/split-csv" },
-    { title: "Excel to PDF", desc: "Convert Excel to PDF", icon: <FileText className="w-5 h-5 text-emerald-600" />, href: "/tools/excel-to-pdf" },
-    { title: "Excel to XML", desc: "Convert Excel to XML", icon: <FileCode className="w-5 h-5 text-emerald-500" />, href: "/tools/excel-to-xml" },
-    { title: "XML to CSV", desc: "Convert XML to CSV", icon: <Table className="w-5 h-5 text-orange-500" />, href: "/tools/xml-to-csv" },
-    { title: "Split Excel", desc: "Split into one or multiple Excel files", icon: <Table className="w-5 h-5 text-emerald-600" />, href: "/tools/split-excel" },
-    { title: "XML to Excel", desc: "Convert XML to Excel", icon: <Table className="w-5 h-5 text-blue-500" />, href: "/tools/xml-to-excel" },
-    { title: "CSV to Excel", desc: "Convert CSV to Excel", icon: <Table className="w-5 h-5 text-emerald-500" />, href: "/tools/csv-to-excel" },
-    { title: "XML to JSON", desc: "Convert XML to JSON", icon: <FileJson className="w-5 h-5 text-blue-600" />, href: "/tools/xml-to-json" },
-  ],
+const converterTools = {
   featured: [
-    { title: "PDF to JPG", desc: "PDF Tools", icon: <ImageIcon className="w-5 h-5 text-rose-500" />, href: "/tools/pdf-to-jpg" },
-    { title: "Upscale Image", desc: "Image Tools", icon: <Layers className="w-5 h-5 text-purple-500" />, href: "/tools/upscale-image" },
+    { title: "Excel to PDF", desc: "Convert Excel to PDF", icon: <Table className="w-5 h-5 text-green-600" />, href: "/tools/excel-to-pdf" },
+    { title: "CSV to Excel", desc: "Convert CSV to Excel", icon: <Table className="w-5 h-5 text-emerald-500" />, href: "/tools/csv-to-excel" },
+    { title: "Split Excel", desc: "Divide Excel files", icon: <Table className="w-5 h-5 text-green-400" />, href: "/tools/split-excel" },
+    { title: "XML to Excel", desc: "Convert XML to Excel", icon: <FileCode className="w-5 h-5 text-blue-400" />, href: "/tools/xml-to-excel" },
+  ],
+  others: [
+    { title: "Split CSV", href: "/tools/split-csv" },
+    { title: "EPUB to MOBI", href: "/tools/epub-to-mobi" },
+    { title: "JSON to XML", href: "/tools/json-to-xml" },
+    { title: "Excel to CSV", href: "/tools/excel-to-csv" },
+    { title: "XML to CSV", href: "/tools/xml-to-csv" },
+    { title: "CSV to JSON", href: "/tools/csv-to-json" },
+    { title: "EPUB to AZW3", href: "/tools/epub-to-azw3" },
+    { title: "Excel to XML", href: "/tools/excel-to-xml" },
   ]
 };
 
-export function Header() {
+const writeTools = {
+  featured: [
+    { title: "Content Improver", desc: "Improve your content", icon: <Sparkles className="w-5 h-5 text-purple-400" />, href: "/tools/content-improver" },
+    { title: "Essay Writer", desc: "Create AI essays", icon: <PenTool className="w-5 h-5 text-orange-400" />, href: "/tools/essay-writer" },
+    { title: "Paragraph Writer", desc: "AI paragraph writer", icon: <Type className="w-5 h-5 text-rose-400" />, href: "/tools/paragraph-writer" },
+    { title: "Paragraph Completer", desc: "Finish paragraphs", icon: <Type className="w-5 h-5 text-blue-400" />, href: "/tools/paragraph-completer" },
+  ],
+  others: [
+    { title: "Story Generator", href: "/tools/story-generator" },
+    { title: "Grammar Fixer", href: "/tools/grammar-fixer" },
+    { title: "Sentence Rewriter", href: "/tools/sentence-rewriter" },
+    { title: "Article Writer", href: "/tools/article-writer" },
+    { title: "Content Summarizer", href: "/tools/content-summarizer" },
+    { title: "AI Humanizer", href: "/tools/ai-humanizer" },
+    { title: "Tone of Voice", href: "/tools/tone-of-voice" },
+    { title: "YouTube Script", href: "/tools/youtube-script-writer" },
+  ]
+};
+
+const otherTools = {
+  featured: [
+    { title: "QR Generator", desc: "Create QR codes", icon: <QrCode className="w-5 h-5 text-orange-400" />, href: "/tools/qr-generator" },
+    { title: "Lorem Ipsum", desc: "Placeholder text", icon: <StickyNote className="w-5 h-5 text-yellow-400" />, href: "/tools/lorem-ipsum" },
+    { title: "Meme Maker", desc: "Create memes", icon: <Smile className="w-5 h-5 text-blue-400" />, href: "/tools/meme-maker" },
+    { title: "Create Zip", desc: "Compress files", icon: <Zap className="w-5 h-5 text-green-400" />, href: "/tools/create-zip" },
+  ],
+  others: [
+    { title: "Epoch Converter", href: "/tools/epoch-converter" }
+  ]
+};
+
+export default function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
@@ -178,7 +162,7 @@ export function Header() {
           <Link href="/">
             <div className="flex items-center gap-2 cursor-pointer">
               <div className="bg-primary text-primary-foreground p-1.5 rounded-lg">
-                <Menu className="h-5 w-5" />
+                <Zap className="h-5 w-5" />
               </div>
               <span className="font-heading font-bold text-xl tracking-tight hidden sm:inline-block">
                 Micro<span className="text-primary">Wow</span>
@@ -232,100 +216,6 @@ export function Header() {
                 </NavigationMenuContent>
               </NavigationMenuItem>
 
-              {/* Image Menu */}
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3">
-                  Image
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="grid grid-cols-[250px_1fr] p-0 bg-white rounded-xl shadow-2xl min-w-[800px] overflow-hidden">
-                    <div className="bg-slate-50 p-6 border-r">
-                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">AI Tools</h4>
-                      <div className="space-y-4 text-left">
-                        {imageTools.ai.map((tool) => (
-                          <Link key={tool.title} href={tool.href}>
-                            <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-white hover:shadow-sm cursor-pointer transition-all group">
-                              <div className="mt-1">{tool.icon}</div>
-                              <div>
-                                <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
-                                <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
-                              </div>
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="p-6">
-                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Featured Tools</h4>
-                      <div className="grid grid-cols-3 gap-4 mb-8">
-                        {imageTools.featured.map((tool) => (
-                          <Link key={tool.title} href={tool.href}>
-                            <div className="p-4 rounded-xl border border-transparent hover:border-primary/20 hover:bg-primary/5 cursor-pointer transition-all group text-center">
-                              <div className="flex justify-center mb-3 text-primary">{tool.icon}</div>
-                              <div className="text-sm font-bold group-hover:text-primary mb-1">{tool.title}</div>
-                              <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
-                      
-                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Other Image Tools</h4>
-                      <div className="grid grid-cols-3 gap-y-3 gap-x-8 text-left">
-                        {imageTools.others.map((tool) => (
-                          <Link key={tool.title} href={tool.href}>
-                            <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
-                              {tool.title}
-                            </span>
-                          </Link>
-                        ))}
-                        <Link href="/tools/all-image">
-                          <span className="text-[13px] font-bold text-primary hover:underline cursor-pointer">All Image Tools</span>
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-
-              {/* Write Menu */}
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3">
-                  Write
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="grid grid-cols-[300px_450px] p-6 gap-6 bg-white rounded-xl shadow-2xl min-w-[750px]">
-                    <div className="border-r pr-6">
-                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Featured Tools</h4>
-                      <div className="space-y-4 text-left">
-                        {writeTools.featured.map((tool) => (
-                          <Link key={tool.title} href={tool.href}>
-                            <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
-                              <div className="mt-1">{tool.icon}</div>
-                              <div>
-                                <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
-                                <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
-                              </div>
-                            </div>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Other Write Tools</h4>
-                      <div className="grid grid-cols-2 gap-y-3 gap-x-8 text-left">
-                        {writeTools.others.map((tool) => (
-                          <Link key={tool.title} href={tool.href}>
-                            <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
-                              {tool.title}
-                            </span>
-                          </Link>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-
               {/* Video Menu */}
               <NavigationMenuItem>
                 <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3">
@@ -365,17 +255,17 @@ export function Header() {
                 </NavigationMenuContent>
               </NavigationMenuItem>
 
-              {/* File Menu */}
+              {/* Converter Menu */}
               <NavigationMenuItem>
                 <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3">
-                  File
+                  Converter
                 </NavigationMenuTrigger>
                 <NavigationMenuContent>
-                  <div className="p-6 bg-white rounded-xl shadow-2xl min-w-[750px]">
-                    <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">File Tools</h4>
-                    <div className="grid grid-cols-2 gap-6">
-                      <div className="grid grid-cols-2 gap-4">
-                        {fileTools.conversion.map((tool) => (
+                  <div className="grid grid-cols-[300px_450px] p-6 gap-6 bg-white rounded-xl shadow-2xl min-w-[750px]">
+                    <div className="border-r pr-6">
+                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Featured Tools</h4>
+                      <div className="space-y-4 text-left">
+                        {converterTools.featured.map((tool) => (
                           <Link key={tool.title} href={tool.href}>
                             <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
                               <div className="mt-1">{tool.icon}</div>
@@ -387,8 +277,34 @@ export function Header() {
                           </Link>
                         ))}
                       </div>
-                      <div className="space-y-4">
-                        {fileTools.featured.map((tool) => (
+                    </div>
+                    <div>
+                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Other Converter Tools</h4>
+                      <div className="grid grid-cols-2 gap-y-3 gap-x-8 text-left">
+                        {converterTools.others.map((tool) => (
+                          <Link key={tool.title} href={tool.href}>
+                            <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
+                              {tool.title}
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+
+              {/* Write Menu */}
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3">
+                  Write
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="grid grid-cols-[300px_450px] p-6 gap-6 bg-white rounded-xl shadow-2xl min-w-[750px]">
+                    <div className="border-r pr-6">
+                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Featured Tools</h4>
+                      <div className="space-y-4 text-left">
+                        {writeTools.featured.map((tool) => (
                           <Link key={tool.title} href={tool.href}>
                             <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
                               <div className="mt-1">{tool.icon}</div>
@@ -397,6 +313,57 @@ export function Header() {
                                 <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
                               </div>
                             </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Other AI Tools</h4>
+                      <div className="grid grid-cols-2 gap-y-3 gap-x-8 text-left">
+                        {writeTools.others.map((tool) => (
+                          <Link key={tool.title} href={tool.href}>
+                            <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
+                              {tool.title}
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+
+              {/* Other Menu */}
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3">
+                  Other
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="grid grid-cols-[300px_450px] p-6 gap-6 bg-white rounded-xl shadow-2xl min-w-[750px]">
+                    <div className="border-r pr-6">
+                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Featured Tools</h4>
+                      <div className="space-y-4 text-left">
+                        {otherTools.featured.map((tool) => (
+                          <Link key={tool.title} href={tool.href}>
+                            <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
+                              <div className="mt-1">{tool.icon}</div>
+                              <div>
+                                <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
+                                <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
+                              </div>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Other Tools</h4>
+                      <div className="grid grid-cols-2 gap-y-3 gap-x-8 text-left">
+                        {otherTools.others.map((tool) => (
+                          <Link key={tool.title} href={tool.href}>
+                            <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
+                              {tool.title}
+                            </span>
                           </Link>
                         ))}
                       </div>
@@ -429,7 +396,6 @@ export function Header() {
         </div>
       </div>
       
-      {/* Ad Placeholder Header */}
       <div className="w-full bg-muted/30 border-t py-2 text-center text-xs text-muted-foreground">
         <div className="container mx-auto max-w-3xl h-12 border border-dashed border-muted-foreground/30 bg-muted/10 flex items-center justify-center rounded">
           Advertisement Placeholder (728x90)
