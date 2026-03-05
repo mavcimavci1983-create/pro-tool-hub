@@ -86,6 +86,10 @@ export default function ImageToWebp() {
         const base64str = dataUrl.split(',')[1];
         const decoded = atob(base64str);
         setWebpSize(decoded.length);
+        
+        // Security: Revoke the object URL to free memory immediately
+        URL.revokeObjectURL(previewUrl);
+        setPreviewUrl(null);
       }
       setIsProcessing(false);
     };
@@ -93,6 +97,7 @@ export default function ImageToWebp() {
   };
 
   const resetTool = () => {
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
     setFile(null);
     setPreviewUrl(null);
     setWebpUrl(null);
