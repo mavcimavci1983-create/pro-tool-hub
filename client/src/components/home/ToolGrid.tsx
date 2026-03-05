@@ -12,7 +12,19 @@ import {
   Maximize2,
   VolumeX,
   Minimize,
-  FileCode
+  FileCode,
+  Music,
+  Play,
+  Download,
+  Table,
+  FileJson,
+  RefreshCw,
+  Eraser,
+  Wand2,
+  Brush,
+  Palette,
+  Layers,
+  Sparkles
 } from "lucide-react";
 
 const toolCategories = [
@@ -64,90 +76,38 @@ const toolCategories = [
 ];
 
 const allTools = [
-  {
-    title: "Video to GIF",
-    desc: "Free online video to gif converter - No Watermark",
-    cat: "Video Tools",
-    icon: <Scissors className="w-5 h-5 text-rose-500" />,
-    link: "/tools/video-to-gif"
-  },
-  {
-    title: "Mute Video",
-    desc: "Remove audio from video online for free - Fast & Secure",
-    cat: "Video Tools",
-    icon: <VolumeX className="w-5 h-5 text-indigo-500" />,
-    link: "/tools/mute-video"
-  },
-  {
-    title: "Video Resizer",
-    desc: "Resize video online for social media - No Watermark",
-    cat: "Video Tools",
-    icon: <Minimize className="w-5 h-5 text-blue-500" />,
-    link: "/tools/video-resizer"
-  },
-  {
-    title: "Image to WebP",
-    desc: "Convert your images to highly optimized WebP format.",
-    cat: "Image Tools",
-    icon: <ImageIcon className="w-5 h-5 text-orange-500" />,
-    link: "/tools/image-to-webp"
-  },
-  {
-    title: "Remove Background",
-    desc: "AI-powered background removal with 60-min auto-wipe security.",
-    cat: "Image Tools",
-    icon: <Scissors className="w-5 h-5 text-green-500" />,
-    link: "/tools/remove-background"
-  },
-  {
-    title: "Merge PDF",
-    desc: "Securely combine multiple PDF files on our Node.js backend.",
-    cat: "Pdf Tools",
-    icon: <Merge className="w-5 h-5 text-purple-500" />,
-    link: "/tools/merge-pdf"
-  },
-  {
-    title: "Edit PDF",
-    desc: "Free PDF Editor",
-    cat: "Pdf Tools",
-    icon: <PenTool className="w-5 h-5 text-blue-500" />,
-    link: "/tools/edit-pdf"
-  },
-  {
-    title: "PDF to JPG",
-    desc: "Convert PDF to JPG and download each page as an image",
-    cat: "Pdf Tools",
-    icon: <FileText className="w-5 h-5 text-yellow-500" />,
-    link: "/tools/pdf-to-jpg"
-  },
-  {
-    title: "JPG to PDF",
-    desc: "Upload images and receive as a PDF",
-    cat: "Pdf Tools",
-    icon: <FileText className="w-5 h-5 text-red-500" />,
-    link: "/tools/jpg-to-pdf"
-  },
-  {
-    title: "Compress PDF",
-    desc: "Lessen the file size of a PDF file",
-    cat: "Pdf Tools",
-    icon: <Minimize2 className="w-5 h-5 text-indigo-500" />,
-    link: "/tools/compress-pdf"
-  },
-  {
-    title: "Upscale Image",
-    desc: "Increase the resolution of your image",
-    cat: "Image Tools",
-    icon: <Maximize2 className="w-5 h-5 text-orange-500" />,
-    link: "/tools/upscale-image"
-  },
-  {
-    title: "Paragraph Writer",
-    desc: "Paragraph Writer",
-    cat: "AI Write",
-    icon: <Type className="w-5 h-5 text-blue-600" />,
-    link: "/tools/paragraph-writer"
-  }
+  // PDF Tools
+  { title: "Edit PDF", desc: "Free PDF Editor online", cat: "Pdf Tools", icon: <PenTool className="w-5 h-5 text-blue-500" />, link: "/tools/edit-pdf" },
+  { title: "Merge PDF", desc: "Combine multiple PDF files", cat: "Pdf Tools", icon: <Merge className="w-5 h-5 text-purple-500" />, link: "/tools/merge-pdf" },
+  { title: "PDF to Word", desc: "Convert PDF to editable Word", cat: "Pdf Tools", icon: <FileText className="w-5 h-5 text-blue-400" />, link: "/tools/pdf-to-word" },
+  { title: "JPG to PDF", desc: "Convert images to PDF", cat: "Pdf Tools", icon: <ImageIcon className="w-5 h-5 text-emerald-500" />, link: "/tools/jpg-to-pdf" },
+  { title: "Compress PDF", desc: "Reduce PDF file size", cat: "Pdf Tools", icon: <Minimize2 className="w-5 h-5 text-indigo-500" />, link: "/tools/compress-pdf" },
+  
+  // Image Tools
+  { title: "Remove Background", desc: "AI background removal", cat: "Image Tools", icon: <Eraser className="w-5 h-5 text-orange-500" />, link: "/tools/remove-background" },
+  { title: "Image to WebP", desc: "Convert images to WebP", cat: "Image Tools", icon: <ImageIcon className="w-5 h-5 text-orange-500" />, link: "/tools/image-to-webp" },
+  { title: "Upscale Image", desc: "Increase image resolution", cat: "Image Tools", icon: <Maximize2 className="w-5 h-5 text-purple-500" />, link: "/tools/upscale-image" },
+  { title: "Restore Photos", desc: "Restore old photos with AI", cat: "Image Tools", icon: <Wand2 className="w-5 h-5 text-purple-500" />, link: "/tools/restore-photos" },
+  { title: "AI Image Generator", desc: "Create art from text", cat: "Image Tools", icon: <Sparkles className="w-5 h-5 text-yellow-500" />, link: "/tools/ai-generator" },
+
+  // Video Tools
+  { title: "Compress Video", desc: "Lessen video file size", cat: "Video Tools", icon: <Minimize className="w-5 h-5 text-orange-500" />, link: "/tools/compress-video" },
+  { title: "Video to GIF", desc: "Convert video to GIF", cat: "Video Tools", icon: <Scissors className="w-5 h-5 text-rose-500" />, link: "/tools/video-to-gif" },
+  { title: "Mute Video", desc: "Remove audio from video", cat: "Video Tools", icon: <VolumeX className="w-5 h-5 text-indigo-500" />, link: "/tools/mute-video" },
+  { title: "Trim Video", desc: "Cut video clips easily", cat: "Video Tools", icon: <Scissors className="w-5 h-5 text-purple-500" />, link: "/tools/trim-video" },
+  { title: "MP4 to MP3", desc: "Extract audio from video", cat: "Video Tools", icon: <Music className="w-5 h-5 text-yellow-500" />, link: "/tools/mp4-to-mp3" },
+
+  // AI Write
+  { title: "Paragraph Writer", desc: "AI Paragraph Writer", cat: "AI Write", icon: <Type className="w-5 h-5 text-blue-600" />, link: "/tools/paragraph-writer" },
+  { title: "Sentence Rewriter", desc: "Improve your writing", cat: "AI Write", icon: <RefreshCw className="w-5 h-5 text-blue-500" />, link: "/tools/sentence-rewriter" },
+  { title: "Essay Writer", desc: "Write essays with AI", cat: "AI Write", icon: <PenTool className="w-5 h-5 text-purple-500" />, link: "/tools/essay-writer" },
+  { title: "Article Writer", desc: "Blog post generator", cat: "AI Write", icon: <FileEdit className="w-5 h-5 text-teal-500" />, link: "/tools/article-writer" },
+
+  // Converter/File Tools
+  { title: "Split Excel", desc: "Divide large excel files", cat: "Converter Tools", icon: <Table className="w-5 h-5 text-emerald-600" />, link: "/tools/split-excel" },
+  { title: "Excel to PDF", desc: "Convert Excel to PDF", cat: "Converter Tools", icon: <FileText className="w-5 h-5 text-emerald-600" />, link: "/tools/excel-to-pdf" },
+  { title: "XML to JSON", desc: "Convert XML to JSON", cat: "Converter Tools", icon: <FileJson className="w-5 h-5 text-blue-600" />, link: "/tools/xml-to-json" },
+  { title: "Split CSV", desc: "Separate large CSV files", cat: "Converter Tools", icon: <Table className="w-5 h-5 text-emerald-500" />, link: "/tools/split-csv" }
 ];
 
 export function ToolGrid() {
@@ -160,10 +120,10 @@ export function ToolGrid() {
   return (
     <div className="w-full max-w-6xl mx-auto px-4 pb-20">
       {/* Category Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-16">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-16 pt-8">
         {toolCategories.map((category) => (
           <div key={category.title} className="group cursor-pointer" onClick={() => setActiveTab(category.cat)}>
-            <div className={`relative overflow-hidden rounded-2xl p-6 text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${category.color} ${activeTab === category.cat ? 'ring-4 ring-primary/20 scale-[1.02]' : ''}`}>
+            <div className={`relative overflow-hidden rounded-2xl p-6 text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${category.color} ${activeTab === category.cat ? 'ring-4 ring-white/50 scale-[1.02]' : ''}`}>
               <div className="flex justify-between items-start mb-8">
                 <div className="bg-white/20 p-3 rounded-xl backdrop-blur-sm">
                   {category.icon}
@@ -231,20 +191,26 @@ export function ToolGrid() {
 
       {/* Tools Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredTools.map((tool, i) => (
-          <Link href={tool.link} key={i}>
-            <div className="bg-card border rounded-2xl p-5 cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-1 group h-full flex items-start gap-4">
-              <div className="bg-muted p-3 rounded-xl group-hover:bg-primary/10 transition-colors">
-                {tool.icon}
+        {filteredTools.length > 0 ? (
+          filteredTools.map((tool, i) => (
+            <Link href={tool.link} key={i}>
+              <div className="bg-card border rounded-2xl p-5 cursor-pointer hover:shadow-md transition-all duration-200 hover:-translate-y-1 group h-full flex items-start gap-4">
+                <div className="bg-muted p-3 rounded-xl group-hover:bg-primary/10 transition-colors">
+                  {tool.icon}
+                </div>
+                <div>
+                  <h3 className="font-bold text-base mb-1 group-hover:text-primary transition-colors">{tool.title}</h3>
+                  <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-2">{tool.cat}</span>
+                  <p className="text-sm text-muted-foreground line-clamp-2">{tool.desc}</p>
+                </div>
               </div>
-              <div>
-                <h3 className="font-bold text-base mb-1 group-hover:text-primary transition-colors">{tool.title}</h3>
-                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block mb-2">{tool.cat}</span>
-                <p className="text-sm text-muted-foreground line-clamp-2">{tool.desc}</p>
-              </div>
-            </div>
-          </Link>
-        ))}
+            </Link>
+          ))
+        ) : (
+          <div className="col-span-full py-20 text-center bg-muted/30 rounded-3xl border-2 border-dashed">
+            <p className="text-muted-foreground">No tools found for this category yet.</p>
+          </div>
+        )}
       </div>
     </div>
   );
