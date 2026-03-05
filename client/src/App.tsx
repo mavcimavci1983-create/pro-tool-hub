@@ -275,6 +275,76 @@ function Router() {
       <Route path="/tools/all-file">
         <GenericPdfTool title="All File Tools" desc="Complete set of CSV, Excel, XML, and JSON conversion utilities." />
       </Route>
+      
+      {/* Video Tools Ext */}
+      <Route path="/tools/youtube-to-text">
+        <VideoTool title="YouTube to Text" desc="Convert YouTube video to text automatically." icon={Youtube} />
+      </Route>
+      <Route path="/tools/youtube-transcript">
+        <VideoTool title="YouTube Transcript" desc="Extract transcript from any YouTube video." icon={FileText} />
+      </Route>
+      <Route path="/tools/youtube-script-writer">
+        <GenericPdfTool title="YouTube Script Writer" desc="Generate professional scripts for your YouTube videos." />
+      </Route>
+      <Route path="/tools/video-to-text">
+        <VideoTool title="Video to Text" desc="Convert video speech into editable text." icon={Type} />
+      </Route>
+
+      {/* Converter Tools Ext */}
+      <Route path="/tools/epub-to-mobi">
+        <GenericPdfTool title="EPUB to MOBI" desc="Convert EPUB e-books to Kindle-compatible MOBI format." />
+      </Route>
+      <Route path="/tools/epub-to-azw3">
+        <GenericPdfTool title="EPUB to AZW3" desc="Convert EPUB files to Amazon AZW3 format." />
+      </Route>
+      <Route path="/tools/json-to-xml">
+        <GenericPdfTool title="JSON to XML" desc="Convert JSON data structures into XML format." />
+      </Route>
+      <Route path="/tools/csv-to-json">
+        <GenericPdfTool title="CSV to JSON" desc="Transform CSV data into JSON format." />
+      </Route>
+
+      {/* Other Tools Ext */}
+      <Route path="/tools/qr-generator">
+        <GenericPdfTool title="QR Code Generator" desc="Create custom QR codes for URLs, text, or contact info." />
+      </Route>
+      <Route path="/tools/lorem-ipsum">
+        <GenericPdfTool title="Lorem Ipsum Generator" desc="Generate placeholder text for your design projects." />
+      </Route>
+      <Route path="/tools/meme-maker">
+        <GenericPdfTool title="Meme Maker" desc="Create funny memes from your images easily." />
+      </Route>
+      <Route path="/tools/create-zip">
+        <GenericPdfTool title="Create Zip" desc="Compress multiple files into a single ZIP archive." />
+      </Route>
+      <Route path="/tools/epoch-converter">
+        <GenericPdfTool title="Epoch Converter" desc="Convert Unix timestamps to human-readable dates." />
+      </Route>
+
+      {/* AI Write Ext */}
+      <Route path="/tools/story-generator">
+        <GenericPdfTool title="Story Generator" desc="Generate creative stories and narratives using AI." />
+      </Route>
+      <Route path="/tools/content-summarizer">
+        <GenericPdfTool title="Content Summarizer" desc="Summarize long articles and documents into key points." />
+      </Route>
+      <Route path="/tools/ai-humanizer">
+        <GenericPdfTool title="AI Humanizer" desc="Rewrite AI text to sound more natural and human-like." />
+      </Route>
+      <Route path="/tools/tone-of-voice">
+        <GenericPdfTool title="Tone of Voice" desc="Analyze and adjust the tone of your writing." />
+      </Route>
+
+      {/* PDF Tools Ext */}
+      <Route path="/tools/pdf-to-excel">
+        <GenericPdfTool title="PDF to Excel" desc="Extract tables from PDF into editable Excel sheets." />
+      </Route>
+      <Route path="/tools/pdf-to-powerpoint">
+        <GenericPdfTool title="PDF to PowerPoint" desc="Convert PDF presentations into editable PPTX slides." />
+      </Route>
+      <Route path="/tools/png-to-pdf">
+        <GenericPdfTool title="PNG to PDF" desc="Convert PNG images into high-quality PDF files." />
+      </Route>
 
       {/* Fallback to 404 */}
       <Route component={NotFound} />

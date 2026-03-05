@@ -21,73 +21,37 @@ import {
   RefreshCw,
   Eraser,
   Wand2,
-  Brush,
-  Palette,
-  Layers,
   Sparkles,
   FileEdit,
   ArrowRight,
   Search,
-  Lock
+  Lock,
+  Youtube,
+  Instagram,
+  Twitter,
+  FileSearch,
+  Languages,
+  Signature,
+  Layout,
+  History,
+  EyeOff,
+  Files,
+  QrCode,
+  StickyNote,
+  Smile,
+  Zap,
+  Clock,
+  BookOpen,
+  CheckCircle2,
+  MessageSquare,
+  Building2,
+  Clapperboard
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-const toolCategories = [
-  {
-    title: "PDF Tools",
-    desc: "Solve Your PDF Problems",
-    count: "45+ tools",
-    color: "bg-[#A855F7]",
-    icon: <FileText className="w-6 h-6 text-white" />,
-    featured: { name: "Merge PDF", href: "/tools/merge-pdf" },
-    cat: "Pdf Tools",
-    href: "/tools/all-pdf"
-  },
-  {
-    title: "Image Tools",
-    desc: "Solve Your Image Problems",
-    count: "30+ tools",
-    color: "bg-[#F97316]",
-    icon: <ImageIcon className="w-6 h-6 text-white" />,
-    featured: { name: "Remove Background", href: "/tools/remove-background" },
-    cat: "Image Tools",
-    href: "/tools/all-image"
-  },
-  {
-    title: "Video Tools",
-    desc: "Solve Your Video Problems",
-    count: "10+ tools",
-    color: "bg-[#EC4899]",
-    icon: <Video className="w-6 h-6 text-white" />,
-    featured: { name: "Mute Video", href: "/tools/mute-video" },
-    cat: "Video Tools",
-    href: "/tools/all-video"
-  },
-  {
-    title: "AI Write",
-    desc: "Solve Your Text Problems",
-    count: "10+ tools",
-    color: "bg-[#3B82F6]",
-    icon: <PenTool className="w-6 h-6 text-white" />,
-    featured: { name: "Paragraph Writer", href: "/tools/paragraph-writer" },
-    cat: "AI Write",
-    href: "/tools/all-write"
-  },
-  {
-    title: "File Tools",
-    desc: "Solve Your File Problems",
-    count: "15+ tools",
-    color: "bg-[#10B981]",
-    icon: <FileCode className="w-6 h-6 text-white" />,
-    featured: { name: "Split Excel", href: "/tools/split-excel" },
-    cat: "Converter Tools",
-    href: "/tools/all-file"
-  }
-];
-
 const allTools = [
-  // PDF Tools
+  // PDF Tools (Görsel 1)
   { title: "Merge PDF", desc: "Merge 2 or more PDF files into a single PDF file", cat: "Pdf Tools", icon: <Merge className="w-5 h-5 text-rose-400" />, link: "/tools/merge-pdf" },
   { title: "Edit PDF", desc: "Free PDF Editor", cat: "Pdf Tools", icon: <PenTool className="w-5 h-5 text-emerald-400" />, link: "/tools/edit-pdf" },
   { title: "PDF to JPG", desc: "Convert PDF to JPG and download each page as an image", cat: "Pdf Tools", icon: <ImageIcon className="w-5 h-5 text-blue-400" />, link: "/tools/pdf-to-jpg" },
@@ -95,27 +59,67 @@ const allTools = [
   { title: "Compress PDF", desc: "Lessen the file size of a PDF file", cat: "Pdf Tools", icon: <Minimize2 className="w-5 h-5 text-purple-400" />, link: "/tools/compress-pdf" },
   { title: "Split PDF", desc: "Split into one or multiple PDF files", cat: "Pdf Tools", icon: <Scissors className="w-5 h-5 text-purple-400" />, link: "/tools/split-pdf" },
   { title: "PDF to Word", desc: "Convert a PDF to Word Document", cat: "Pdf Tools", icon: <FileText className="w-5 h-5 text-orange-400" />, link: "/tools/pdf-to-word" },
-  { title: "Unlock PDF", desc: "Remove the password from a PDF file", cat: "Pdf Tools", icon: <Lock className="w-5 h-5 text-cyan-400" />, link: "/tools/remove-password" },
-  
-  // Image Tools
+  { title: "Word to PDF", desc: "Convert a Word Document to PDF", cat: "Pdf Tools", icon: <FileText className="w-5 h-5 text-blue-500" />, link: "/tools/word-to-pdf" },
+  { title: "Unlock PDF", desc: "Remove the password from a PDF file(requires the password)", cat: "Pdf Tools", icon: <Lock className="w-5 h-5 text-cyan-400" />, link: "/tools/remove-password" },
+  { title: "PDF to Excel", desc: "Convert from PDF to XLSX", cat: "Pdf Tools", icon: <Table className="w-5 h-5 text-green-500" />, link: "/tools/pdf-to-excel" },
+  { title: "PDF to Powerpoint", desc: "Upload a PDF and Download as a PowerPoint Presentation", cat: "Pdf Tools", icon: <Presentation className="w-5 h-5 text-orange-600" />, link: "/tools/pdf-to-powerpoint" },
+  { title: "PNG to PDF", desc: "Upload images and receive as a PDF", cat: "Pdf Tools", icon: <ImageIcon className="w-5 h-5 text-emerald-400" />, link: "/tools/png-to-pdf" },
+
+  // Video Tools (Görsel 2)
+  { title: "Youtube to Text", desc: "Convert video to text", cat: "Video Tools", icon: <Youtube className="w-5 h-5 text-red-500" />, link: "/tools/youtube-to-text" },
+  { title: "Compress Video", desc: "Lessen the file size of a Video file", cat: "Video Tools", icon: <Minimize className="w-5 h-5 text-orange-400" />, link: "/tools/compress-video" },
+  { title: "Instagram Download", desc: "Download Video from Instagram", cat: "Video Tools", icon: <Instagram className="w-5 h-5 text-pink-500" />, link: "/tools/instagram-download" },
+  { title: "TikTok Video Download", desc: "Download Video from TikTok", cat: "Video Tools", icon: <Download className="w-5 h-5 text-black" />, link: "/tools/tiktok-downloader" },
+  { title: "Audio to Text", desc: "Transcribe audio to text", cat: "Video Tools", icon: <VolumeX className="w-5 h-5 text-indigo-400" />, link: "/tools/audio-to-text" },
+  { title: "MP4 to MP3", desc: "Convert MP4 to MP3 audio", cat: "Video Tools", icon: <Music className="w-5 h-5 text-yellow-400" />, link: "/tools/mp4-to-mp3" },
+  { title: "Extract Audio from Video", desc: "Extract audio from your video", cat: "Video Tools", icon: <Music className="w-5 h-5 text-blue-400" />, link: "/tools/extract-audio" },
+  { title: "YouTube Transcript", desc: "Transcribe YouTube Video", cat: "Video Tools", icon: <FileText className="w-5 h-5 text-red-400" />, link: "/tools/youtube-transcript" },
+  { title: "Video to Gif", desc: "Upload an MP4 and convert to animated GIF", cat: "Video Tools", icon: <Clapperboard className="w-5 h-5 text-rose-400" />, link: "/tools/video-to-gif" },
+  { title: "Video to Text", desc: "Transcribe video to text", cat: "Video Tools", icon: <Type className="w-5 h-5 text-blue-400" />, link: "/tools/video-to-text" },
+  { title: "Twitter Download", desc: "Download Video from Twitter", cat: "Video Tools", icon: <Twitter className="w-5 h-5 text-sky-500" />, link: "/tools/twitter-download" },
+  { title: "Trim Video", desc: "Select a start and stop of a video and download the trimmed video", cat: "Video Tools", icon: <Scissors className="w-5 h-5 text-purple-400" />, link: "/tools/trim-video" },
+
+  // Converter Tools (Görsel 3)
+  { title: "Excel to PDF", desc: "Convert Excel to PDF", cat: "Converter Tools", icon: <Table className="w-5 h-5 text-green-600" />, link: "/tools/excel-to-pdf" },
+  { title: "CSV to Excel", desc: "Convert CSV to Excel", cat: "Converter Tools", icon: <Table className="w-5 h-5 text-emerald-500" />, link: "/tools/csv-to-excel" },
+  { title: "Split Excel", desc: "Split into one or multiple Excel files", cat: "Converter Tools", icon: <Table className="w-5 h-5 text-green-400" />, link: "/tools/split-excel" },
+  { title: "XML to Excel", desc: "Convert XML to Excel", cat: "Converter Tools", icon: <FileCode className="w-5 h-5 text-blue-400" />, link: "/tools/xml-to-excel" },
+  { title: "Split CSV", desc: "Split into one or multiple PDF files", cat: "Converter Tools", icon: <Scissors className="w-5 h-5 text-rose-400" />, link: "/tools/split-csv" },
+  { title: "EPUB to MOBI", desc: "Convert EPUB file to MOBI file", cat: "Converter Tools", icon: <BookOpen className="w-5 h-5 text-orange-400" />, link: "/tools/epub-to-mobi" },
+  { title: "JSON to XML", desc: "Convert JSON to XML", cat: "Converter Tools", icon: <FileJson className="w-5 h-5 text-yellow-500" />, link: "/tools/json-to-xml" },
+  { title: "Excel to CSV", desc: "Convert Excel to CSV", cat: "Converter Tools", icon: <Table className="w-5 h-5 text-green-500" />, link: "/tools/excel-to-csv" },
+  { title: "XML to CSV", desc: "Convert XML to CSV", cat: "Converter Tools", icon: <FileCode className="w-5 h-5 text-blue-500" />, link: "/tools/xml-to-csv" },
+  { title: "CSV to JSON", desc: "Convert CSV to JSON", cat: "Converter Tools", icon: <FileJson className="w-5 h-5 text-yellow-400" />, link: "/tools/csv-to-json" },
+  { title: "EPUB to AZW3", desc: "Convert EPUB file to AZW3 file", cat: "Converter Tools", icon: <BookOpen className="w-5 h-5 text-orange-500" />, link: "/tools/epub-to-azw3" },
+  { title: "Excel to XML", desc: "Convert Excel to XML", cat: "Converter Tools", icon: <FileCode className="w-5 h-5 text-blue-600" />, link: "/tools/excel-to-xml" },
+
+  // Other Tools (Görsel 4)
+  { title: "QR Code Generator", desc: "Generate QR code", cat: "Other Tools", icon: <QrCode className="w-5 h-5 text-orange-400" />, link: "/tools/qr-generator" },
+  { title: "Lorem Ipsum Generator", desc: "Generate Lorem Ipsum placeholder text", cat: "Other Tools", icon: <StickyNote className="w-5 h-5 text-yellow-400" />, link: "/tools/lorem-ipsum" },
+  { title: "Meme Maker", desc: "Generate memes easily", cat: "Other Tools", icon: <Smile className="w-5 h-5 text-blue-400" />, link: "/tools/meme-maker" },
+  { title: "Create Zip", desc: "Create Zip file Online", cat: "Other Tools", icon: <Zap className="w-5 h-5 text-green-400" />, link: "/tools/create-zip" },
+  { title: "Epoch Converter", desc: "Convert epoch to human-readable date and vice versa", cat: "Other Tools", icon: <Clock className="w-5 h-5 text-rose-400" />, link: "/tools/epoch-converter" },
+
+  // AI Write (Görsel 5)
+  { title: "Content Improver", desc: "Improve your content", cat: "AI Write", icon: <Sparkles className="w-5 h-5 text-purple-400" />, link: "/tools/content-improver" },
+  { title: "Essay Writer", desc: "Easily create an essay with AI", cat: "AI Write", icon: <PenTool className="w-5 h-5 text-orange-400" />, link: "/tools/essay-writer" },
+  { title: "Paragraph Writer", desc: "Paragraph Writer", cat: "AI Write", icon: <Type className="w-5 h-5 text-rose-400" />, link: "/tools/paragraph-writer" },
+  { title: "Paragraph Completer", desc: "Paragraph Completer", cat: "AI Write", icon: <Type className="w-5 h-5 text-blue-400" />, link: "/tools/paragraph-completer" },
+  { title: "Story Generator", desc: "Generate a Story", cat: "AI Write", icon: <BookOpen className="w-5 h-5 text-yellow-400" />, link: "/tools/story-generator" },
+  { title: "Grammar Fixer", desc: "Easily fix the grammar in a block of text", cat: "AI Write", icon: <CheckCircle2 className="w-5 h-5 text-orange-400" />, link: "/tools/grammar-fixer" },
+  { title: "Sentence Rewriter", desc: "Sentence Rewriter", cat: "AI Write", icon: <RefreshCw className="w-5 h-5 text-yellow-500" />, link: "/tools/sentence-rewriter" },
+  { title: "Article Writer", desc: "Create an article from a title", cat: "AI Write", icon: <FileEdit className="w-5 h-5 text-rose-500" />, link: "/tools/article-writer" },
+  { title: "Content Summarizer", desc: "Summarize text", cat: "AI Write", icon: <Minimize2 className="w-5 h-5 text-orange-400" />, link: "/tools/content-summarizer" },
+  { title: "AI Humanizer", desc: "Use the AI Humanizer to makes AI text sound more human", cat: "AI Write", icon: <Type className="w-5 h-5 text-rose-400" />, link: "/tools/ai-humanizer" },
+  { title: "Tone of Voice", desc: "Tone of Voice Tool", cat: "AI Write", icon: <MessageSquare className="w-5 h-5 text-green-500" />, link: "/tools/tone-of-voice" },
+  { title: "YouTube Script Writer", desc: "Generate a YouTube script", cat: "AI Write", icon: <Youtube className="w-5 h-5 text-red-500" />, link: "/tools/youtube-script-writer" },
+
+  // Image Tools (Hiyerarşik eksik tamamlama)
   { title: "Remove Background", desc: "Easily Remove the Background from an image", cat: "Image Tools", icon: <Eraser className="w-5 h-5 text-orange-400" />, link: "/tools/remove-background" },
   { title: "Image to WebP", desc: "Convert your images to highly optimized WebP format.", cat: "Image Tools", icon: <ImageIcon className="w-5 h-5 text-orange-400" />, link: "/tools/image-to-webp" },
   { title: "Upscale Image", desc: "Increase the resolution of your image", cat: "Image Tools", icon: <Maximize2 className="w-5 h-5 text-orange-400" />, link: "/tools/upscale-image" },
   { title: "Restore Photos", desc: "Restore old photos with AI", cat: "Image Tools", icon: <Wand2 className="w-5 h-5 text-purple-400" />, link: "/tools/restore-photos" },
-  { title: "AI Image Generator", desc: "Text to image AI", cat: "Image Tools", icon: <Sparkles className="w-5 h-5 text-yellow-400" />, link: "/tools/ai-generator" },
-
-  // Video Tools
-  { title: "Compress Video", desc: "Lessen the file size of a Video file", cat: "Video Tools", icon: <Minimize className="w-5 h-5 text-orange-400" />, link: "/tools/compress-video" },
-  { title: "Video to GIF", desc: "Upload an MP4 and convert to animated GIF", cat: "Video Tools", icon: <Scissors className="w-5 h-5 text-rose-400" />, link: "/tools/video-to-gif" },
-  { title: "Mute Video", desc: "Remove audio from video online for free", cat: "Video Tools", icon: <VolumeX className="w-5 h-5 text-indigo-400" />, link: "/tools/mute-video" },
-  { title: "Trim Video", desc: "Select a start and stop of a video and download", cat: "Video Tools", icon: <Scissors className="w-5 h-5 text-purple-400" />, link: "/tools/trim-video" },
-  { title: "MP4 to MP3", desc: "Convert MP4 to MP3 audio", cat: "Video Tools", icon: <Music className="w-5 h-5 text-yellow-400" />, link: "/tools/mp4-to-mp3" },
-
-  // AI Write
-  { title: "Paragraph Writer", desc: "AI Paragraph Writer", cat: "AI Write", icon: <Type className="w-5 h-5 text-blue-500" />, link: "/tools/paragraph-writer" },
-  { title: "Sentence Rewriter", desc: "Improve your writing", cat: "AI Write", icon: <RefreshCw className="w-5 h-5 text-blue-400" />, link: "/tools/sentence-rewriter" },
-  { title: "Essay Writer", desc: "Easily create an essay with AI", cat: "AI Write", icon: <PenTool className="w-5 h-5 text-purple-400" />, link: "/tools/essay-writer" },
-  { title: "Article Writer", desc: "Create an article from a title", cat: "AI Write", icon: <FileEdit className="w-5 h-5 text-teal-400" />, link: "/tools/article-writer" }
+  { title: "AI Image Generator", desc: "Text to image AI", cat: "Image Tools", icon: <Sparkles className="w-5 h-5 text-yellow-400" />, link: "/tools/ai-generator" }
 ];
 
 export function ToolGrid() {
@@ -132,10 +136,9 @@ export function ToolGrid() {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 pb-20 pt-12 relative overflow-visible">
-      {/* 2. Görseldeki 'All Tools' ve Arama Alanı */}
       <div className="text-center mb-12">
-        <h1 className="text-5xl font-bold tracking-tight mb-4">All Tools</h1>
-        <p className="text-muted-foreground text-lg mb-8">Free Online Tools</p>
+        <h1 className="text-5xl font-bold tracking-tight mb-4">{activeTab === "All Tools" ? "All Tools" : activeTab}</h1>
+        <p className="text-muted-foreground text-lg mb-8">Free Online {activeTab === "All Tools" ? "" : activeTab} Tools</p>
         
         <div className="relative max-w-2xl mx-auto">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
@@ -151,11 +154,9 @@ export function ToolGrid() {
         </div>
       </div>
 
-      {/* 1. Görseldeki Kategori Kartları Bölümü Kaldırıldı, Sadece 2. Görseldeki Popüler Araçlar Alanı Kaldı */}
-      
       <div className="text-center mb-10">
         <h2 className="text-3xl font-heading font-bold mb-3">
-          Our Most Popular Tools
+          {activeTab === "All Tools" ? "Our Most Popular Tools" : `${activeTab} Category`}
         </h2>
         <p className="text-muted-foreground">Premium tools, 100% free, forever.</p>
       </div>
@@ -178,7 +179,7 @@ export function ToolGrid() {
           </span>
           All Tools
         </button>
-        {["Pdf Tools", "Video Tools", "Image Tools", "Converter Tools", "AI Write"].map((tab) => (
+        {["Pdf Tools", "Video Tools", "Image Tools", "Converter Tools", "Other Tools", "AI Write"].map((tab) => (
           <button 
             key={tab} 
             onClick={() => setActiveTab(tab)}
@@ -222,5 +223,23 @@ export function ToolGrid() {
         ))}
       </div>
     </div>
+  );
+}
+
+function Presentation({ className }: { className?: string }) {
+  return (
+    <svg 
+      className={className} 
+      viewBox="0 0 24 24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+    >
+      <path d="M2 3h20" />
+      <path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3" />
+      <path d="m7 21 5-5 5 5" />
+    </svg>
   );
 }
