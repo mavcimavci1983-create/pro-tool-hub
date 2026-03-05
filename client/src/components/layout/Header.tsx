@@ -31,7 +31,15 @@ import {
   VolumeX,
   Minimize,
   Languages,
-  Pen
+  Pen,
+  Video,
+  File,
+  Download,
+  Music,
+  FileJson,
+  FileCode,
+  Table,
+  Play
 } from "lucide-react";
 import {
   NavigationMenu,
@@ -122,6 +130,46 @@ const writeTools = {
   ]
 };
 
+const videoTools = {
+  featured: [
+    { title: "Compress Video", desc: "Lessen the file size of a Video file", icon: <Minimize className="w-5 h-5 text-orange-500" />, href: "/tools/compress-video" },
+    { title: "Video to Gif", desc: "Upload an MP4 and convert to animated GIF", icon: <ImageIcon className="w-5 h-5 text-blue-500" />, href: "/tools/video-to-gif" },
+    { title: "Trim Video", desc: "Select a start and stop of a video and download", icon: <Scissors className="w-5 h-5 text-purple-500" />, href: "/tools/trim-video" },
+    { title: "MP4 to MP3", desc: "Convert MP4 to MP3 audio", icon: <Music className="w-5 h-5 text-yellow-500" />, href: "/tools/mp4-to-mp3" },
+  ],
+  others: [
+    { title: "Audio to Text", href: "/tools/audio-to-text" },
+    { title: "Resize Video", href: "/tools/video-resizer" },
+    { title: "Extract Audio", href: "/tools/extract-audio" },
+    { title: "MOV to MP4", href: "/tools/mov-to-mp4" },
+    { title: "MKV to MP4", href: "/tools/mkv-to-mp4" },
+    { title: "Facebook Download", href: "/tools/facebook-download" },
+    { title: "TikTok Video Downloader", href: "/tools/tiktok-downloader" },
+    { title: "Instagram Download", href: "/tools/instagram-download" },
+    { title: "Twitter Download", href: "/tools/twitter-download" },
+    { title: "M4A to MP3", href: "/tools/m4a-to-mp3" },
+    { title: "Video to WebP", href: "/tools/video-to-webp" },
+    { title: "All Video Tools", href: "/tools/all-video" },
+  ]
+};
+
+const fileTools = {
+  conversion: [
+    { title: "Split CSV", desc: "Split into one or multiple CSV files", icon: <Table className="w-5 h-5 text-emerald-500" />, href: "/tools/split-csv" },
+    { title: "Excel to PDF", desc: "Convert Excel to PDF", icon: <FileText className="w-5 h-5 text-emerald-600" />, href: "/tools/excel-to-pdf" },
+    { title: "Excel to XML", desc: "Convert Excel to XML", icon: <FileCode className="w-5 h-5 text-emerald-500" />, href: "/tools/excel-to-xml" },
+    { title: "XML to CSV", desc: "Convert XML to CSV", icon: <Table className="w-5 h-5 text-orange-500" />, href: "/tools/xml-to-csv" },
+    { title: "Split Excel", desc: "Split into one or multiple Excel files", icon: <Table className="w-5 h-5 text-emerald-600" />, href: "/tools/split-excel" },
+    { title: "XML to Excel", desc: "Convert XML to Excel", icon: <Table className="w-5 h-5 text-blue-500" />, href: "/tools/xml-to-excel" },
+    { title: "CSV to Excel", desc: "Convert CSV to Excel", icon: <Table className="w-5 h-5 text-emerald-500" />, href: "/tools/csv-to-excel" },
+    { title: "XML to JSON", desc: "Convert XML to JSON", icon: <FileJson className="w-5 h-5 text-blue-600" />, href: "/tools/xml-to-json" },
+  ],
+  featured: [
+    { title: "PDF to JPG", desc: "PDF Tools", icon: <ImageIcon className="w-5 h-5 text-rose-500" />, href: "/tools/pdf-to-jpg" },
+    { title: "Upscale Image", desc: "Image Tools", icon: <Layers className="w-5 h-5 text-purple-500" />, href: "/tools/upscale-image" },
+  ]
+};
+
 export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -142,6 +190,7 @@ export function Header() {
         <nav className="hidden lg:flex items-center gap-2">
           <NavigationMenu>
             <NavigationMenuList>
+              {/* PDF Menu */}
               <NavigationMenuItem>
                 <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3">
                   PDF
@@ -183,6 +232,7 @@ export function Header() {
                 </NavigationMenuContent>
               </NavigationMenuItem>
 
+              {/* Image Menu */}
               <NavigationMenuItem>
                 <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3">
                   Image
@@ -237,6 +287,7 @@ export function Header() {
                 </NavigationMenuContent>
               </NavigationMenuItem>
 
+              {/* Write Menu */}
               <NavigationMenuItem>
                 <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3">
                   Write
@@ -274,19 +325,87 @@ export function Header() {
                   </div>
                 </NavigationMenuContent>
               </NavigationMenuItem>
+
+              {/* Video Menu */}
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3">
+                  Video
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="grid grid-cols-[300px_450px] p-6 gap-6 bg-white rounded-xl shadow-2xl min-w-[750px]">
+                    <div className="border-r pr-6">
+                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Featured Tools</h4>
+                      <div className="space-y-4 text-left">
+                        {videoTools.featured.map((tool) => (
+                          <Link key={tool.title} href={tool.href}>
+                            <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
+                              <div className="mt-1">{tool.icon}</div>
+                              <div>
+                                <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
+                                <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
+                              </div>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Other Video Tools</h4>
+                      <div className="grid grid-cols-2 gap-y-3 gap-x-8 text-left">
+                        {videoTools.others.map((tool) => (
+                          <Link key={tool.title} href={tool.href}>
+                            <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
+                              {tool.title}
+                            </span>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+
+              {/* File Menu */}
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3">
+                  File
+                </NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="p-6 bg-white rounded-xl shadow-2xl min-w-[750px]">
+                    <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">File Tools</h4>
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="grid grid-cols-2 gap-4">
+                        {fileTools.conversion.map((tool) => (
+                          <Link key={tool.title} href={tool.href}>
+                            <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
+                              <div className="mt-1">{tool.icon}</div>
+                              <div>
+                                <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
+                                <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
+                              </div>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                      <div className="space-y-4">
+                        {fileTools.featured.map((tool) => (
+                          <Link key={tool.title} href={tool.href}>
+                            <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
+                              <div className="mt-1">{tool.icon}</div>
+                              <div>
+                                <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
+                                <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
+                              </div>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
-          
-          <Link href="/">
-            <span className="flex items-center gap-1 text-sm font-medium cursor-pointer px-3 py-2 rounded-md hover:bg-muted transition-colors">
-              Video <ChevronDown className="h-4 w-4 text-muted-foreground" />
-            </span>
-          </Link>
-          <Link href="/">
-            <span className="flex items-center gap-1 text-sm font-medium cursor-pointer px-3 py-2 rounded-md hover:bg-muted transition-colors">
-              File <ChevronDown className="h-4 w-4 text-muted-foreground" />
-            </span>
-          </Link>
         </nav>
 
         <div className="flex items-center gap-2 flex-1 justify-end">

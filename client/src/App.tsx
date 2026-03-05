@@ -114,6 +114,73 @@ function Router() {
         <GenericPdfTool title="Content Improver" desc="Enhance the quality and readability of your existing content." />
       </Route>
 
+      {/* Video Silo Tools Extended */}
+      <Route path="/tools/compress-video">
+        <VideoTool title="Compress Video" desc="Lessen the file size of a Video file while maintaining quality." icon={Minimize} />
+      </Route>
+      <Route path="/tools/trim-video">
+        <VideoTool title="Trim Video" desc="Select a start and stop of a video and download the trimmed version." icon={Scissors} />
+      </Route>
+      <Route path="/tools/mp4-to-mp3">
+        <VideoTool title="MP4 to MP3" desc="Convert MP4 video files to high-quality MP3 audio." icon={Music} />
+      </Route>
+      <Route path="/tools/audio-to-text">
+        <GenericPdfTool title="Audio to Text" desc="Transcribe audio files into editable text automatically." />
+      </Route>
+      <Route path="/tools/extract-audio">
+        <VideoTool title="Extract Audio" desc="Separate and download the audio track from any video file." icon={Music} />
+      </Route>
+      <Route path="/tools/mov-to-mp4">
+        <VideoTool title="MOV to MP4" desc="Convert Apple MOV video files to standard MP4 format." icon={Play} />
+      </Route>
+      <Route path="/tools/mkv-to-mp4">
+        <VideoTool title="MKV to MP4" desc="Convert MKV video files to widely supported MP4 format." icon={Play} />
+      </Route>
+      <Route path="/tools/facebook-download">
+        <VideoTool title="Facebook Video Downloader" desc="Download public videos from Facebook via URL." icon={Download} />
+      </Route>
+      <Route path="/tools/tiktok-downloader">
+        <VideoTool title="TikTok Video Downloader" desc="Download TikTok videos without watermark for free." icon={Download} />
+      </Route>
+      <Route path="/tools/instagram-download">
+        <VideoTool title="Instagram Video Downloader" desc="Save Instagram reels and videos to your device." icon={Download} />
+      </Route>
+      <Route path="/tools/twitter-download">
+        <VideoTool title="Twitter Video Downloader" desc="Download videos from Twitter/X posts instantly." icon={Download} />
+      </Route>
+      <Route path="/tools/m4a-to-mp3">
+        <VideoTool title="M4A to MP3" desc="Convert M4A audio files to standard MP3 format." icon={Music} />
+      </Route>
+      <Route path="/tools/video-to-webp">
+        <VideoTool title="Video to WebP" desc="Convert video clips to lightweight animated WebP images." icon={ImageIcon} />
+      </Route>
+
+      {/* File Silo Tools */}
+      <Route path="/tools/split-csv">
+        <GenericPdfTool title="Split CSV" desc="Separate a large CSV file into multiple smaller documents." />
+      </Route>
+      <Route path="/tools/excel-to-pdf">
+        <GenericPdfTool title="Excel to PDF" desc="Convert Excel spreadsheets to professional PDF documents." />
+      </Route>
+      <Route path="/tools/excel-to-xml">
+        <GenericPdfTool title="Excel to XML" desc="Convert Excel data into XML format for technical use." />
+      </Route>
+      <Route path="/tools/xml-to-csv">
+        <GenericPdfTool title="XML to CSV" desc="Transform XML data into easy-to-read CSV format." />
+      </Route>
+      <Route path="/tools/split-excel">
+        <GenericPdfTool title="Split Excel" desc="Divide large Excel files into multiple workbooks." />
+      </Route>
+      <Route path="/tools/xml-to-excel">
+        <GenericPdfTool title="XML to Excel" desc="Convert XML files into editable Excel spreadsheets." />
+      </Route>
+      <Route path="/tools/csv-to-excel">
+        <GenericPdfTool title="CSV to Excel" desc="Import CSV data into structured Excel worksheets." />
+      </Route>
+      <Route path="/tools/xml-to-json">
+        <GenericPdfTool title="XML to JSON" desc="Convert XML data into JSON format for developers." />
+      </Route>
+
       {/* Image Tools */}
       <Route path="/tools/image-to-webp" component={ImageToWebp} />
       <Route path="/tools/remove-background">
@@ -156,6 +223,41 @@ function Router() {
       </Route>
       <Route path="/tools/heic-to-jpg">
         <GenericPdfTool title="HEIC to JPG" desc="Convert iPhone HEIC images to standard JPG format." />
+      </Route>
+
+      {/* Additional Image Tools from Sitemap/Header */}
+      <Route path="/tools/colorize-photo">
+        <GenericPdfTool title="Colorize Photo" desc="Bring old black and white photos to life with AI colorization." />
+      </Route>
+      <Route path="/tools/crop-image">
+        <GenericPdfTool title="Crop Image" desc="Crop your images to the perfect size and aspect ratio." />
+      </Route>
+      <Route path="/tools/black-white">
+        <GenericPdfTool title="Black & White" desc="Convert any color image to a professional black and white photo." />
+      </Route>
+      <Route path="/tools/combine-images">
+        <GenericPdfTool title="Combine Images" desc="Merge multiple images into a single file easily." />
+      </Route>
+      <Route path="/tools/add-border">
+        <GenericPdfTool title="Add Border" desc="Add customizable borders and frames to your images." />
+      </Route>
+      <Route path="/tools/flip-image">
+        <GenericPdfTool title="Flip Image" desc="Flip your images horizontally or vertically in one click." />
+      </Route>
+      <Route path="/tools/collage-maker">
+        <GenericPdfTool title="Collage Maker" desc="Create beautiful photo collages from your favorite images." />
+      </Route>
+      <Route path="/tools/image-splitter">
+        <GenericPdfTool title="Image Splitter" desc="Split a single image into multiple pieces for social media." />
+      </Route>
+      <Route path="/tools/unblur-image">
+        <GenericPdfTool title="Unblur Image" desc="Fix blurry photos and sharpen details with AI technology." />
+      </Route>
+      <Route path="/tools/remove-watermark">
+        <GenericPdfTool title="Remove Watermark" desc="Clean up your images by removing unwanted watermarks." />
+      </Route>
+      <Route path="/tools/add-text-image">
+        <GenericPdfTool title="Add Text to Image" desc="Add custom text, captions, and quotes to your images." />
       </Route>
 
       {/* Fallback to 404 */}
