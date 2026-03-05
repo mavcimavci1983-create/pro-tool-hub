@@ -64,7 +64,7 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
               {isProcessing && (
                 <div className="absolute inset-0 bg-background/95 backdrop-blur-md z-20 flex flex-col items-center justify-center p-12 text-center">
                   <div className="w-20 h-20 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-6"></div>
-                  <p className="font-bold text-2xl mb-4 text-foreground tracking-tight">AI processing and securing...</p>
+                  <p className="font-bold text-2xl mb-4 text-foreground tracking-tight">Analyzing and Encrypting PDF...</p>
                   <div className="w-full max-w-md bg-muted rounded-full h-4 overflow-hidden mb-8 shadow-inner">
                     <div className="bg-primary h-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
                   </div>

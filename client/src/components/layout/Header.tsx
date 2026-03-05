@@ -75,12 +75,16 @@ const pdfTools = {
     { title: "PDF to Word", href: "/tools/pdf-to-word" },
     { title: "Word to PDF", href: "/tools/word-to-pdf" },
     { title: "Unlock PDF", href: "/tools/remove-password" },
+    { title: "Protect PDF", href: "/tools/protect-pdf" },
+    { title: "Rotate PDF", href: "/tools/rotate-pdf" },
+    { title: "Add Watermark", href: "/tools/add-watermark" },
+    { title: "PDF to Text (OCR)", href: "/tools/pdf-to-text" },
     { title: "PDF to Excel", href: "/tools/pdf-to-excel" },
-    { title: "PDF to PowerPoint", href: "/tools/pdf-to-powerpoint" },
+    { title: "PDF to PPT", href: "/tools/pdf-to-powerpoint" },
     { title: "PNG to PDF", href: "/tools/png-to-pdf" },
     { title: "PDF Translator", href: "/tools/pdf-translator" },
     { title: "eSign PDF", href: "/tools/esign" },
-    { title: "Protect PDF", href: "/tools/protect-pdf" },
+    { title: "Rearrange PDF", href: "/tools/rearrange-pdf" },
     { title: "Extract Text", href: "/tools/extract-text" },
   ]
 };
