@@ -132,9 +132,10 @@ export function ToolGrid() {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 pb-20 pt-12 relative overflow-visible">
+      {/* 2. Görseldeki 'All Tools' ve Arama Alanı */}
       <div className="text-center mb-12">
-        <h1 className="text-5xl font-bold tracking-tight mb-4">{activeTab === "All Tools" ? "All Tools" : activeTab}</h1>
-        <p className="text-muted-foreground text-lg mb-8">Free Online {activeTab === "All Tools" ? "" : activeTab} Tools</p>
+        <h1 className="text-5xl font-bold tracking-tight mb-4">All Tools</h1>
+        <p className="text-muted-foreground text-lg mb-8">Free Online Tools</p>
         
         <div className="relative max-w-2xl mx-auto">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
@@ -150,60 +151,11 @@ export function ToolGrid() {
         </div>
       </div>
 
-      {/* Category Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-16 relative">
-        {toolCategories.map((category) => (
-          <div key={category.title} className="flex flex-col relative">
-            {/* 
-              Kritik Düzeltme: 
-              1. Link bileşenini en dışa aldık.
-              2. wouter Link otomatik olarak children'ı render eder, <a> etiketi ekleyerek tarayıcı seviyesinde tıklanabilir yaptık.
-              3. onClick eventini doğrudan Link üzerinde veya içindeki kapsayıcıda zorunlu kıldık.
-            */}
-            <Link href={category.href}>
-              <a 
-                className="group block w-full relative transition-all duration-300 hover:-translate-y-2 no-underline"
-                style={{ cursor: 'pointer', display: 'block' }}
-                data-testid={`category-card-${category.title.toLowerCase().replace(' ', '-')}`}
-              >
-                <div 
-                  className={`relative overflow-hidden rounded-2xl p-6 text-white shadow-lg ${category.color} ${activeTab === category.cat ? 'ring-4 ring-offset-2 ring-primary' : ''}`}
-                >
-                  {/* Dekoratif Işık Efekti */}
-                  <div className="absolute -right-4 -top-4 w-24 h-24 bg-white/10 rounded-full blur-2xl group-hover:bg-white/20 transition-all" />
-                  
-                  <div className="flex justify-between items-start mb-10">
-                    <div className="bg-white/20 p-3 rounded-xl backdrop-blur-md">
-                      {category.icon}
-                    </div>
-                    <span className="text-[10px] font-bold bg-black/20 px-3 py-1.5 rounded-full backdrop-blur-sm uppercase">
-                      {category.count}
-                    </span>
-                  </div>
-                  
-                  <h3 className="text-2xl font-bold mb-1 tracking-tight">{category.title}</h3>
-                  <div className="text-sm text-white/90 flex items-center gap-1 font-medium">
-                    {category.desc} <ArrowRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
-                  </div>
-                </div>
-              </a>
-            </Link>
-            
-            <div className="mt-3 bg-white border border-slate-100 rounded-2xl p-4 flex items-center justify-between shadow-sm hover:border-primary/20 transition-all relative z-10">
-              <span className="text-[11px] text-muted-foreground font-bold uppercase tracking-wider">Featured:</span>
-              <Link href={category.featured.href}>
-                <a className="text-xs font-bold text-primary hover:underline transition-all cursor-pointer">
-                  {category.featured.name}
-                </a>
-              </Link>
-            </div>
-          </div>
-        ))}
-      </div>
-
+      {/* 1. Görseldeki Kategori Kartları Bölümü Kaldırıldı, Sadece 2. Görseldeki Popüler Araçlar Alanı Kaldı */}
+      
       <div className="text-center mb-10">
         <h2 className="text-3xl font-heading font-bold mb-3">
-          {activeTab === "All Tools" ? "Our Most Popular Tools" : `${activeTab} Category`}
+          Our Most Popular Tools
         </h2>
         <p className="text-muted-foreground">Premium tools, 100% free, forever.</p>
       </div>
