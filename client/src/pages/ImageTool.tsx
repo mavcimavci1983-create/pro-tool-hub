@@ -4,27 +4,25 @@ import { ToolWorkflow } from "@/components/tool/ToolWorkflow";
 import { useLanguageStore } from "@/lib/languageStore";
 import translationsData from "@/locales/translations.json";
 import { Helmet, HelmetProvider } from "react-helmet-async";
-import { Video } from "lucide-react";
+import { ImageIcon } from "lucide-react";
 
 const translations = translationsData as Record<string, any>;
 
-export default function VideoTool({ title = "Video Tool", desc = "Free online video converter - No Watermark", icon: Icon = Video }) {
+export default function ImageTool({ title = "Image Tool", desc = "Professional image processing tool." }) {
   const { language } = useLanguageStore();
 
   const getAcceptedTypes = () => {
     const t = title.toLowerCase();
-    if (t.includes("mp4")) return ".mp4";
-    if (t.includes("webm")) return ".webm";
-    if (t.includes("mov")) return ".mov";
-    if (t.includes("avi")) return ".avi";
-    return ".mp4,.webm,.mov,.avi,.mkv";
+    if (t.includes("heic")) return ".heic";
+    if (t.includes("webp")) return ".webp";
+    return ".jpg,.jpeg,.png,.webp,.heic";
   };
 
   return (
     <HelmetProvider>
       <div className="min-h-screen flex flex-col bg-white">
         <Helmet>
-          <title>{`${title} - ProToolHub Free Online Video Tool`}</title>
+          <title>{`${title} - ProToolHub Free Online Image Tool`}</title>
           <meta name="description" content={desc} />
         </Helmet>
         <Header />
@@ -52,12 +50,12 @@ export default function VideoTool({ title = "Video Tool", desc = "Free online vi
               <article className="prose prose-lg max-w-none border-t border-slate-100 pt-16 mt-20 text-slate-600 leading-relaxed">
                 <div className="grid md:grid-cols-2 gap-12 text-left">
                   <section>
-                    <h2 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">Professional Video Processing</h2>
-                    <p className="text-md font-medium leading-relaxed">Professional video suite with 100% privacy and zero watermarks. All files are processed securely and deleted within 60 minutes.</p>
+                    <h2 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">Professional Image Processing</h2>
+                    <p className="text-md font-medium leading-relaxed">High-performance image suite with 100% privacy and zero watermarks. All files are processed securely and deleted within 60 minutes.</p>
                   </section>
                   <section className="bg-slate-50 p-8 rounded-2xl border border-slate-100">
                     <h3 className="text-lg font-bold text-slate-900 mb-3 tracking-tight">Secure & Private</h3>
-                    <p className="text-sm font-medium text-slate-500 leading-relaxed italic">"Your files are processed in real-time and automatically purged from our servers within 60 minutes. We never store, share, or look at your data."</p>
+                    <p className="text-sm font-medium text-slate-500 leading-relaxed italic">"Your images are processed in real-time and automatically purged from our servers within 60 minutes. We never store, share, or look at your data."</p>
                   </section>
                 </div>
               </article>

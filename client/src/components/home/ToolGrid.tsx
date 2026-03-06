@@ -70,6 +70,22 @@ const tools = [
   { title: "Twitter Download", desc: "Download Twitter videos", cat: "Video Tools", icon: <Download className="w-5 h-5 text-sky-600" />, link: "/tools/twitter-download" },
   { title: "YouTube to Text", desc: "Convert YT to text", cat: "Video Tools", icon: <Youtube className="w-5 h-5 text-red-600" />, link: "/tools/youtube-to-text" },
   { title: "Video to Text", desc: "Transcribe video", cat: "Video Tools", icon: <Type className="w-5 h-5 text-slate-600" />, link: "/tools/video-to-text" },
+
+  // Image Tools
+  { title: "Image to WebP", desc: "Convert image to WebP", cat: "Image Tools", icon: <ImageIcon className="w-5 h-5 text-emerald-500" />, link: "/tools/image-to-webp" },
+  { title: "Remove Background", desc: "AI background remover", cat: "Image Tools", icon: <Zap className="w-5 h-5 text-purple-500" />, link: "/tools/remove-background" },
+  { title: "HEIC to JPG", desc: "iPhone photo converter", cat: "Image Tools", icon: <ImageIcon className="w-5 h-5 text-orange-500" />, link: "/tools/heic-to-jpg" },
+  { title: "WebP to JPG", desc: "WebP to JPG converter", cat: "Image Tools", icon: <ImageIcon className="w-5 h-5 text-blue-500" />, link: "/tools/webp-to-jpg" },
+  { title: "Resize Image", desc: "Change image dimensions", cat: "Image Tools", icon: <Minimize className="w-5 h-5 text-indigo-500" />, link: "/tools/resize-image" },
+  { title: "Compress Image", desc: "Reduce image size", cat: "Image Tools", icon: <Minimize className="w-5 h-5 text-emerald-500" />, link: "/tools/compress-image" },
+  { title: "Crop Image", desc: "Crop photos easily", cat: "Image Tools", icon: <Scissors className="w-5 h-5 text-rose-500" />, link: "/tools/crop-image" },
+  { title: "Add Text to Image", desc: "Add text overlays", cat: "Image Tools", icon: <Type className="w-5 h-5 text-slate-500" />, link: "/tools/add-text-to-image" },
+
+  // AI Tools
+  { title: "Paragraph Writer", desc: "AI paragraph writing", cat: "AI Write", icon: <PenTool className="w-5 h-5 text-rose-400" />, link: "/tools/paragraph-writer" },
+  { title: "Essay Writer", desc: "AI essay assistant", cat: "AI Write", icon: <PenTool className="w-5 h-5 text-orange-400" />, link: "/tools/essay-writer" },
+  { title: "Instagram Caption", desc: "Social media captions", cat: "AI Write", icon: <PenTool className="w-5 h-5 text-pink-500" />, link: "/tools/instagram-caption-generator" },
+  { title: "LinkedIn Post", desc: "Professional AI posts", cat: "AI Write", icon: <PenTool className="w-5 h-5 text-sky-500" />, link: "/tools/linkedin-post-generator" },
 ];
 
 export function ToolGrid() {
@@ -88,7 +104,15 @@ export function ToolGrid() {
     });
   }, [activeTab, searchQuery]);
 
-  const tabs = ["All Tools", "Pdf Tools", "Video Tools", "Image Tools", "Converter Tools", "Other Tools", "AI Write"];
+  const tabs = [
+    { id: "All Tools", label: t.common.all_tools, icon: <Layout className="w-3.5 h-3.5" /> },
+    { id: "Pdf Tools", label: "Pdf Tools", icon: <FileText className="w-3.5 h-3.5" /> },
+    { id: "Video Tools", label: "Video Tools", icon: <Video className="w-3.5 h-3.5" /> },
+    { id: "Image Tools", label: "Image Tools", icon: <ImageIcon className="w-3.5 h-3.5" /> },
+    { id: "Converter Tools", label: "Converter Tools", icon: <Layout className="w-3.5 h-3.5" /> },
+    { id: "Other Tools", label: "Other Tools", icon: <Layout className="w-3.5 h-3.5" /> },
+    { id: "AI Write", label: "AI Write", icon: <PenTool className="w-3.5 h-3.5" /> },
+  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -112,23 +136,29 @@ export function ToolGrid() {
         />
       </div>
 
-      <div className="flex flex-wrap gap-2 justify-center mb-16">
-        {tabs.map((tab) => (
-          <Button
-            key={tab}
-            variant={activeTab === tab ? "default" : "ghost"}
-            onClick={() => {
-              setActiveTab(tab);
-              setVisibleCount(24);
-            }}
-            className={`rounded-full px-6 py-2 font-bold text-xs transition-all ${
-              activeTab === tab ? "bg-slate-900 text-white hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100"
-            }`}
-          >
-            {tab === "All Tools" && <Layout className="w-3.5 h-3.5 mr-2" />}
-            {tab === "All Tools" ? t.common.all_tools : tab.toUpperCase()}
-          </Button>
-        ))}
+      {/* Modern Filter Bar */}
+      <div className="flex justify-center mb-16 px-4">
+        <div className="bg-white border border-slate-100 rounded-full p-1.5 shadow-xl shadow-slate-200/20 flex flex-wrap gap-1 items-center max-w-fit overflow-x-auto no-scrollbar">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => {
+                setActiveTab(tab.id);
+                setVisibleCount(24);
+              }}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all duration-300 ${
+                activeTab === tab.id 
+                  ? "bg-primary text-white shadow-lg shadow-primary/30" 
+                  : "text-slate-500 hover:bg-slate-50"
+              }`}
+            >
+              <span className={activeTab === tab.id ? "text-white" : "text-slate-400"}>
+                {tab.icon}
+              </span>
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">

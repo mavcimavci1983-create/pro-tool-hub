@@ -1,10 +1,6 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { FileText, Download, RefreshCw, AlertCircle } from "lucide-react";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { useState } from "react";
+import { ToolWorkflow } from "@/components/tool/ToolWorkflow";
 import { useLanguageStore } from "@/lib/languageStore";
 import translationsData from "@/locales/translations.json";
 import { Helmet, HelmetProvider } from "react-helmet-async";
@@ -13,25 +9,14 @@ const translations = translationsData as Record<string, any>;
 
 export default function GenericPdfTool({ title = "PDF Tool", desc = "Professional PDF processing tool." }) {
   const { language } = useLanguageStore();
-  const t = translations[language];
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [isDone, setIsDone] = useState(false);
-
-  const handleAction = () => {
-    setIsProcessing(true);
-    let p = 0;
-    const interval = setInterval(() => {
-      p += 1.25; 
-      setProgress(Math.min(p, 100));
-      if (p >= 100) {
-        clearInterval(interval);
-        setTimeout(() => {
-          setIsProcessing(false);
-          setIsDone(true);
-        }, 500);
-      }
-    }, 100);
+  
+  // Logic to determine accepted file types based on title/context
+  const getAcceptedTypes = () => {
+    const t = title.toLowerCase();
+    if (t.includes("jpg to pdf")) return ".jpg,.jpeg,.png";
+    if (t.includes("word to pdf")) return ".doc,.docx";
+    if (t.includes("excel to pdf")) return ".xls,.xlsx";
+    return ".pdf";
   };
 
   return (
@@ -62,51 +47,12 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
                 <p className="text-lg text-slate-600 font-medium">{desc}</p>
               </div>
 
-              <Card className="p-10 md:p-24 border border-slate-200 bg-slate-50 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-100/50 transition-all rounded-3xl mb-12 relative shadow-sm group">
-                {isProcessing && (
-                  <div className="absolute inset-0 bg-white/95 backdrop-blur-sm z-20 flex flex-col items-center justify-center p-12 text-center rounded-3xl">
-                    <div className="relative w-16 h-16 mb-8">
-                      <div className="absolute inset-0 border-4 border-slate-100 rounded-full"></div>
-                      <div className="absolute inset-0 border-4 border-t-primary rounded-full animate-spin"></div>
-                    </div>
-                    <p className="font-bold text-2xl mb-2 text-slate-900 tracking-tight">{t.common.processing}</p>
-                    <p className="text-slate-500 mb-8 font-medium">{t.common.wait}</p>
-                    <div className="w-full max-w-md bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200">
-                      <div className="bg-primary h-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
-                    </div>
-                  </div>
-                )}
+              <ToolWorkflow 
+                toolName={title} 
+                acceptedFileTypes={getAcceptedTypes()} 
+              />
 
-                {isDone ? (
-                  <div className="flex flex-col items-center w-full animate-in fade-in zoom-in duration-500 text-center">
-                    <div className="bg-green-100 text-green-600 p-5 rounded-full mb-8 shadow-sm">
-                      <Download className="w-10 h-10" />
-                    </div>
-                    <h3 className="text-3xl font-bold mb-10 text-slate-900 tracking-tight">{t.common.ready}</h3>
-                    <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
-                      <Button variant="outline" size="lg" onClick={() => { setIsDone(false); setProgress(0); }} className="rounded-full px-10 font-bold border-slate-200 text-slate-600">
-                        <RefreshCw className="w-4 h-4 mr-2" /> {t.common.start_over}
-                      </Button>
-                      <Button size="lg" className="rounded-full px-16 font-bold shadow-lg shadow-primary/20 bg-slate-900 hover:bg-slate-800 text-white border-none">
-                        {t.common.download}
-                      </Button>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    <div className="bg-white text-slate-900 p-6 rounded-2xl mb-8 shadow-sm border border-slate-100 group-hover:scale-105 transition-transform">
-                      <FileText className="w-12 h-12" />
-                    </div>
-                    <h3 className="text-2xl font-bold mb-3 text-slate-900 tracking-tight">{t.common.drop_files}</h3>
-                    <p className="text-slate-500 mb-10 text-lg font-medium">{t.common.drag_drop}</p>
-                    <Button size="lg" className="rounded-full px-12 font-bold h-14 shadow-md bg-slate-900 hover:bg-slate-800 text-white border-none" onClick={handleAction}>
-                      {t.common.choose_file}
-                    </Button>
-                  </>
-                )}
-              </Card>
-
-              <article className="prose prose-slate max-w-none border-t border-slate-100 pt-16 text-slate-600">
+              <article className="prose prose-slate max-w-none border-t border-slate-100 pt-16 mt-20 text-slate-600">
                 <div className="grid md:grid-cols-2 gap-12 text-left">
                   <section>
                     <h3 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">Professional Performance</h3>
@@ -114,7 +60,7 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
                   </section>
                   <section className="bg-slate-50 p-8 rounded-2xl border border-slate-100">
                     <h3 className="text-lg font-bold text-slate-900 mb-3 tracking-tight">Secure & Private</h3>
-                    <p className="text-sm font-medium text-slate-500 leading-relaxed italic">"{t.common.privacy_policy}"</p>
+                    <p className="text-sm font-medium text-slate-500 leading-relaxed italic">"Your files are processed in real-time and automatically purged from our servers within 60 minutes. We never store, share, or look at your data."</p>
                   </section>
                 </div>
               </article>
