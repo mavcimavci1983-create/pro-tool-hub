@@ -13,7 +13,9 @@ import {
   Type,
   PenTool,
   Instagram,
-  Twitter
+  Twitter,
+  Video,
+  FileText
 } from "lucide-react";
 import {
   NavigationMenu,
@@ -59,6 +61,21 @@ const videoTools = {
     { title: "Video to MP3", href: "/tools/video-to-mp3" },
     { title: "MP4 to WebM", href: "/tools/mp4-to-webm" },
     { title: "Mute Video", href: "/tools/mute-video" },
+  ]
+};
+
+const imageTools = {
+  featured: [
+    { title: "Image to WebP", desc: "Fast WebP converter", icon: <ImageIcon className="w-5 h-5 text-emerald-500" />, href: "/tools/image-to-webp" },
+    { title: "Remove Background", desc: "AI Background remover", icon: <Zap className="w-5 h-5 text-purple-500" />, href: "/tools/remove-background" },
+    { title: "HEIC to JPG", desc: "iPhone photo converter", icon: <ImageIcon className="w-5 h-5 text-orange-500" />, href: "/tools/heic-to-jpg" },
+    { title: "WebP to JPG", desc: "Convert WebP to JPG", icon: <ImageIcon className="w-5 h-5 text-blue-500" />, href: "/tools/webp-to-jpg" },
+  ],
+  others: [
+    { title: "Resize Image", href: "/tools/resize-image" },
+    { title: "Compress Image", href: "/tools/compress-image" },
+    { title: "Crop Image", href: "/tools/crop-image" },
+    { title: "Add Text", href: "/tools/add-text-to-image" },
   ]
 };
 
@@ -118,7 +135,7 @@ export function Header() {
   );
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-white">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
           <Link href="/">
@@ -126,27 +143,55 @@ export function Header() {
               <div className="bg-primary text-primary-foreground p-1.5 rounded-lg">
                 <Zap className="h-5 w-5" />
               </div>
-              <span className="font-heading font-bold text-xl tracking-tight hidden sm:inline-block">
+              <span className="font-bold text-xl tracking-tight hidden sm:inline-block text-slate-900">
                 Micro<span className="text-primary">Wow</span>
               </span>
             </div>
           </Link>
         </div>
 
-        <nav className="hidden lg:flex items-center gap-2">
+        <nav className="hidden lg:flex items-center">
           <NavigationMenu>
-            <NavigationMenuList>
+            <NavigationMenuList className="flex space-x-1">
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3 uppercase italic tracking-tighter">PDF</NavigationMenuTrigger>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-slate-100 font-bold text-xs px-3 text-slate-700">PDF</NavigationMenuTrigger>
                 <NavigationMenuContent>{renderToolList(pdfTools, "PDF")}</NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3 uppercase italic tracking-tighter">VIDEO</NavigationMenuTrigger>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-slate-100 font-bold text-xs px-3 text-slate-700">IMAGE</NavigationMenuTrigger>
+                <NavigationMenuContent>{renderToolList(imageTools, "Image")}</NavigationMenuContent>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-slate-100 font-bold text-xs px-3 text-slate-700">VIDEO</NavigationMenuTrigger>
                 <NavigationMenuContent>{renderToolList(videoTools, "Video")}</NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3 uppercase italic tracking-tighter">WRITE</NavigationMenuTrigger>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-slate-100 font-bold text-xs px-3 text-slate-700">CONVERTER</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="p-6 bg-white rounded-xl shadow-2xl min-w-[300px]">
+                    <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4">Converter Tools</h4>
+                    <div className="space-y-2">
+                      <Link href="/tools/csv-to-json"><span className="text-sm font-medium hover:text-primary cursor-pointer block">CSV to JSON</span></Link>
+                      <Link href="/tools/excel-to-pdf"><span className="text-sm font-medium hover:text-primary cursor-pointer block">Excel to PDF</span></Link>
+                    </div>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-slate-100 font-bold text-xs px-3 text-slate-700">WRITE</NavigationMenuTrigger>
                 <NavigationMenuContent>{renderToolList(writeTools, "AI")}</NavigationMenuContent>
+              </NavigationMenuItem>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-slate-100 font-bold text-xs px-3 text-slate-700">OTHER</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="p-6 bg-white rounded-xl shadow-2xl min-w-[300px]">
+                    <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4">Utilities</h4>
+                    <div className="space-y-2">
+                      <Link href="/tools/qr-generator"><span className="text-sm font-medium hover:text-primary cursor-pointer block">QR Generator</span></Link>
+                      <Link href="/tools/password-generator"><span className="text-sm font-medium hover:text-primary cursor-pointer block">Password Generator</span></Link>
+                    </div>
+                  </div>
+                </NavigationMenuContent>
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
@@ -154,17 +199,14 @@ export function Header() {
 
         <div className="flex items-center gap-2">
           <Button 
-            variant="ghost" 
+            variant="outline" 
             size="sm" 
             onClick={() => setLanguage(language === 'en' ? 'tr' : 'en')}
-            className="font-black text-xs h-9 px-3 rounded-full border-2 hover:bg-primary/5 transition-all uppercase italic tracking-tighter"
+            className="font-bold text-[10px] h-8 px-2 rounded-md border-slate-200 hover:bg-slate-50 transition-all text-slate-600"
           >
-            <Languages className="w-4 h-4 mr-1.5 text-primary" />
+            <Languages className="w-3.5 h-3.5 mr-1 text-primary" />
             {language.toUpperCase()}
           </Button>
-          <div className="hidden md:flex h-[36px] px-3 bg-muted/10 border-2 border-dashed rounded-full text-[9px] font-black items-center justify-center text-muted-foreground uppercase tracking-widest">
-            AD SPACE
-          </div>
           <Button variant="ghost" size="icon" className="lg:hidden">
             <Menu className="h-6 w-6" />
           </Button>

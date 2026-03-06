@@ -101,54 +101,54 @@ export function ToolGrid() {
   }, [filteredTools.length]);
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-8">
-      <div className="mb-10 max-w-2xl mx-auto relative group">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
+    <div className="w-full">
+      <div className="mb-12 max-w-2xl mx-auto relative group">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" />
         <Input 
           placeholder={t.home.search_placeholder} 
-          className="pl-12 py-6 text-lg rounded-2xl border-2 focus-visible:ring-primary/20 shadow-sm"
+          className="pl-12 py-6 text-lg rounded-xl border-slate-200 focus-visible:ring-primary/20 shadow-sm"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
 
-      <div className="flex flex-wrap gap-2 justify-center mb-12">
+      <div className="flex flex-wrap gap-2 justify-center mb-16">
         {tabs.map((tab) => (
           <Button
             key={tab}
-            variant={activeTab === tab ? "default" : "outline"}
+            variant={activeTab === tab ? "default" : "ghost"}
             onClick={() => {
               setActiveTab(tab);
               setVisibleCount(24);
             }}
-            className={`rounded-full px-6 py-5 font-bold transition-all ${
-              activeTab === tab ? "scale-105 shadow-md shadow-primary/20" : "hover:bg-primary/5"
+            className={`rounded-full px-6 py-2 font-bold text-xs transition-all ${
+              activeTab === tab ? "bg-slate-900 text-white hover:bg-slate-800" : "text-slate-600 hover:bg-slate-100"
             }`}
           >
-            {tab === "All Tools" && <Layout className="w-4 h-4 mr-2" />}
-            {tab === "All Tools" ? t.common.all_tools : tab}
+            {tab === "All Tools" && <Layout className="w-3.5 h-3.5 mr-2" />}
+            {tab === "All Tools" ? t.common.all_tools : tab.toUpperCase()}
           </Button>
         ))}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {filteredTools.slice(0, visibleCount).map((tool, index) => (
           <Link key={`${tool.title}-${index}`} href={tool.link}>
-            <Card className="p-6 h-full flex flex-col hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer border-2 hover:border-primary/50 group relative overflow-hidden bg-gradient-to-br from-card to-card/50">
-              <div className="mb-4 p-3 rounded-xl bg-background border group-hover:bg-primary/10 transition-colors w-fit shadow-sm">
+            <Card className="p-5 h-full flex flex-col transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-primary/20 cursor-pointer border shadow-sm group relative overflow-hidden bg-white">
+              <div className="mb-4 p-2.5 rounded-lg bg-slate-50 border border-slate-100 group-hover:bg-primary/5 transition-colors w-fit">
                 {tool.icon}
               </div>
-              <h3 className="font-heading font-black text-xl mb-1 text-foreground group-hover:text-primary transition-colors tracking-tighter uppercase italic">
+              <h3 className="font-bold text-sm mb-1 text-slate-900 group-hover:text-primary transition-colors tracking-tight">
                 {tool.title}
               </h3>
-              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2 opacity-60">
+              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 opacity-60">
                 {tool.cat}
               </p>
-              <p className="text-sm text-muted-foreground/80 mb-6 flex-grow font-medium italic leading-snug">
+              <p className="text-[11px] text-slate-500 mb-4 flex-grow font-medium leading-relaxed">
                 {tool.desc}
               </p>
-              <div className="flex items-center text-primary font-bold text-sm group-hover:translate-x-1 transition-transform uppercase italic tracking-tighter">
-                {t.common.start_now} <ArrowRight className="ml-2 w-4 h-4" />
+              <div className="flex items-center text-primary font-bold text-[10px] group-hover:translate-x-1 transition-transform uppercase tracking-wider">
+                {t.common.start_now} <ArrowRight className="ml-1.5 w-3 h-3" />
               </div>
             </Card>
           </Link>
