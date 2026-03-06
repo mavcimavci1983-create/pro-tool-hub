@@ -16,7 +16,6 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
   const canonicalUrl = `https://microwow.replit.app${location}`;
 
   useEffect(() => {
-    // Add canonical tag dynamically
     let link: HTMLLinkElement | null = document.querySelector("link[rel='canonical']");
     if (!link) {
       link = document.createElement("link");
@@ -30,7 +29,7 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
     setIsProcessing(true);
     let p = 0;
     const interval = setInterval(() => {
-      p += 1.25; // 8 seconds (100ms * 80 = 8s)
+      p += 1.25; 
       setProgress(Math.min(p, 100));
       if (p >= 100) {
         clearInterval(interval);
@@ -47,7 +46,6 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
       <Header />
       <main className="flex-grow flex flex-col items-center pt-10 pb-20 px-4">
         <div className="w-full max-w-[1400px] mx-auto grid grid-cols-1 md:grid-cols-[1fr_160px] lg:grid-cols-[160px_1fr_160px] gap-6">
-          {/* Left Skyscraper */}
           <aside className="hidden lg:block w-[160px]">
             <div className="sticky top-24 h-[600px] bg-muted/5 border border-dashed border-muted-foreground/20 rounded-xl flex items-center justify-center text-[10px] text-muted-foreground font-bold uppercase tracking-tighter p-2 text-center">
               Skyscraper Ad<br/>(160x600)
@@ -88,12 +86,9 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
                     <Download className="w-10 h-10" />
                   </div>
                   <h3 className="text-2xl font-bold mb-6 text-foreground">Your file is ready!</h3>
-                  
-                  {/* CRITICAL AD: Above Download */}
                   <div className="w-full max-w-md h-32 bg-primary/5 border border-dashed border-primary/20 rounded-xl mb-8 flex items-center justify-center text-xs text-muted-foreground font-bold">
                     PRE-DOWNLOAD SPONSORED CONTENT (336x280)
                   </div>
-
                   <div className="flex gap-4 w-full justify-center">
                     <Button variant="outline" onClick={() => { setIsDone(false); setProgress(0); }} className="rounded-full px-8">
                       <RefreshCw className="w-4 h-4 mr-2" /> Start Over
@@ -125,10 +120,9 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
               </AlertDescription>
             </Alert>
 
-            {/* SEO Article Section */}
             <article className="prose prose-slate max-w-none border-t pt-16">
               <h2 className="text-3xl font-extrabold text-foreground mb-8 text-center">{title} Hakkında Bilmeniz Gerekenler</h2>
-              
+              <div className="grid md:grid-cols-2 gap-8">
                 <div className="bg-card p-8 rounded-2xl border shadow-sm">
                   <h3 className="text-xl font-bold text-foreground mb-4">{title} Hakkında Bilmeniz Gerekenler</h3>
                   <p className="mb-6 text-sm">
@@ -168,7 +162,6 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
                 </div>
               </div>
 
-              {/* In-Article Ad Placement */}
               <div className="my-16 w-full h-40 bg-muted/10 border-2 border-dashed rounded-3xl flex flex-col items-center justify-center p-6 text-center">
                 <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4">Sponsored Recommendation</span>
                 <div className="w-full h-full bg-white/40 rounded-xl flex items-center justify-center text-lg italic text-muted-foreground">
@@ -178,7 +171,6 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
             </article>
           </div>
 
-          {/* Right Skyscraper */}
           <aside className="hidden md:block w-[160px]">
             <div className="sticky top-24 h-[600px] bg-muted/5 border border-dashed border-muted-foreground/20 rounded-xl flex items-center justify-center text-[10px] text-muted-foreground font-bold uppercase tracking-tighter p-2 text-center">
               Skyscraper Ad<br/>(160x600)
