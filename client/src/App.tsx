@@ -345,18 +345,63 @@ function Router() {
         <GenericPdfTool title="Epoch Converter" desc="Convert Unix timestamps to human-readable dates." />
       </Route>
 
-      {/* AI Write Ext */}
-      <Route path="/tools/story-generator">
-        <GenericPdfTool title="Story Generator" desc="Generate creative stories and narratives using AI." />
+      {/* AI Write Silo Tools */}
+      <Route path="/tools/paragraph-writer">
+        <GenericPdfTool title="Paragraph Writer" desc="Generate high-quality paragraphs on any topic using AI." />
+      </Route>
+      <Route path="/tools/essay-writer">
+        <GenericPdfTool title="Essay Writer" desc="Create structured essays from a single prompt using AI." />
+      </Route>
+      <Route path="/tools/blog-post-ideas">
+        <GenericPdfTool title="Blog Post Ideas" desc="Get endless inspiration for your next content piece." />
+      </Route>
+      <Route path="/tools/sentence-expander">
+        <GenericPdfTool title="Sentence Expander" desc="Expand short sentences into detailed and descriptive text." />
+      </Route>
+      <Route path="/tools/instagram-caption-generator">
+        <GenericPdfTool title="Instagram Caption" desc="Create engaging captions for your Instagram photos." />
+      </Route>
+      <Route path="/tools/youtube-title-generator">
+        <GenericPdfTool title="YouTube Title Generator" desc="Generate catchy and SEO-friendly titles for your videos." />
+      </Route>
+      <Route path="/tools/tiktok-script-creator">
+        <GenericPdfTool title="TikTok Script Creator" desc="Create viral-ready scripts for your TikTok videos." />
+      </Route>
+      <Route path="/tools/email-writer">
+        <GenericPdfTool title="Email Writer" desc="Write professional or casual emails for any situation." />
+      </Route>
+      <Route path="/tools/cover-letter-generator">
+        <GenericPdfTool title="Cover Letter Generator" desc="Generate personalized cover letters for your job applications." />
+      </Route>
+      <Route path="/tools/linkedin-post-generator">
+        <GenericPdfTool title="LinkedIn Post Generator" desc="Generate professional posts for your LinkedIn network." />
+      </Route>
+      <Route path="/tools/grammar-fixer">
+        <GenericPdfTool title="Grammar Checker" desc="Instantly fix grammar and spelling errors in your text." />
       </Route>
       <Route path="/tools/content-summarizer">
-        <GenericPdfTool title="Content Summarizer" desc="Summarize long articles and documents into key points." />
+        <GenericPdfTool title="Text Summarizer" desc="Summarize long articles and documents into key points." />
+      </Route>
+      <Route path="/tools/article-rewriter">
+        <GenericPdfTool title="Rewrite Article" desc="Rewrite existing articles to create unique content." />
+      </Route>
+      <Route path="/tools/content-improver">
+        <GenericPdfTool title="Content Improver" desc="Enhance the quality and readability of your existing content." />
+      </Route>
+      <Route path="/tools/paragraph-completer">
+        <GenericPdfTool title="Paragraph Completer" desc="Finish your thoughts and complete paragraphs automatically." />
+      </Route>
+      <Route path="/tools/story-generator">
+        <GenericPdfTool title="Story Generator" desc="Generate creative stories and narratives using AI." />
       </Route>
       <Route path="/tools/ai-humanizer">
         <GenericPdfTool title="AI Humanizer" desc="Rewrite AI text to sound more natural and human-like." />
       </Route>
       <Route path="/tools/tone-of-voice">
         <GenericPdfTool title="Tone of Voice" desc="Analyze and adjust the tone of your writing." />
+      </Route>
+      <Route path="/tools/youtube-script-writer">
+        <GenericPdfTool title="YouTube Script Writer" desc="Generate professional scripts for your YouTube videos." />
       </Route>
 
       {/* PDF Tools Ext */}

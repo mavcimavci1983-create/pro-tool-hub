@@ -135,20 +135,24 @@ const converterTools = {
 
 const writeTools = {
   featured: [
-    { title: "Content Improver", desc: "Improve your content", icon: <Sparkles className="w-5 h-5 text-purple-400" />, href: "/tools/content-improver" },
-    { title: "Essay Writer", desc: "Create AI essays", icon: <PenTool className="w-5 h-5 text-orange-400" />, href: "/tools/essay-writer" },
     { title: "Paragraph Writer", desc: "AI paragraph writer", icon: <Type className="w-5 h-5 text-rose-400" />, href: "/tools/paragraph-writer" },
-    { title: "Paragraph Completer", desc: "Finish paragraphs", icon: <Type className="w-5 h-5 text-blue-400" />, href: "/tools/paragraph-completer" },
+    { title: "Essay Writer", desc: "Create AI essays", icon: <PenTool className="w-5 h-5 text-orange-400" />, href: "/tools/essay-writer" },
+    { title: "Instagram Caption", desc: "Social media captions", icon: <Instagram className="w-5 h-5 text-pink-500" />, href: "/tools/instagram-caption-generator" },
+    { title: "LinkedIn Post", desc: "Professional networking", icon: <Twitter className="w-5 h-5 text-sky-500" />, href: "/tools/linkedin-post-generator" },
   ],
   others: [
-    { title: "Story Generator", href: "/tools/story-generator" },
+    { title: "Blog Post Ideas", href: "/tools/blog-post-ideas" },
+    { title: "Sentence Expander", href: "/tools/sentence-expander" },
+    { title: "YouTube Title", href: "/tools/youtube-title-generator" },
+    { title: "TikTok Script", href: "/tools/tiktok-script-creator" },
+    { title: "Email Writer", href: "/tools/email-writer" },
+    { title: "Cover Letter", href: "/tools/cover-letter-generator" },
     { title: "Grammar Fixer", href: "/tools/grammar-fixer" },
-    { title: "Sentence Rewriter", href: "/tools/sentence-rewriter" },
-    { title: "Article Writer", href: "/tools/article-writer" },
-    { title: "Content Summarizer", href: "/tools/content-summarizer" },
+    { title: "Text Summarizer", href: "/tools/content-summarizer" },
+    { title: "Rewrite Article", href: "/tools/article-rewriter" },
+    { title: "Story Generator", href: "/tools/story-generator" },
     { title: "AI Humanizer", href: "/tools/ai-humanizer" },
     { title: "Tone of Voice", href: "/tools/tone-of-voice" },
-    { title: "YouTube Script", href: "/tools/youtube-script-writer" },
   ]
 };
 

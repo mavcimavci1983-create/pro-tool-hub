@@ -30,7 +30,7 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
     setIsProcessing(true);
     let p = 0;
     const interval = setInterval(() => {
-      p += 1; // 10 seconds (100ms * 100 = 10s)
+      p += 0.833; // 12 seconds (100ms * 120 = 12s)
       setProgress(Math.min(p, 100));
       if (p >= 100) {
         clearInterval(interval);
@@ -65,10 +65,10 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
                 <div className="absolute inset-0 bg-background/95 backdrop-blur-md z-20 flex flex-col items-center justify-center p-12 text-center">
                   <div className="w-20 h-20 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-6"></div>
                   <p className="font-bold text-2xl mb-4 text-foreground tracking-tight text-center px-4">
-                    Securing and formatting your file...
+                    AI is thinking...
                   </p>
                   <p className="text-muted-foreground mb-8 text-sm italic">
-                    Gizlilik: Dosyalarınız tarayıcıda işlenir, sunucuya asla kaydedilmez.
+                    Yapay zeka içeriğinizi mükemmelleştiriyor, lütfen bekleyin.
                   </p>
                   <div className="w-full max-w-md bg-muted rounded-full h-4 overflow-hidden mb-8 shadow-inner">
                     <div className="bg-primary h-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
@@ -131,17 +131,17 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
               
               <div className="grid md:grid-cols-2 gap-12 text-muted-foreground leading-relaxed">
                 <div className="bg-card p-8 rounded-2xl border shadow-sm">
-                  <h3 className="text-xl font-bold text-foreground mb-4">Neden Bu Aracı Kullanmalısınız?</h3>
+                  <h3 className="text-xl font-bold text-foreground mb-4">Neden Yapay Zeka Yazım Araçları?</h3>
                   <p className="mb-6 text-sm">
-                    {title} aracımız, dosyalarınızı en yüksek kalitede dönüştürmek için optimize edilmiştir. 
-                    Özellikle <strong>e-Kitapları PDF'e çevirmek</strong>, metinlerin her cihazda aynı görünmesini sağlar ve baskı uyumluluğu sunar. 
-                    Veri dönüştürücülerimiz (JSON, XML, CSV) ise yazılımcılar için hatasız şema dönüşümü garanti eder.
+                    {title} aracımız, içeriğinizi en yüksek kalitede üretmek için modern dil modelleriyle optimize edilmiştir. 
+                    Özellikle <strong>Yapay zeka ile etkili paragraflar yazmak</strong>, hem zaman tasarrufu sağlar hem de yaratıcılığınızı tetikler. 
+                    Profesyonel yazarlar ve içerik üreticileri için hatasız metin yapısı garanti eder.
                   </p>
-                  <h3 className="text-xl font-bold text-foreground mb-4">JSON Formatı Neden Tercih Edilmeli?</h3>
+                  <h3 className="text-xl font-bold text-foreground mb-4">Yapay Zeka ile Nasıl Etkili İçerik Yazılır?</h3>
                   <p className="text-sm">
-                    JSON, hafif yapısı ve hiyerarşik veri desteği ile modern web uygulamalarının vazgeçilmezidir. 
-                    <strong>CSV to JSON</strong> dönüşümü yaparak, düz tablolarınızı uygulama dostu nesnelere çevirebilirsiniz. 
-                    Bu da veri işleme hızınızı %40'a kadar artırabilir.
+                    Yapay zeka araçlarını kullanırken doğru 'prompt' (komut) vermek başarının anahtarıdır. 
+                    <strong>{title}</strong> aracımızla, sadece anahtar kelimeleri girerek dakikalar içinde SEO uyumlu ve akıcı metinler oluşturabilirsiniz. 
+                    Bu da içerik üretim hızınızı %50'ye kadar artırabilir.
                   </p>
                 </div>
                 
