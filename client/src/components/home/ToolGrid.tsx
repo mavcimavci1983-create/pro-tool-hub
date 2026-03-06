@@ -107,7 +107,16 @@ const allTools = [
 
   // Other Tools (Görsel 4)
   { title: "QR Code Generator", desc: "Generate QR code", cat: "Other Tools", icon: <QrCode className="w-5 h-5 text-orange-400" />, link: "/tools/qr-generator" },
+  { title: "Barcode Generator", desc: "Generate Barcodes", cat: "Other Tools", icon: <QrCode className="w-5 h-5 text-blue-400" />, link: "/tools/barcode-generator" },
+  { title: "Password Generator", desc: "Create secure passwords", cat: "Other Tools", icon: <Lock className="w-5 h-5 text-red-400" />, link: "/tools/password-generator" },
   { title: "Lorem Ipsum Generator", desc: "Generate Lorem Ipsum placeholder text", cat: "Other Tools", icon: <StickyNote className="w-5 h-5 text-yellow-400" />, link: "/tools/lorem-ipsum" },
+  { title: "HTML Viewer", desc: "Preview HTML code", cat: "Other Tools", icon: <Layout className="w-5 h-5 text-indigo-400" />, link: "/tools/html-viewer" },
+  { title: "JSON Formatter", desc: "Format JSON data", cat: "Other Tools", icon: <FileJson className="w-5 h-5 text-emerald-400" />, link: "/tools/json-formatter" },
+  { title: "My IP Address", desc: "Check your public IP", cat: "Other Tools", icon: <Globe className="w-5 h-5 text-sky-400" />, link: "/tools/my-ip" },
+  { title: "Speed Test", desc: "Check internet speed", cat: "Other Tools", icon: <Zap className="w-5 h-5 text-amber-400" />, link: "/tools/speed-test" },
+  { title: "Stop Watch", desc: "Online stopwatch", cat: "Other Tools", icon: <Clock className="w-5 h-5 text-rose-400" />, link: "/tools/stopwatch" },
+  { title: "Counter", desc: "Online click counter", cat: "Other Tools", icon: <Zap className="w-5 h-5 text-blue-500" />, link: "/tools/counter" },
+  { title: "Case Converter", desc: "Change text case", cat: "Other Tools", icon: <Type className="w-5 h-5 text-purple-400" />, link: "/tools/case-converter" },
   { title: "Meme Maker", desc: "Generate memes easily", cat: "Other Tools", icon: <Smile className="w-5 h-5 text-blue-400" />, link: "/tools/meme-maker" },
   { title: "Create Zip", desc: "Create Zip file Online", cat: "Other Tools", icon: <Zap className="w-5 h-5 text-green-400" />, link: "/tools/create-zip" },
   { title: "Epoch Converter", desc: "Convert epoch to human-readable date and vice versa", cat: "Other Tools", icon: <Clock className="w-5 h-5 text-rose-400" />, link: "/tools/epoch-converter" },

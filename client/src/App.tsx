@@ -328,12 +328,39 @@ function Router() {
         <GenericPdfTool title="Create ZIP" desc="Compress multiple files into a single secure ZIP archive." />
       </Route>
 
-      {/* Other Tools Ext */}
+      {/* Other Tools Silo */}
       <Route path="/tools/qr-generator">
-        <GenericPdfTool title="QR Code Generator" desc="Create custom QR codes for URLs, text, or contact info." />
+        <GenericPdfTool title="QR Code Generator" desc="Create custom QR codes for URLs, text, or contact info instantly." />
+      </Route>
+      <Route path="/tools/barcode-generator">
+        <GenericPdfTool title="Barcode Generator" desc="Generate professional barcodes for products and inventory." />
+      </Route>
+      <Route path="/tools/password-generator">
+        <GenericPdfTool title="Password Generator" desc="Create strong, secure, and random passwords to protect your accounts." />
       </Route>
       <Route path="/tools/lorem-ipsum">
-        <GenericPdfTool title="Lorem Ipsum Generator" desc="Generate placeholder text for your design projects." />
+        <GenericPdfTool title="Lorem Ipsum Generator" desc="Generate placeholder text for your design and layout projects." />
+      </Route>
+      <Route path="/tools/html-viewer">
+        <GenericPdfTool title="HTML Viewer" desc="Preview and inspect HTML code in real-time with our secure viewer." />
+      </Route>
+      <Route path="/tools/json-formatter">
+        <GenericPdfTool title="JSON Formatter" desc="Clean, format, and validate your JSON data for better readability." />
+      </Route>
+      <Route path="/tools/my-ip">
+        <GenericPdfTool title="My IP Address" desc="Instantly find and display your public IP address and location details." />
+      </Route>
+      <Route path="/tools/speed-test">
+        <GenericPdfTool title="Internet Speed Test" desc="Check your upload and download speeds with our integrated speed test." />
+      </Route>
+      <Route path="/tools/stopwatch">
+        <GenericPdfTool title="Stopwatch" desc="A simple and accurate online stopwatch for timing your tasks." />
+      </Route>
+      <Route path="/tools/counter">
+        <GenericPdfTool title="Online Counter" desc="Tally anything with our easy-to-use digital click counter." />
+      </Route>
+      <Route path="/tools/case-converter">
+        <GenericPdfTool title="Case Converter" desc="Convert text to UPPERCASE, lowercase, Title Case, and more." />
       </Route>
       <Route path="/tools/meme-maker">
         <GenericPdfTool title="Meme Maker" desc="Create funny memes from your images easily." />

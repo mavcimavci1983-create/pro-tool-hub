@@ -30,7 +30,7 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
     setIsProcessing(true);
     let p = 0;
     const interval = setInterval(() => {
-      p += 0.833; // 12 seconds (100ms * 120 = 12s)
+      p += 1.25; // 8 seconds (100ms * 80 = 8s)
       setProgress(Math.min(p, 100));
       if (p >= 100) {
         clearInterval(interval);
@@ -65,10 +65,10 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
                 <div className="absolute inset-0 bg-background/95 backdrop-blur-md z-20 flex flex-col items-center justify-center p-12 text-center">
                   <div className="w-20 h-20 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-6"></div>
                   <p className="font-bold text-2xl mb-4 text-foreground tracking-tight text-center px-4">
-                    AI is thinking...
+                    Generating secure result...
                   </p>
-                  <p className="text-muted-foreground mb-8 text-sm italic">
-                    Yapay zeka içeriğinizi mükemmelleştiriyor, lütfen bekleyin.
+                  <p className="text-muted-foreground mb-8 text-sm italic text-center">
+                    İşleminiz güvenli bir şekilde tamamlanıyor, lütfen bekleyin.
                   </p>
                   <div className="w-full max-w-md bg-muted rounded-full h-4 overflow-hidden mb-8 shadow-inner">
                     <div className="bg-primary h-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
@@ -129,19 +129,16 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
             <article className="prose prose-slate max-w-none border-t pt-16">
               <h2 className="text-3xl font-extrabold text-foreground mb-8 text-center">{title} Hakkında Bilmeniz Gerekenler</h2>
               
-              <div className="grid md:grid-cols-2 gap-12 text-muted-foreground leading-relaxed">
                 <div className="bg-card p-8 rounded-2xl border shadow-sm">
-                  <h3 className="text-xl font-bold text-foreground mb-4">Neden Yapay Zeka Yazım Araçları?</h3>
+                  <h3 className="text-xl font-bold text-foreground mb-4">{title} Hakkında Bilmeniz Gerekenler</h3>
                   <p className="mb-6 text-sm">
-                    {title} aracımız, içeriğinizi en yüksek kalitede üretmek için modern dil modelleriyle optimize edilmiştir. 
-                    Özellikle <strong>Yapay zeka ile etkili paragraflar yazmak</strong>, hem zaman tasarrufu sağlar hem de yaratıcılığınızı tetikler. 
-                    Profesyonel yazarlar ve içerik üreticileri için hatasız metin yapısı garanti eder.
+                    {title} aracımız, günlük teknik ihtiyaçlarınızı en hızlı şekilde karşılamak için tasarlanmıştır. 
+                    Özellikle <strong>QR Kod oluşturma</strong> ve <strong>güvenli şifre üretme</strong> gibi işlemler, verilerinizin gizliliğini korumak adına tamamen tarayıcınızda gerçekleştirilir.
                   </p>
-                  <h3 className="text-xl font-bold text-foreground mb-4">Yapay Zeka ile Nasıl Etkili İçerik Yazılır?</h3>
+                  <h3 className="text-xl font-bold text-foreground mb-4">QR Kod Nasıl Kullanılır?</h3>
                   <p className="text-sm">
-                    Yapay zeka araçlarını kullanırken doğru 'prompt' (komut) vermek başarının anahtarıdır. 
-                    <strong>{title}</strong> aracımızla, sadece anahtar kelimeleri girerek dakikalar içinde SEO uyumlu ve akıcı metinler oluşturabilirsiniz. 
-                    Bu da içerik üretim hızınızı %50'ye kadar artırabilir.
+                    QR kodlar, fiziksel dünya ile dijital içerik arasında köprü kurmanın en kolay yoludur. 
+                    <strong>{title}</strong> aracımızla oluşturduğunuz kodları kartvizitlerinize, menülerinize veya web sitelerinize ekleyerek kullanıcılarınızın bilgiye anında ulaşmasını sağlayabilirsiniz.
                   </p>
                 </div>
                 
