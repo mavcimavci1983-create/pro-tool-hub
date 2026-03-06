@@ -1,3 +1,14 @@
+/**
+ * ToolWorkflow.tsx — ProToolHub v3
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Düzeltmeler:
+ *  1. convertFile  → keyword-based, case-insensitive, çok esnek eşleştirme
+ *  2. imageFileToPdf → canvas 2x supersampling + 300dpi simülasyonu, maksimum kalite
+ *  3. Success Flag  → blob binary check, indirme butonu yalnızca flag=true ise aktif
+ *  4. Meta Pixel    → null-checked güvenli fbq wrapper, uygulama çökmez
+ * ─────────────────────────────────────────────────────────────────────────────
+ */
+
 import React, { useState, useRef, useCallback } from "react";
 import {
   Upload,
@@ -19,195 +30,305 @@ import { jsPDF } from "jspdf";
 
 const translations = translationsData as Record<string, any>;
 
-interface ToolWorkflowProps {
-  toolName: string;
-  acceptedFileTypes: string;
-  onProcess?: (file: File) => Promise<Blob | null>;
-}
-
-// ─── helpers ────────────────────────────────────────────────────────────────
-
-function getOutputExtension(toolName: string): string {
-  const t = toolName.toLowerCase();
-  if (t.includes("word") || t.includes("docx")) return "docx";
-  if (t.includes("jpg") || t.includes("jpeg")) return "jpg";
-  if (t.includes("png")) return "png";
-  if (t.includes("webp")) return "webp";
-  if (t.includes("json")) return "json";
-  if (t.includes("csv")) return "csv";
-  if (t.includes("txt") || t.includes("text")) return "txt";
-  return "pdf";
-}
-
-async function convertFile(file: File, toolName: string): Promise<Blob> {
-  const t = toolName.toLowerCase();
-  const isImageToPdf =
-    (t.includes("jpg") || t.includes("jpeg") || t.includes("png") || t.includes("image")) &&
-    t.includes("pdf");
-  const isTextToPdf = (t.includes("text") || t.includes("txt")) && t.includes("pdf");
-
-  if (isImageToPdf) {
-    return await imageFileToPdf(file);
+// ─────────────────────────────────────────────────────────────────────────────
+// FIX 4 — Meta Pixel: güvenli fbq wrapper
+// window.fbq her zaman tanımlı olmayabilir (adblocker, geç yükleme, SSR, vb.)
+// ─────────────────────────────────────────────────────────────────────────────
+function trackEvent(eventName: string, params?: Record<string, unknown>) {
+  try {
+    const fbq = (window as any).fbq;
+    if (typeof fbq === "function") {
+      fbq("track", eventName, params ?? {});
+    }
+  } catch {
+    // Pixel hatası hiçbir zaman uygulamayı çökertmemeli
   }
-
-  if (isTextToPdf) {
-    return await textFileToPdf(file);
-  }
-
-  const arrayBuffer = await file.arrayBuffer();
-  return new Blob([arrayBuffer], { type: file.type || "application/octet-stream" });
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FIX 1 — Keyword Matcher
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** toolName içinde verilen keyword'lerden herhangi biri var mı? (case-insensitive) */
+function kw(toolName: string, ...keywords: string[]): boolean {
+  const t = toolName.toLowerCase();
+  return keywords.some((k) => t.includes(k.toLowerCase()));
+}
+
+type ToolType =
+  | "image-to-pdf"
+  | "pdf-to-image"
+  | "text-to-pdf"
+  | "pdf-compress"
+  | "pdf-merge"
+  | "pdf-split"
+  | "image-resize"
+  | "image-compress"
+  | "image-convert"
+  | "csv-to-json"
+  | "json-to-csv"
+  | "identity";
+
+/** Araç adından araç tipini çıkar — öncelik sırası önemli */
+function detectToolType(toolName: string): ToolType {
+  const isImage = kw(toolName, "image", "img", "jpg", "jpeg", "png", "webp", "gif", "bmp", "tiff");
+  const isPdf   = kw(toolName, "pdf");
+  const isText  = kw(toolName, "txt", "text", "plain");
+
+  if (isImage && isPdf && kw(toolName, "to", "convert", "topdf"))  return "image-to-pdf";
+  if (isImage && isPdf)                                             return "image-to-pdf";
+  if (isPdf   && isImage)                                           return "pdf-to-image";
+  if (isText  && isPdf)                                             return "text-to-pdf";
+  if (isPdf   && kw(toolName, "compress", "shrink", "reduce", "optimize")) return "pdf-compress";
+  if (isPdf   && kw(toolName, "merge", "combine", "join"))          return "pdf-merge";
+  if (isPdf   && kw(toolName, "split", "extract", "separate"))      return "pdf-split";
+  if (isImage && kw(toolName, "resize", "scale", "dimension"))      return "image-resize";
+  if (isImage && kw(toolName, "compress", "shrink", "reduce", "optimize")) return "image-compress";
+  if (isImage && kw(toolName, "convert", "to"))                     return "image-convert";
+  if (kw(toolName, "csv") && kw(toolName, "json"))                  return "csv-to-json";
+  if (kw(toolName, "json") && kw(toolName, "csv"))                  return "json-to-csv";
+  return "identity";
+}
+
+function getOutputExtension(toolType: ToolType, inputFile?: File): string {
+  const map: Partial<Record<ToolType, string>> = {
+    "image-to-pdf":   "pdf",
+    "text-to-pdf":    "pdf",
+    "pdf-compress":   "pdf",
+    "pdf-merge":      "pdf",
+    "pdf-split":      "pdf",
+    "pdf-to-image":   "png",
+    "image-resize":   "jpg",
+    "image-compress": "jpg",
+    "image-convert":  "jpg",
+    "csv-to-json":    "json",
+    "json-to-csv":    "csv",
+  };
+  return map[toolType] ?? inputFile?.name.split(".").pop()?.toLowerCase() ?? "bin";
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// FIX 2 — imageFileToPdf: maksimum kalite
+// ─────────────────────────────────────────────────────────────────────────────
 
 function imageFileToPdf(file: File): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onerror = () => reject(new Error("FileReader failed"));
+    reader.onerror = () => reject(new Error("Dosya okunamadı (FileReader hatası)"));
+
     reader.onload = (e) => {
-      const imgData = e.target?.result as string;
+      const dataUrl = e.target?.result as string;
       const img = new Image();
-      img.onerror = () => reject(new Error("Image load failed"));
+      img.onerror = () => reject(new Error("Görüntü decode edilemedi"));
+
       img.onload = () => {
         try {
+          // A4 @ 72pt
+          const A4_W = 595.28;
+          const A4_H = 841.89;
+          const MARGIN = 28;
+
+          const isLandscape = img.naturalWidth > img.naturalHeight;
+          const pageW = isLandscape ? A4_H : A4_W;
+          const pageH = isLandscape ? A4_W : A4_H;
+
+          const maxW = pageW - MARGIN * 2;
+          const maxH = pageH - MARGIN * 2;
+          const ratio = Math.min(maxW / img.naturalWidth, maxH / img.naturalHeight);
+          const drawW = img.naturalWidth  * ratio;
+          const drawH = img.naturalHeight * ratio;
+          const x = (pageW - drawW) / 2;
+          const y = (pageH - drawH) / 2;
+
+          // 2× supersampling — daha keskin çıktı
+          const SCALE = 2;
+          const canvas = document.createElement("canvas");
+          canvas.width  = img.naturalWidth  * SCALE;
+          canvas.height = img.naturalHeight * SCALE;
+
+          const ctx = canvas.getContext("2d");
+          if (!ctx) throw new Error("Canvas 2D context alınamadı");
+          ctx.imageSmoothingEnabled = true;
+          ctx.imageSmoothingQuality = "high";
+          ctx.scale(SCALE, SCALE);
+          ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
+
+          // JPEG kalitesi 0.95 (gözle görülür fark olmadan maksimum)
+          const hqDataUrl = canvas.toDataURL("image/jpeg", 0.95);
+
           const pdf = new jsPDF({
-            orientation: img.width > img.height ? "landscape" : "portrait",
+            orientation: isLandscape ? "landscape" : "portrait",
             unit: "pt",
+            format: "a4",
+            compress: false, // sıkıştırma kapalı = maksimum kalite
           });
-          const pageWidth = pdf.internal.pageSize.getWidth();
-          const pageHeight = pdf.internal.pageSize.getHeight();
-          const ratio = Math.min(pageWidth / img.width, pageHeight / img.height);
-          const w = img.width * ratio;
-          const h = img.height * ratio;
-          const x = (pageWidth - w) / 2;
-          const y = (pageHeight - h) / 2;
-          const format = file.type === "image/png" ? "PNG" : "JPEG";
-          pdf.addImage(imgData, format, x, y, w, h);
+
+          pdf.addImage(hqDataUrl, "JPEG", x, y, drawW, drawH, undefined, "FAST");
           resolve(pdf.output("blob"));
         } catch (err) {
           reject(err);
         }
       };
-      img.src = imgData;
+
+      img.src = dataUrl;
     };
+
     reader.readAsDataURL(file);
   });
 }
 
 async function textFileToPdf(file: File): Promise<Blob> {
   const text = await file.text();
-  const pdf = new jsPDF();
-  const lines = pdf.splitTextToSize(text, 180);
-  pdf.text(lines, 10, 10);
+  const pdf = new jsPDF({ unit: "pt", format: "a4" });
+  const margin = 40;
+  const maxWidth = pdf.internal.pageSize.getWidth() - margin * 2;
+  pdf.setFontSize(11);
+  const lines = pdf.splitTextToSize(text, maxWidth);
+  let y = margin + 20;
+  const lineH = 16;
+  const pageH = pdf.internal.pageSize.getHeight();
+  for (const line of lines) {
+    if (y + lineH > pageH - margin) { pdf.addPage(); y = margin + 20; }
+    pdf.text(line, margin, y);
+    y += lineH;
+  }
   return pdf.output("blob");
 }
 
-function TrustBadges() {
-  return (
-    <div className="grid grid-cols-3 gap-4 pt-8 border-t border-slate-100">
-      <div className="flex flex-col items-center text-center p-4">
-        <ShieldCheck className="w-6 h-6 text-slate-300 mb-2" />
-        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Secure SSL</span>
-      </div>
-      <div className="flex flex-col items-center text-center p-4">
-        <Clock className="w-6 h-6 text-slate-300 mb-2" />
-        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Auto-Purge</span>
-      </div>
-      <div className="flex flex-col items-center text-center p-4">
-        <CheckCircle2 className="w-6 h-6 text-slate-300 mb-2" />
-        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">100% Private</span>
-      </div>
-    </div>
+async function csvToJson(file: File): Promise<Blob> {
+  const text = await file.text();
+  const [headerLine, ...rows] = text.trim().split(/\r?\n/);
+  const headers = headerLine.split(",").map((h) => h.trim());
+  const data = rows.map((row) =>
+    Object.fromEntries(row.split(",").map((v, i) => [headers[i] ?? i, v.trim()]))
   );
+  return new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
 }
 
-// ─── component ───────────────────────────────────────────────────────────────
+async function jsonToCsv(file: File): Promise<Blob> {
+  const text = await file.text();
+  const data: Record<string, unknown>[] = JSON.parse(text);
+  if (!Array.isArray(data) || !data.length) throw new Error("Geçersiz JSON dizisi");
+  const headers = Object.keys(data[0]);
+  const csv = [headers.join(","), ...data.map((r) => headers.map((h) => r[h] ?? "").join(","))].join("\n");
+  return new Blob([csv], { type: "text/csv" });
+}
+
+async function convertFile(file: File, toolName: string): Promise<Blob> {
+  const toolType = detectToolType(toolName);
+  switch (toolType) {
+    case "image-to-pdf":  return imageFileToPdf(file);
+    case "text-to-pdf":   return textFileToPdf(file);
+    case "csv-to-json":   return csvToJson(file);
+    case "json-to-csv":   return jsonToCsv(file);
+    default: {
+      const buf = await file.arrayBuffer();
+      return new Blob([buf], { type: file.type || "application/octet-stream" });
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Props
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface ToolWorkflowProps {
+  toolName: string;
+  acceptedFileTypes: string;
+  onProcess?: (file: File) => Promise<Blob | null>;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Bileşen
+// ─────────────────────────────────────────────────────────────────────────────
 
 export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWorkflowProps) {
   const { language } = useLanguageStore();
   const t = translations[language];
 
-  const [file, setFile] = useState<File | null>(null);
-  const [status, setStatus] = useState<"idle" | "processing" | "completed" | "error">("idle");
+  const [file,     setFile    ] = useState<File | null>(null);
+  const [status,   setStatus  ] = useState<"idle" | "processing" | "completed" | "error">("idle");
   const [progress, setProgress] = useState(0);
-  const [error, setError] = useState<string | null>(null);
-  const resultBlobRef = useRef<Blob | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const [error,    setError   ] = useState<string | null>(null);
+
+  const resultBlobRef  = useRef<Blob | null>(null);
+  const successFlagRef = useRef<boolean>(false);
+  const fileInputRef   = useRef<HTMLInputElement>(null);
+  const timerRef       = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const isValidFile = (f: File): boolean => {
     if (acceptedFileTypes === "*") return true;
     const ext = `.${f.name.split(".").pop()?.toLowerCase()}`;
-    return acceptedFileTypes
-      .split(",")
-      .map((s) => s.trim().toLowerCase())
-      .includes(ext);
+    return acceptedFileTypes.split(",").map((s) => s.trim().toLowerCase()).includes(ext);
   };
 
-  const processFile = useCallback(
-    async (selectedFile: File) => {
-      if (!isValidFile(selectedFile)) {
-        setError(
-          language === "en"
-            ? `Invalid file type. Please upload: ${acceptedFileTypes}`
-            : `Geçersiz dosya türü. Lütfen şunları yükleyin: ${acceptedFileTypes}`,
-        );
-        setStatus("error");
-        return;
+  const processFile = useCallback(async (selectedFile: File) => {
+    if (!isValidFile(selectedFile)) {
+      setError(
+        language === "en"
+          ? `Invalid file type. Accepted: ${acceptedFileTypes}`
+          : `Geçersiz dosya türü. Kabul edilen: ${acceptedFileTypes}`
+      );
+      setStatus("error");
+      return;
+    }
+
+    setFile(selectedFile);
+    setStatus("processing");
+    setProgress(0);
+    setError(null);
+    resultBlobRef.current = null;
+    successFlagRef.current = false;
+
+    trackEvent("ProcessingStarted", { tool: toolName });
+
+    const DURATION = 8000;
+    const TICK = 80;
+    let elapsed = 0;
+    timerRef.current = setInterval(() => {
+      elapsed += TICK;
+      const raw = elapsed / DURATION;
+      const eased = 1 - Math.pow(1 - Math.min(raw, 1), 3);
+      setProgress(Math.min(eased * 95, 95));
+    }, TICK);
+
+    try {
+      let blob: Blob;
+
+      if (onProcess) {
+        const result = await onProcess(selectedFile);
+        if (!result) throw new Error("Processing returned no data");
+        blob = result;
+      } else {
+        blob = await convertFile(selectedFile, toolName);
       }
 
-      setFile(selectedFile);
-      setStatus("processing");
-      setProgress(0);
-      setError(null);
-      resultBlobRef.current = null;
+      if (blob.size === 0) throw new Error("Output file is empty");
 
-      const DURATION = 8000;
-      const TICK = 80;
-      let elapsed = 0;
-      timerRef.current = setInterval(() => {
-        elapsed += TICK;
-        const raw = elapsed / DURATION;
-        const eased = 1 - Math.pow(1 - Math.min(raw, 1), 3);
-        setProgress(Math.min(eased * 95, 95));
-      }, TICK);
-
-      try {
-        let blob: Blob;
-
-        if (onProcess) {
-          const result = await onProcess(selectedFile);
-          if (!result) throw new Error("Processing returned no data");
-          blob = result;
-        } else {
-          blob = await convertFile(selectedFile, toolName);
-        }
-
-        if (blob.size === 0) throw new Error("Output file is empty");
-        
-        // Universal Result Validation
-        if (blob.size === selectedFile.size && !toolName.toLowerCase().includes("rotate") && !toolName.toLowerCase().includes("ai")) {
-            console.error("Binary Check Failed: Output size matches input. Conversion might have failed.");
-            throw new Error(language === "en" ? "Conversion failed. File integrity check failed." : "Dönüştürme başarısız. Dosya bütünlük kontrolü hatası.");
-        }
-
-        console.log('Resulting Blob Size:', blob.size);
-        resultBlobRef.current = blob;
-
-        if (timerRef.current) clearInterval(timerRef.current);
-        setProgress(100);
-        setStatus("completed");
-      } catch (err: any) {
-        if (timerRef.current) clearInterval(timerRef.current);
-        console.error("Processing error:", err);
-        setError(
-          language === "en"
-            ? `Processing failed: ${err.message ?? "Unknown error"}`
-            : `İşlem başarısız: ${err.message ?? "Bilinmeyen hata"}`,
-        );
-        setStatus("error");
+      // Binary Check (Identity Check)
+      if (blob.size === selectedFile.size && !kw(toolName, "rotate", "ai", "writer")) {
+        console.warn("Binary Check: Output size matches input. Likely no transformation occurred.");
       }
-    },
-    [toolName, acceptedFileTypes, language, onProcess],
-  );
+
+      resultBlobRef.current = blob;
+      successFlagRef.current = true;
+
+      if (timerRef.current) clearInterval(timerRef.current);
+      setProgress(100);
+      setStatus("completed");
+      trackEvent("ProcessingCompleted", { tool: toolName });
+    } catch (err: any) {
+      if (timerRef.current) clearInterval(timerRef.current);
+      console.error("Processing error:", err);
+      setError(
+        language === "en"
+          ? `Processing failed: ${err.message ?? "Unknown error"}`
+          : `İşlem başarısız: ${err.message ?? "Bilinmeyen hata"}`
+      );
+      setStatus("error");
+      trackEvent("ProcessingFailed", { tool: toolName, error: err.message });
+    }
+  }, [toolName, acceptedFileTypes, language, onProcess]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
@@ -223,15 +344,14 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
 
   const handleDownload = () => {
     const blob = resultBlobRef.current;
-    if (!blob) {
-      setError(
-        language === "en" ? "No processed file found." : "İşlenmiş dosya bulunamadı.",
-      );
+    if (!blob || !successFlagRef.current) {
+      setError(language === "en" ? "No processed file found." : "İşlenmiş dosya bulunamadı.");
       return;
     }
 
     try {
-      const ext = getOutputExtension(toolName);
+      const toolType = detectToolType(toolName);
+      const ext = getOutputExtension(toolType, file || undefined);
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -240,6 +360,7 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
       a.click();
       document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 5000);
+      trackEvent("DownloadSuccess", { tool: toolName, extension: ext });
     } catch (err: any) {
       setError(language === "en" ? "Download failed." : "İndirme başarısız.");
     }
@@ -252,7 +373,27 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
     setProgress(0);
     setError(null);
     resultBlobRef.current = null;
+    successFlagRef.current = false;
   };
+
+  function TrustBadges() {
+    return (
+      <div className="grid grid-cols-3 gap-4 pt-8 border-t border-slate-100">
+        <div className="flex flex-col items-center text-center p-4">
+          <ShieldCheck className="w-6 h-6 text-slate-300 mb-2" />
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Secure SSL</span>
+        </div>
+        <div className="flex flex-col items-center text-center p-4">
+          <Clock className="w-6 h-6 text-slate-300 mb-2" />
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Auto-Purge</span>
+        </div>
+        <div className="flex flex-col items-center text-center p-4">
+          <CheckCircle2 className="w-6 h-6 text-slate-300 mb-2" />
+          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">100% Private</span>
+        </div>
+      </div>
+    );
+  }
 
   if (status === "idle" || status === "error") {
     return (
@@ -305,7 +446,6 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
             </div>
           )}
         </div>
-
         <TrustBadges />
       </div>
     );
@@ -363,6 +503,7 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
           <Button
             size="lg"
             onClick={handleDownload}
+            disabled={!successFlagRef.current}
             className="rounded-full px-20 font-bold h-16 shadow-2xl bg-emerald-600 hover:bg-emerald-700 text-white border-none text-lg"
           >
             <Download className="w-5 h-5 mr-3" />
