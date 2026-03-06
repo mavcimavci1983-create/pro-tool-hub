@@ -1,49 +1,93 @@
-import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
+import { 
+  Github, 
+  Twitter, 
+  Linkedin, 
+  Mail, 
+  ShieldCheck, 
+  Zap, 
+  Globe 
+} from "lucide-react";
+import { useLanguageStore } from "@/lib/languageStore";
 
 export function Footer() {
+  const { language } = useLanguageStore();
+  
+  const content: Record<string, any> = {
+    en: {
+      about: "Professional-grade online tools for PDF, Video, Image, and Writing. Secure, fast, and 100% free.",
+      links: "Quick Links",
+      legal: "Legal",
+      privacy: "Privacy Policy",
+      terms: "Terms of Service",
+      contact: "Contact Us",
+      copyright: "© 2026 ProToolHub. All rights reserved."
+    },
+    tr: {
+      about: "PDF, Video, Resim ve Yazım için profesyonel düzeyde çevrimiçi araçlar. Güvenli, hızlı ve %100 ücretsiz.",
+      links: "Hızlı Bağlantılar",
+      legal: "Yasal",
+      privacy: "Gizlilik Politikası",
+      terms: "Kullanım Şartları",
+      contact: "Bize Ulaşın",
+      copyright: "© 2026 ProToolHub. Tüm hakları saklıdır."
+    }
+  };
+
+  const t = content[language];
+
   return (
-    <footer className="w-full mt-20">
-      <div className="bg-primary text-primary-foreground py-16">
-        <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-8">
-          <div className="max-w-xl">
-            <h2 className="text-3xl font-heading font-bold mb-4">Get more with Premium</h2>
-            <p className="text-primary-foreground/80 mb-6">
-              Take your projects further with premium tools that stay out of your way and work smarter. Create without limits, ads, or roadblocks. Get started for just $5.99 a month.
-            </p>
-            <div className="flex gap-4 mb-6 text-sm font-medium">
-              <span className="flex items-center gap-1">✓ Ad-free</span>
-              <span className="flex items-center gap-1">✓ Unlimited usage</span>
-              <span className="flex items-center gap-1">✓ Faster processing</span>
+    <footer className="bg-slate-950 text-slate-400 py-16 border-t border-slate-900">
+      <div className="container mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+          <div className="space-y-6">
+            <div className="flex items-center gap-2 text-white">
+              <Zap className="h-6 w-6 text-slate-400" />
+              <span className="text-2xl font-bold tracking-tight">ProToolHub</span>
             </div>
-            <Button variant="secondary" className="rounded-full font-bold px-8">
-              Get started
-            </Button>
+            <p className="text-sm leading-relaxed font-medium">
+              {t.about}
+            </p>
+            <div className="flex gap-4">
+              <Link href="#"><Twitter className="w-5 h-5 hover:text-white cursor-pointer transition-colors" /></Link>
+              <Link href="#"><Linkedin className="w-5 h-5 hover:text-white cursor-pointer transition-colors" /></Link>
+              <Link href="#"><Mail className="w-5 h-5 hover:text-white cursor-pointer transition-colors" /></Link>
+            </div>
           </div>
-          <div className="hidden lg:block w-80 h-48 bg-primary-foreground/10 rounded-2xl border border-primary-foreground/20 flex items-center justify-center">
-            <span className="text-primary-foreground/50 font-bold">Premium Illustration</span>
+
+          <div>
+            <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">{t.links}</h4>
+            <ul className="space-y-4 text-sm font-medium">
+              <li><Link href="/tools/merge-pdf" className="hover:text-white transition-colors">Merge PDF</Link></li>
+              <li><Link href="/tools/video-to-gif" className="hover:text-white transition-colors">Video to GIF</Link></li>
+              <li><Link href="/tools/remove-background" className="hover:text-white transition-colors">Remove Background</Link></li>
+              <li><Link href="/tools/essay-writer" className="hover:text-white transition-colors">Essay Writer</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">{t.legal}</h4>
+            <ul className="space-y-4 text-sm font-medium">
+              <li><Link href="#" className="hover:text-white transition-colors">{t.privacy}</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">{t.terms}</Link></li>
+              <li><Link href="#" className="hover:text-white transition-colors">Cookie Policy</Link></li>
+            </ul>
+          </div>
+
+          <div className="space-y-6">
+            <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">Security</h4>
+            <div className="flex items-center gap-3 bg-slate-900/50 p-4 rounded-xl border border-slate-800">
+              <ShieldCheck className="w-8 h-8 text-slate-400" />
+              <div>
+                <p className="text-white text-xs font-bold uppercase tracking-tighter">SSL Secure</p>
+                <p className="text-[10px] opacity-70">Bank-grade encryption</p>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-      
-      <div className="bg-background py-8 border-t">
-        <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="font-heading font-bold text-xl tracking-tight">
-            Micro<span className="text-primary">Wow</span>
-          </div>
-          <div className="flex flex-col items-center md:items-end gap-2">
-            <div className="flex gap-6 text-sm font-medium text-muted-foreground">
-              <a href="#" className="hover:text-primary transition-colors">Navigate</a>
-              <a href="#" className="hover:text-primary transition-colors">Tools</a>
-              <a href="#" className="hover:text-primary transition-colors">Privacy</a>
-              <a href="#" className="hover:text-primary transition-colors">Terms</a>
-            </div>
-            <div className="text-xs text-muted-foreground mt-2">
-              Powered by <a href="https://xoxo.gossip.ai" target="_blank" rel="noopener noreferrer" className="text-primary font-bold hover:underline">XOXO Gossip AI</a>
-            </div>
-          </div>
-          <div className="text-sm text-muted-foreground">
-            © 2024 MicroWow. All rights reserved.
-          </div>
+
+        <div className="pt-8 border-t border-slate-900 text-center text-xs font-bold tracking-widest uppercase opacity-50">
+          {t.copyright}
         </div>
       </div>
     </footer>

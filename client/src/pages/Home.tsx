@@ -16,7 +16,7 @@ export default function Home() {
     <HelmetProvider>
       <div className="min-h-screen flex flex-col bg-white">
         <Helmet>
-          <title>{language === 'en' ? 'MicroWow - 100+ Free Online PDF, Video & Image Tools' : 'MicroWow - 100+ Ücretsiz Online PDF, Video ve Resim Araçları'}</title>
+          <title>{language === 'en' ? 'ProToolHub: 100+ Free Online Professional Tools' : 'ProToolHub: 100+ Ücretsiz Profesyonel Araç'}</title>
           <meta name="description" content={t.home.hero_subtitle} />
         </Helmet>
         <Header />
@@ -54,9 +54,9 @@ export default function Home() {
                       {t.home.security_desc}
                     </p>
                   </div>
-                  <div className="bg-blue-50/50 p-10 rounded-2xl border border-blue-100/50">
-                    <h3 className="text-xl font-bold text-primary mb-4 tracking-tight">{t.home.speed_title}</h3>
-                    <p className="font-medium text-sm leading-relaxed text-slate-500">
+                  <div className="bg-slate-900 p-10 rounded-2xl border border-slate-800">
+                    <h3 className="text-xl font-bold text-white mb-4 tracking-tight">{t.home.speed_title}</h3>
+                    <p className="font-medium text-sm leading-relaxed text-slate-400">
                       {t.home.speed_desc}
                     </p>
                   </div>

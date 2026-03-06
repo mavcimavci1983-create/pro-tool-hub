@@ -38,7 +38,7 @@ export default function VideoTool({ title = "Video Tool", desc = "Free online vi
     <HelmetProvider>
       <div className="min-h-screen flex flex-col bg-white">
         <Helmet>
-          <title>{`${title} - MicroWow Free Online Video Tool`}</title>
+          <title>{`${title} - ProToolHub Free Online Video Tool`}</title>
           <meta name="description" content={desc} />
         </Helmet>
         <Header />
@@ -83,34 +83,24 @@ export default function VideoTool({ title = "Video Tool", desc = "Free online vi
                       <Button variant="outline" size="lg" onClick={() => { setIsDone(false); setProgress(0); }} className="rounded-full px-10 font-bold border-slate-200 text-slate-600">
                         <RefreshCw className="w-4 h-4 mr-2" /> {t.common.start_over}
                       </Button>
-                      <Button size="lg" className="rounded-full px-16 font-bold shadow-lg shadow-primary/20">
+                      <Button size="lg" className="rounded-full px-16 font-bold shadow-lg shadow-primary/20 bg-slate-900 hover:bg-slate-800 text-white border-none">
                         {t.common.download}
                       </Button>
                     </div>
                   </div>
                 ) : (
                   <div className="p-12 md:p-24 flex flex-col items-center justify-center text-center">
-                    <div className="bg-white text-primary p-6 rounded-2xl mb-8 shadow-sm border border-slate-100 group-hover:scale-105 transition-transform">
+                    <div className="bg-white text-slate-900 p-6 rounded-2xl mb-8 shadow-sm border border-slate-100 group-hover:scale-105 transition-transform">
                       <Icon className="w-16 h-16" />
                     </div>
                     <h3 className="text-2xl font-bold mb-3 text-slate-900 tracking-tight">{t.common.drop_files}</h3>
                     <p className="text-slate-500 mb-10 text-lg font-medium">{t.common.drag_drop}</p>
-                    <Button size="lg" className="rounded-full px-12 font-bold h-14 shadow-md" onClick={handleAction}>
+                    <Button size="lg" className="rounded-full px-12 font-bold h-14 shadow-md bg-slate-900 hover:bg-slate-800 text-white border-none" onClick={handleAction}>
                       {t.common.choose_file}
                     </Button>
                   </div>
                 )}
               </Card>
-
-              <Alert className="mb-16 bg-slate-50 border-slate-200 text-slate-900 rounded-2xl p-6">
-                <AlertCircle className="h-5 w-5 text-slate-400" />
-                <div className="ml-2">
-                  <AlertTitle className="font-bold text-slate-900 mb-1">{t.common.privacy_alert}</AlertTitle>
-                  <AlertDescription className="font-medium text-sm text-slate-500 leading-relaxed">
-                    {t.common.privacy_desc}
-                  </AlertDescription>
-                </div>
-              </Alert>
 
               <article className="prose prose-lg max-w-none border-t border-slate-100 pt-16 text-slate-600">
                 <div className="grid md:grid-cols-2 gap-12 text-left">
@@ -133,6 +123,7 @@ export default function VideoTool({ title = "Video Tool", desc = "Free online vi
             </aside>
           </div>
         </main>
+
         <Footer />
       </div>
     </HelmetProvider>

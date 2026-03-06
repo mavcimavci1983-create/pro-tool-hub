@@ -10,22 +10,22 @@
       "ready": "Your file is ready!",
       "download": "Download Result",
       "start_over": "Start Over",
-      "privacy_alert": "1-Hour Auto-Destruct Active",
-      "privacy_desc": "For your privacy, your file will be permanently deleted from our servers exactly 1 hour after upload using our automated node-cron system. We do not store any metadata or logs.",
+      "privacy_alert": "60-Minute Security Protocol",
+      "privacy_desc": "For your security, all processed data is automatically purged from our temporary cache exactly 60 minutes after processing.",
       "security_note": "Security Note:",
-      "privacy_policy": "Files are processed in the browser and never saved to the server. MicroWow operates with a 100% privacy policy.",
+      "privacy_policy": "Files are processed securely and never saved permanently. ProToolHub operates with a strict 100% privacy policy.",
       "all_tools": "All Tools"
     },
     "home": {
-      "hero_title": "100+ Free Online Tools",
-      "hero_subtitle": "Professional PDF, Video, Image, and AI writing tools. 100% Free. 100% Private.",
-      "search_placeholder": "Search among 100+ tools...",
-      "seo_title": "Free Online PDF and File Tools",
-      "seo_desc": "MicroWow provides all the PDF and image processing tools needed by the modern digital world in a single platform. Whether you want to perform PDF to Word conversion or speed up your website with Image to WebP, all your operations are carried out at the highest security standards.",
-      "security_title": "Security and Privacy",
-      "security_desc": "User data security is our priority. All files hosted on our servers are permanently deleted by our autonomous node-cron system exactly 1 hour after processing is complete.",
-      "speed_title": "Speed and Performance",
-      "speed_desc": "All our tools are optimized in accordance with Google Core Web Vitals metrics. Complete your transactions in seconds with fast loading times and a seamless user experience."
+      "hero_title": "ProToolHub: 100+ Free Online Professional Tools",
+      "hero_subtitle": "Professional-grade PDF, Video, Image, and AI writing tools. 100% Free. 100% Secure.",
+      "search_placeholder": "Search among 100+ professional tools...",
+      "seo_title": "ProToolHub: 100+ Free Online Professional Tools",
+      "seo_desc": "ProToolHub provides all the PDF and image processing tools needed by the modern digital world in a single platform. Whether you want to perform PDF to Word conversion or speed up your website with Image to WebP, all your operations are carried out at the highest security standards.",
+      "security_title": "Enterprise Security",
+      "security_desc": "User data security is our priority. All files are permanently deleted exactly 60 minutes after processing is complete using our automated security protocols.",
+      "speed_title": "Professional Performance",
+      "speed_desc": "All our tools are optimized for maximum speed and efficiency. Complete your professional tasks in seconds with a seamless user experience."
     }
   },
   "tr": {
@@ -39,22 +39,22 @@
       "ready": "Dosyanız hazır!",
       "download": "Sonucu İndir",
       "start_over": "Baştan Başla",
-      "privacy_alert": "1 Saatlik Otomatik Silme Aktif",
-      "privacy_desc": "Gizliliğiniz için, dosyanız yüklendikten tam 1 saat sonra otomatik node-cron sistemimiz kullanılarak sunucularımızdan kalıcı olarak silinecektir. Herhangi bir meta veri veya günlük tutmuyoruz.",
+      "privacy_alert": "60 Dakikalık Güvenlik Protokolü",
+      "privacy_desc": "Güvenliğiniz için, tüm işlenen veriler işlemden tam 60 dakika sonra geçici belleğimizden otomatik olarak silinir.",
       "security_note": "Güvenlik Notu:",
-      "privacy_policy": "Dosyalar tarayıcıda işlenir, sunucuya asla kaydedilmez. MicroWow %100 gizlilik politikasıyla çalışır.",
+      "privacy_policy": "Dosyalar güvenli bir şekilde işlenir, sunucuya asla kalıcı olarak kaydedilmez. ProToolHub %100 gizlilik politikasıyla çalışır.",
       "all_tools": "Tüm Araçlar"
     },
     "home": {
-      "hero_title": "100+ Ücretsiz Online Araç",
-      "hero_subtitle": "Profesyonel PDF, Video, Resim ve AI yazma araçları. %100 Ücretsiz. %100 Gizli.",
-      "search_placeholder": "100'den fazla araç arasında ara...",
-      "seo_title": "Ücretsiz Online PDF ve Dosya Araçları",
-      "seo_desc": "MicroWow, modern dijital dünyanın ihtiyaç duyduğu tüm PDF ve görsel işleme araçlarını tek bir platformda sunar. İster PDF to Word çevirisi yapın, ister Image to WebP ile web sitenizi hızlandırın; tüm işlemleriniz en yüksek güvenlik standartlarında gerçekleştirilir.",
-      "security_title": "Güvenlik ve Gizlilik",
-      "security_desc": "Kullanıcı verilerinin güvenliği bizim önceliğimizdir. Sunucularımızda barındırılan tüm dosyalar, işlemin tamamlanmasından tam 1 saat sonra otonom node-cron sistemimiz tarafından kalıcı olarak silinir.",
-      "speed_title": "Hız ve Performans",
-      "speed_desc": "Tüm araçlarımız Google Core Web Vitals metriklerine uygun olarak optimize edilmiştir. Hızlı yükleme süreleri ve kesintisiz kullanıcı deneyimi ile işlemlerinizi saniyeler içinde tamamlayın."
+      "hero_title": "ProToolHub: 100+ Ücretsiz Profesyonel Araç",
+      "hero_subtitle": "Profesyonel düzeyde PDF, Video, Resim ve AI yazma araçları. %100 Ücretsiz. %100 Güvenli.",
+      "search_placeholder": "100'den fazla profesyonel araç arasında ara...",
+      "seo_title": "ProToolHub: 100+ Ücretsiz Profesyonel Araç",
+      "seo_desc": "ProToolHub, modern dijital dünyanın ihtiyaç duyduğu tüm PDF ve görsel işleme araçlarını tek bir platformda sunar. İster PDF to Word çevirisi yapın, ister Image to WebP ile web sitenizi hızlandırın; tüm işlemleriniz en yüksek güvenlik standartlarında gerçekleştirilir.",
+      "security_title": "Kurumsal Güvenlik",
+      "security_desc": "Kullanıcı verilerinin güvenliği bizim önceliğimizdir. Tüm dosyalar, işlemin tamamlanmasından tam 60 dakika sonra otonom güvenlik protokollerimiz tarafından kalıcı olarak silinir.",
+      "speed_title": "Profesyonel Performans",
+      "speed_desc": "Tüm araçlarımız maksimum hız ve verimlilik için optimize edilmiştir. Profesyonel işlemlerinizi saniyeler içinde tamamlayın."
     }
   }
 }

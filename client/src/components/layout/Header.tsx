@@ -108,7 +108,7 @@ export function Header() {
                 <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
                   <div className="mt-1">{tool.icon}</div>
                   <div>
-                    <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
+                    <div className="text-sm font-bold group-hover:text-slate-900">{tool.title}</div>
                     <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
                   </div>
                 </div>
@@ -123,7 +123,7 @@ export function Header() {
           {category.others.map((tool: any) => (
             <div key={tool.title}>
               <Link href={tool.href}>
-                <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
+                <span className="text-[13px] font-medium text-foreground hover:text-slate-900 cursor-pointer transition-colors block">
                   {tool.title}
                 </span>
               </Link>
@@ -140,11 +140,11 @@ export function Header() {
         <div className="flex items-center gap-2">
           <Link href="/">
             <div className="flex items-center gap-2 cursor-pointer">
-              <div className="bg-primary text-primary-foreground p-1.5 rounded-lg">
+              <div className="bg-slate-900 text-white p-1.5 rounded-lg">
                 <Zap className="h-5 w-5" />
               </div>
               <span className="font-bold text-xl tracking-tight hidden sm:inline-block text-slate-900">
-                Micro<span className="text-primary">Wow</span>
+                ProToolHub
               </span>
             </div>
           </Link>
@@ -154,41 +154,41 @@ export function Header() {
           <NavigationMenu>
             <NavigationMenuList className="flex space-x-1">
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent hover:bg-slate-100 font-bold text-xs px-3 text-slate-700">PDF</NavigationMenuTrigger>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-slate-100 font-bold text-xs px-3 text-slate-700 uppercase tracking-wide">PDF</NavigationMenuTrigger>
                 <NavigationMenuContent>{renderToolList(pdfTools, "PDF")}</NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent hover:bg-slate-100 font-bold text-xs px-3 text-slate-700">IMAGE</NavigationMenuTrigger>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-slate-100 font-bold text-xs px-3 text-slate-700 uppercase tracking-wide">IMAGE</NavigationMenuTrigger>
                 <NavigationMenuContent>{renderToolList(imageTools, "Image")}</NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent hover:bg-slate-100 font-bold text-xs px-3 text-slate-700">VIDEO</NavigationMenuTrigger>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-slate-100 font-bold text-xs px-3 text-slate-700 uppercase tracking-wide">VIDEO</NavigationMenuTrigger>
                 <NavigationMenuContent>{renderToolList(videoTools, "Video")}</NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent hover:bg-slate-100 font-bold text-xs px-3 text-slate-700">CONVERTER</NavigationMenuTrigger>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-slate-100 font-bold text-xs px-3 text-slate-700 uppercase tracking-wide">CONVERTER</NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <div className="p-6 bg-white rounded-xl shadow-2xl min-w-[300px]">
                     <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4">Converter Tools</h4>
                     <div className="space-y-2">
-                      <Link href="/tools/csv-to-json"><span className="text-sm font-medium hover:text-primary cursor-pointer block">CSV to JSON</span></Link>
-                      <Link href="/tools/excel-to-pdf"><span className="text-sm font-medium hover:text-primary cursor-pointer block">Excel to PDF</span></Link>
+                      <Link href="/tools/csv-to-json"><span className="text-sm font-medium hover:text-slate-900 cursor-pointer block">CSV to JSON</span></Link>
+                      <Link href="/tools/excel-to-pdf"><span className="text-sm font-medium hover:text-slate-900 cursor-pointer block">Excel to PDF</span></Link>
                     </div>
                   </div>
                 </NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent hover:bg-slate-100 font-bold text-xs px-3 text-slate-700">WRITE</NavigationMenuTrigger>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-slate-100 font-bold text-xs px-3 text-slate-700 uppercase tracking-wide">WRITE</NavigationMenuTrigger>
                 <NavigationMenuContent>{renderToolList(writeTools, "AI")}</NavigationMenuContent>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent hover:bg-slate-100 font-bold text-xs px-3 text-slate-700">OTHER</NavigationMenuTrigger>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-slate-100 font-bold text-xs px-3 text-slate-700 uppercase tracking-wide">OTHER</NavigationMenuTrigger>
                 <NavigationMenuContent>
                   <div className="p-6 bg-white rounded-xl shadow-2xl min-w-[300px]">
                     <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4">Utilities</h4>
                     <div className="space-y-2">
-                      <Link href="/tools/qr-generator"><span className="text-sm font-medium hover:text-primary cursor-pointer block">QR Generator</span></Link>
-                      <Link href="/tools/password-generator"><span className="text-sm font-medium hover:text-primary cursor-pointer block">Password Generator</span></Link>
+                      <Link href="/tools/qr-generator"><span className="text-sm font-medium hover:text-slate-900 cursor-pointer block">QR Generator</span></Link>
+                      <Link href="/tools/password-generator"><span className="text-sm font-medium hover:text-slate-900 cursor-pointer block">Password Generator</span></Link>
                     </div>
                   </div>
                 </NavigationMenuContent>
@@ -204,7 +204,7 @@ export function Header() {
             onClick={() => setLanguage(language === 'en' ? 'tr' : 'en')}
             className="font-bold text-[10px] h-8 px-2 rounded-md border-slate-200 hover:bg-slate-50 transition-all text-slate-600"
           >
-            <Languages className="w-3.5 h-3.5 mr-1 text-primary" />
+            <Languages className="w-3.5 h-3.5 mr-1 text-slate-900" />
             {language.toUpperCase()}
           </Button>
           <Button variant="ghost" size="icon" className="lg:hidden">
