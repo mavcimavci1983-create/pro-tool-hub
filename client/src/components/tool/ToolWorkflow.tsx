@@ -93,6 +93,25 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
     }
   };
 
+  const handleDownload = () => {
+    // Meta Pixel Conversion Event
+    if (window.fbq) {
+      window.fbq('track', 'Download', {
+        content_name: toolName,
+        content_category: 'Tool Conversion',
+        value: 1.00,
+        currency: 'USD'
+      });
+    }
+
+    // Mock CAPI Bridge (Server-side Event)
+    console.log(`[CAPI Bridge] Sending conversion for ${toolName} to /api/event`);
+    // fetch('/api/event', { method: 'POST', body: JSON.stringify({ event: 'Download', tool: toolName }) });
+
+    // Actual download logic would go here
+    console.log("Downloading processed file...");
+  };
+
   return (
     <div className="w-full max-w-4xl mx-auto space-y-8">
       {status === "idle" || status === "error" ? (
@@ -176,7 +195,11 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 w-full justify-center mb-10">
-            <Button size="lg" className="rounded-full px-20 font-bold h-16 shadow-2xl bg-emerald-600 hover:bg-emerald-700 text-white border-none text-lg">
+            <Button 
+              size="lg" 
+              onClick={handleDownload}
+              className="rounded-full px-20 font-bold h-16 shadow-2xl bg-emerald-600 hover:bg-emerald-700 text-white border-none text-lg"
+            >
               <Download className="w-5 h-5 mr-3" />
               {t.common.download}
             </Button>

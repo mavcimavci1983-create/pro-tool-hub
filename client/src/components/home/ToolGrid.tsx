@@ -146,10 +146,10 @@ export function ToolGrid() {
                 setActiveTab(tab.id);
                 setVisibleCount(24);
               }}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all duration-300 ${
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all duration-300 ring-1 ${
                 activeTab === tab.id 
-                  ? "bg-primary text-white shadow-lg shadow-primary/30" 
-                  : "text-slate-500 hover:bg-slate-50"
+                  ? "bg-primary text-white shadow-lg shadow-primary/30 ring-primary" 
+                  : "text-slate-500 hover:bg-slate-50 ring-slate-100"
               }`}
             >
               <span className={activeTab === tab.id ? "text-white" : "text-slate-400"}>
