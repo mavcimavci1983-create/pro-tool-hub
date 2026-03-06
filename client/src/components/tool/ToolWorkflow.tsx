@@ -71,22 +71,11 @@ type ToolType =
 
 /** Araç adından araç tipini çıkar — öncelik sırası önemli */
 function detectToolType(toolName: string): ToolType {
-  const isImage = kw(toolName, "image", "img", "jpg", "jpeg", "png", "webp", "gif", "bmp", "tiff");
-  const isPdf   = kw(toolName, "pdf");
-  const isText  = kw(toolName, "txt", "text", "plain");
-
-  if (isImage && isPdf && kw(toolName, "to", "convert", "topdf"))  return "image-to-pdf";
-  if (isImage && isPdf)                                             return "image-to-pdf";
-  if (isPdf   && isImage)                                           return "pdf-to-image";
-  if (isText  && isPdf)                                             return "text-to-pdf";
-  if (isPdf   && kw(toolName, "compress", "shrink", "reduce", "optimize")) return "pdf-compress";
-  if (isPdf   && kw(toolName, "merge", "combine", "join"))          return "pdf-merge";
-  if (isPdf   && kw(toolName, "split", "extract", "separate"))      return "pdf-split";
-  if (isImage && kw(toolName, "resize", "scale", "dimension"))      return "image-resize";
-  if (isImage && kw(toolName, "compress", "shrink", "reduce", "optimize")) return "image-compress";
-  if (isImage && kw(toolName, "convert", "to"))                     return "image-convert";
-  if (kw(toolName, "csv") && kw(toolName, "json"))                  return "csv-to-json";
-  if (kw(toolName, "json") && kw(toolName, "csv"))                  return "json-to-csv";
+  const t = toolName.toLowerCase();
+  if (t.includes("pdf") && (t.includes("image") || t.includes("jpg") || t.includes("png"))) return "image-to-pdf";
+  if (t.includes("text") || t.includes("txt")) return "text-to-pdf";
+  if (t.includes("csv")) return "csv-to-json";
+  if (t.includes("json")) return "json-to-csv";
   return "identity";
 }
 
@@ -122,6 +111,7 @@ function imageFileToPdf(file: File): Promise<Blob> {
       img.onerror = () => reject(new Error("Görüntü decode edilemedi"));
 
       img.onload = () => {
+        console.log("Image loaded successfully, starting PDF generation...");
         try {
           // A4 @ 72pt
           const A4_W = 595.28;
