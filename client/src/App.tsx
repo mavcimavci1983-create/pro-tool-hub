@@ -54,6 +54,7 @@ function Router() {
       <Route path="/tools/remove-background">{(params) => <ImageTool title="Remove Background" desc="AI-powered background removal tool." />}</Route>
       <Route path="/tools/heic-to-jpg">{(params) => <ImageTool title="HEIC to JPG" desc="Convert Apple HEIC photos to JPG format." />}</Route>
       <Route path="/tools/webp-to-jpg">{(params) => <ImageTool title="WebP to JPG" desc="Convert WebP images to standard JPG." />}</Route>
+      <Route path="/tools/webp-to-png">{(params) => <ImageTool title="WebP to PNG" desc="Convert WebP images to PNG format." />}</Route>
       <Route path="/tools/resize-image">{(params) => <ImageTool title="Resize Image" desc="Change image dimensions easily." />}</Route>
       <Route path="/tools/compress-image">{(params) => <ImageTool title="Compress Image" desc="Reduce image file size with quality control." />}</Route>
       <Route path="/tools/crop-image">{(params) => <ImageTool title="Crop Image" desc="Crop images to specific aspect ratios." />}</Route>
@@ -63,14 +64,22 @@ function Router() {
       <Route path="/tools/csv-to-json">{(params) => <GenericConverterTool title="CSV to JSON" desc="Convert CSV spreadsheets to JSON data." />}</Route>
       <Route path="/tools/json-to-csv">{(params) => <GenericConverterTool title="JSON to CSV" desc="Convert JSON data to CSV spreadsheets." />}</Route>
       <Route path="/tools/excel-to-pdf">{(params) => <GenericConverterTool title="Excel to PDF" desc="Turn Excel spreadsheets into PDF documents." />}</Route>
+      <Route path="/tools/xml-to-json">{(params) => <GenericConverterTool title="XML to JSON" desc="Convert XML data to JSON format." />}</Route>
 
       {/* AI Tools */}
       <Route path="/tools/paragraph-writer">{(params) => <GenericAiTool title="Paragraph Writer" desc="Generate professional paragraphs instantly." />}</Route>
       <Route path="/tools/essay-writer">{(params) => <GenericAiTool title="Essay Writer" desc="AI-powered essay writing assistant." />}</Route>
       <Route path="/tools/story-generator">{(params) => <GenericAiTool title="Story Generator" desc="AI-powered creative story writing." />}</Route>
       <Route path="/tools/content-improver">{(params) => <GenericAiTool title="Content Improver" desc="Enhance and polish your writing with AI." />}</Route>
+      <Route path="/tools/blog-post-idea">{(params) => <GenericAiTool title="Blog Post Idea" desc="Generate unique blog ideas with AI." />}</Route>
       <Route path="/tools/instagram-caption-generator">{(params) => <GenericAiTool title="Instagram Caption" desc="Create engaging captions for your reels." />}</Route>
       <Route path="/tools/linkedin-post-generator">{(params) => <GenericAiTool title="LinkedIn Post" desc="Professional posts for your network." />}</Route>
+
+      {/* Other Tools */}
+      <Route path="/tools/qr-generator">{(params) => <GenericPdfTool title="QR Generator" desc="Create custom QR codes instantly." />}</Route>
+      <Route path="/tools/barcode-generator">{(params) => <GenericPdfTool title="Barcode Gen" desc="Generate professional barcodes." />}</Route>
+      <Route path="/tools/my-ip">{(params) => <GenericPdfTool title="My IP Address" desc="Check your public IP address." />}</Route>
+      <Route path="/tools/speed-test">{(params) => <GenericPdfTool title="Internet Speed" desc="Test your connection speed." />}</Route>
 
       {/* Generic Tool Catch-all */}
       <Route path="/tools/:id">{(params) => <GenericPdfTool title={params.id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} desc="Professional online tool for your digital needs." />}</Route>

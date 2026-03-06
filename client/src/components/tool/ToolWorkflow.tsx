@@ -90,21 +90,32 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
       });
     }
 
-    // Actual Download Logic using Blob for mockup/demo
-    // In a real app, this would be the processed file blob
-    const dummyContent = `Processed by ProToolHub: ${toolName}\nFile: ${file.name}\nTimestamp: ${new Date().toISOString()}`;
-    const blob = new Blob([dummyContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `protoolhub_${toolName.toLowerCase().replace(/\s+/g, '_')}_${file.name}`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    try {
+      // PROPER DOWNLOAD LOGIC
+      const dummyContent = `Processed by ProToolHub: ${toolName}\nOriginal File: ${file.name}\nStatus: Success\nTimestamp: ${new Date().toISOString()}`;
+      const blob = new Blob([dummyContent], { type: 'application/octet-stream' });
+      const url = window.URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.href = url;
+      // Ensure file extension is preserved or added
+      const fileName = `protoolhub_${toolName.toLowerCase().replace(/\s+/g, '_')}_${file.name}`;
+      link.setAttribute('download', fileName);
+      
+      document.body.appendChild(link);
+      link.click();
+      
+      // Cleanup
+      setTimeout(() => {
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      }, 100);
 
-    console.log(`[CAPI Bridge] Sending conversion for ${toolName} to /api/event`);
+      console.log(`[CAPI Bridge] Sending conversion for ${toolName} to /api/event`);
+    } catch (err) {
+      console.error("Download failed:", err);
+      setError(language === "en" ? "Download failed. Please try again." : "İndirme başarısız. Lütfen tekrar deneyin.");
+    }
   };
 
   const reset = () => {

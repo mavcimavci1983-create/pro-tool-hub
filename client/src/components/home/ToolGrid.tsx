@@ -29,7 +29,10 @@ import {
   ArrowRight,
   BookOpen,
   User,
-  Heart
+  Heart,
+  FileDown,
+  Monitor,
+  Hash
 } from "lucide-react";
 import { Link } from "wouter";
 import { Card } from "@/components/ui/card";
@@ -79,6 +82,7 @@ const tools = [
   { title: "Remove Background", desc: "AI background remover", cat: "Image Tools", icon: <Zap className="w-5 h-5 text-purple-500" />, link: "/tools/remove-background" },
   { title: "HEIC to JPG", desc: "iPhone photo converter", cat: "Image Tools", icon: <ImageIcon className="w-5 h-5 text-orange-500" />, link: "/tools/heic-to-jpg" },
   { title: "WebP to JPG", desc: "WebP to JPG converter", cat: "Image Tools", icon: <ImageIcon className="w-5 h-5 text-blue-500" />, link: "/tools/webp-to-jpg" },
+  { title: "WebP to PNG", desc: "WebP to PNG converter", cat: "Image Tools", icon: <ImageIcon className="w-5 h-5 text-indigo-500" />, link: "/tools/webp-to-png" },
   { title: "Resize Image", desc: "Change image dimensions", cat: "Image Tools", icon: <Minimize className="w-5 h-5 text-indigo-500" />, link: "/tools/resize-image" },
   { title: "Compress Image", desc: "Reduce image size", cat: "Image Tools", icon: <Minimize className="w-5 h-5 text-emerald-500" />, link: "/tools/compress-image" },
   { title: "Crop Image", desc: "Crop photos easily", cat: "Image Tools", icon: <Scissors className="w-5 h-5 text-rose-500" />, link: "/tools/crop-image" },
@@ -88,14 +92,23 @@ const tools = [
   { title: "CSV to JSON", desc: "CSV to JSON converter", cat: "Converter Tools", icon: <FileCode className="w-5 h-5 text-amber-500" />, link: "/tools/csv-to-json" },
   { title: "JSON to CSV", desc: "JSON to CSV converter", cat: "Converter Tools", icon: <FileJson className="w-5 h-5 text-blue-500" />, link: "/tools/json-to-csv" },
   { title: "Excel to PDF", desc: "Excel to PDF converter", cat: "Converter Tools", icon: <FileText className="w-5 h-5 text-green-600" />, link: "/tools/excel-to-pdf" },
+  { title: "XML to JSON", desc: "XML to JSON converter", cat: "Converter Tools", icon: <FileCode className="w-5 h-5 text-cyan-500" />, link: "/tools/xml-to-json" },
+  { title: "PDF to PPT", desc: "PDF to PPT converter", cat: "Converter Tools", icon: <Presentation className="w-5 h-5 text-orange-600" />, link: "/tools/pdf-to-powerpoint" },
 
   // AI Tools
   { title: "Paragraph Writer", desc: "AI paragraph writing", cat: "AI Write", icon: <PenTool className="w-5 h-5 text-rose-400" />, link: "/tools/paragraph-writer" },
   { title: "Essay Writer", desc: "AI essay assistant", cat: "AI Write", icon: <BookOpen className="w-5 h-5 text-orange-400" />, link: "/tools/essay-writer" },
+  { title: "Blog Post Idea", desc: "AI blog generator", cat: "AI Write", icon: <Sparkles className="w-5 h-5 text-yellow-500" />, link: "/tools/blog-post-idea" },
+  { title: "Story Generator", desc: "AI creative writing", cat: "AI Write", icon: <Heart className="w-5 h-5 text-red-400" />, link: "/tools/story-generator" },
   { title: "Instagram Caption", desc: "Social media captions", cat: "AI Write", icon: <Sparkles className="w-5 h-5 text-pink-500" />, link: "/tools/instagram-caption-generator" },
   { title: "LinkedIn Post", desc: "Professional AI posts", cat: "AI Write", icon: <User className="w-5 h-5 text-sky-500" />, link: "/tools/linkedin-post-generator" },
-  { title: "Story Generator", desc: "AI creative writing", cat: "AI Write", icon: <Heart className="w-5 h-5 text-red-400" />, link: "/tools/story-generator" },
   { title: "Content Improver", desc: "AI writing enhancer", cat: "AI Write", icon: <Zap className="w-5 h-5 text-yellow-500" />, link: "/tools/content-improver" },
+
+  // Other Tools
+  { title: "QR Generator", desc: "Custom QR codes", cat: "Other Tools", icon: <QrCode className="w-5 h-5 text-slate-900" />, link: "/tools/qr-generator" },
+  { title: "Barcode Gen", desc: "Professional barcodes", cat: "Other Tools", icon: <Hash className="w-5 h-5 text-slate-700" />, link: "/tools/barcode-generator" },
+  { title: "My IP Address", desc: "Check public IP", cat: "Other Tools", icon: <Globe className="w-5 h-5 text-blue-500" />, link: "/tools/my-ip" },
+  { title: "Internet Speed", desc: "Check connection", cat: "Other Tools", icon: <Monitor className="w-5 h-5 text-indigo-500" />, link: "/tools/speed-test" },
 ];
 
 export function ToolGrid() {
@@ -120,6 +133,7 @@ export function ToolGrid() {
     { id: "Video Tools", label: "Video Tools", icon: <Video className="w-3.5 h-3.5" /> },
     { id: "Image Tools", label: "Image Tools", icon: <ImageIcon className="w-3.5 h-3.5" /> },
     { id: "Converter Tools", label: "Converter Tools", icon: <RefreshCw className="w-3.5 h-3.5" /> },
+    { id: "Other Tools", label: "Other Tools", icon: <Zap className="w-3.5 h-3.5" /> },
     { id: "AI Write", label: "AI Write", icon: <PenTool className="w-3.5 h-3.5" /> },
   ];
 
