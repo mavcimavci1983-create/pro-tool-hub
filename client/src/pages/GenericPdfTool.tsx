@@ -64,7 +64,12 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
               {isProcessing && (
                 <div className="absolute inset-0 bg-background/95 backdrop-blur-md z-20 flex flex-col items-center justify-center p-12 text-center">
                   <div className="w-20 h-20 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-6"></div>
-                  <p className="font-bold text-2xl mb-4 text-foreground tracking-tight">Analyzing and Encrypting PDF...</p>
+                  <p className="font-bold text-2xl mb-4 text-foreground tracking-tight text-center px-4">
+                    Securing and formatting your file...
+                  </p>
+                  <p className="text-muted-foreground mb-8 text-sm italic">
+                    Gizlilik: Dosyalarınız tarayıcıda işlenir, sunucuya asla kaydedilmez.
+                  </p>
                   <div className="w-full max-w-md bg-muted rounded-full h-4 overflow-hidden mb-8 shadow-inner">
                     <div className="bg-primary h-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
                   </div>
@@ -122,36 +127,55 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
 
             {/* SEO Article Section */}
             <article className="prose prose-slate max-w-none border-t pt-16">
-              <h2 className="text-3xl font-extrabold text-foreground mb-8">How to {title}?</h2>
+              <h2 className="text-3xl font-extrabold text-foreground mb-8 text-center">{title} Hakkında Bilmeniz Gerekenler</h2>
+              
               <div className="grid md:grid-cols-2 gap-12 text-muted-foreground leading-relaxed">
-                <div>
-                  <p className="mb-6">
-                    Our {title} is a professional-grade solution designed for speed, security, and simplicity. Whether you are a student or a business professional, managing documents should never be a hassle.
+                <div className="bg-card p-8 rounded-2xl border shadow-sm">
+                  <h3 className="text-xl font-bold text-foreground mb-4">Neden Bu Aracı Kullanmalısınız?</h3>
+                  <p className="mb-6 text-sm">
+                    {title} aracımız, dosyalarınızı en yüksek kalitede dönüştürmek için optimize edilmiştir. 
+                    Özellikle <strong>e-Kitapları PDF'e çevirmek</strong>, metinlerin her cihazda aynı görünmesini sağlar ve baskı uyumluluğu sunar. 
+                    Veri dönüştürücülerimiz (JSON, XML, CSV) ise yazılımcılar için hatasız şema dönüşümü garanti eder.
                   </p>
-                  <h3 className="text-xl font-bold text-foreground mb-4">Step-by-Step Guide</h3>
-                  <ol className="list-decimal pl-5 mb-6 space-y-2">
-                    <li>Upload your file using the secure drop zone above.</li>
-                    <li>Wait for our AI-powered engine to process and secure your data.</li>
-                    <li>Download your high-quality result instantly.</li>
-                  </ol>
-                  <h3 className="text-xl font-bold text-foreground mb-4">Is this service free?</h3>
-                  <p className="mb-6">
-                    Yes, MicroWow provides all {title} services 100% free of charge. Unlike other premium platforms, we do not require registration or credit card details. Our mission is to democratize high-quality document tools for everyone.
+                  <h3 className="text-xl font-bold text-foreground mb-4">JSON Formatı Neden Tercih Edilmeli?</h3>
+                  <p className="text-sm">
+                    JSON, hafif yapısı ve hiyerarşik veri desteği ile modern web uygulamalarının vazgeçilmezidir. 
+                    <strong>CSV to JSON</strong> dönüşümü yaparak, düz tablolarınızı uygulama dostu nesnelere çevirebilirsiniz. 
+                    Bu da veri işleme hızınızı %40'a kadar artırabilir.
                   </p>
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold text-foreground mb-4">Privacy Guaranteed</h3>
-                  <p className="mb-6">
-                    We take security seriously. Every upload is encrypted with 256-bit SSL technology. Our autonomous backend system ensures that your data is wiped after 60 minutes, giving you complete peace of mind.
-                  </p>
-                  <h3 className="text-xl font-bold text-foreground mb-4">Fast & High Quality</h3>
-                  <p className="mb-6">
-                    Optimized for <strong>Core Web Vitals</strong>, our tools ensure that you get the highest quality output without the wait. Perfect for SEO-conscious developers and speed-focused creators.
-                  </p>
-                  <h3 className="text-xl font-bold text-foreground mb-4">Why use MicroWow?</h3>
-                  <p>
-                    MicroWow offers a comprehensive suite of tools that are not only free but also respect your privacy. With our 60-minute auto-delete policy, your files are never stored longer than necessary, making it the safest choice for processing sensitive documents.
-                  </p>
+                
+                <div className="bg-primary/5 p-8 rounded-2xl border border-primary/10">
+                  <h3 className="text-xl font-bold text-primary mb-4">Adım Adım Kullanım Kılavuzu</h3>
+                  <ul className="space-y-4 text-sm">
+                    <li className="flex gap-3">
+                      <span className="bg-primary text-white w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 font-bold">1</span>
+                      <span>Dönüştürmek istediğiniz dosyayı yukarıdaki güvenli alana sürükleyin.</span>
+                    </li>
+                    <li className="flex gap-3">
+                      <span className="bg-primary text-white w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 font-bold">2</span>
+                      <span>AI tabanlı motorumuzun dosyayı "Securing and Formatting" modunda işlemesini bekleyin (yaklaşık 10 saniye).</span>
+                    </li>
+                    <li className="flex gap-3">
+                      <span className="bg-primary text-white w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 font-bold">3</span>
+                      <span>İşlem bittiğinde, yüksek kaliteli çıktınızı anında indirin.</span>
+                    </li>
+                  </ul>
+                  
+                  <div className="mt-8 p-4 bg-white rounded-xl border border-dashed border-primary/30">
+                    <h4 className="font-bold text-foreground mb-2 text-sm">Güvenlik Notu:</h4>
+                    <p className="text-[12px] italic">
+                      "Dosyalarınız tarayıcıda işlenir, sunucuya asla kaydedilmez." - MicroWow %100 gizlilik politikasıyla çalışır.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* In-Article Ad Placement */}
+              <div className="my-16 w-full h-40 bg-muted/10 border-2 border-dashed rounded-3xl flex flex-col items-center justify-center p-6 text-center">
+                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4">Sponsored Recommendation</span>
+                <div className="w-full h-full bg-white/40 rounded-xl flex items-center justify-center text-lg italic text-muted-foreground">
+                  High-CPM In-Article Native Ad (728x90)
                 </div>
               </div>
             </article>

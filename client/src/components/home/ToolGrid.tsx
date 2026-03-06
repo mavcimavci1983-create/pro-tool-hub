@@ -89,18 +89,21 @@ const allTools = [
   { title: "Facebook Download", desc: "Download Video from Facebook", cat: "Video Tools", icon: <Download className="w-5 h-5 text-blue-600" />, link: "/tools/facebook-download" },
 
   // Converter Tools (Görsel 3)
+  { title: "Word to PDF", desc: "Convert Word to PDF", cat: "Converter Tools", icon: <FileText className="w-5 h-5 text-blue-600" />, link: "/tools/word-to-pdf" },
   { title: "Excel to PDF", desc: "Convert Excel to PDF", cat: "Converter Tools", icon: <Table className="w-5 h-5 text-green-600" />, link: "/tools/excel-to-pdf" },
+  { title: "PPT to PDF", desc: "Convert PPT to PDF", cat: "Converter Tools", icon: <Presentation className="w-5 h-5 text-orange-600" />, link: "/tools/ppt-to-pdf" },
   { title: "CSV to Excel", desc: "Convert CSV to Excel", cat: "Converter Tools", icon: <Table className="w-5 h-5 text-emerald-500" />, link: "/tools/csv-to-excel" },
   { title: "Split Excel", desc: "Split into one or multiple Excel files", cat: "Converter Tools", icon: <Table className="w-5 h-5 text-green-400" />, link: "/tools/split-excel" },
   { title: "XML to Excel", desc: "Convert XML to Excel", cat: "Converter Tools", icon: <FileCode className="w-5 h-5 text-blue-400" />, link: "/tools/xml-to-excel" },
-  { title: "Split CSV", desc: "Split into one or multiple PDF files", cat: "Converter Tools", icon: <Scissors className="w-5 h-5 text-rose-400" />, link: "/tools/split-csv" },
-  { title: "EPUB to MOBI", desc: "Convert EPUB file to MOBI file", cat: "Converter Tools", icon: <BookOpen className="w-5 h-5 text-orange-400" />, link: "/tools/epub-to-mobi" },
-  { title: "JSON to XML", desc: "Convert JSON to XML", cat: "Converter Tools", icon: <FileJson className="w-5 h-5 text-yellow-500" />, link: "/tools/json-to-xml" },
+  { title: "EPUB to PDF", desc: "Convert EPUB to PDF", cat: "Converter Tools", icon: <BookOpen className="w-5 h-5 text-orange-400" />, link: "/tools/epub-to-pdf" },
+  { title: "JSON to Excel", desc: "Convert JSON to Excel", cat: "Converter Tools", icon: <FileJson className="w-5 h-5 text-yellow-500" />, link: "/tools/json-to-excel" },
   { title: "Excel to CSV", desc: "Convert Excel to CSV", cat: "Converter Tools", icon: <Table className="w-5 h-5 text-green-500" />, link: "/tools/excel-to-csv" },
   { title: "XML to CSV", desc: "Convert XML to CSV", cat: "Converter Tools", icon: <FileCode className="w-5 h-5 text-blue-500" />, link: "/tools/xml-to-csv" },
   { title: "CSV to JSON", desc: "Convert CSV to JSON", cat: "Converter Tools", icon: <FileJson className="w-5 h-5 text-yellow-400" />, link: "/tools/csv-to-json" },
-  { title: "EPUB to AZW3", desc: "Convert EPUB file to AZW3 file", cat: "Converter Tools", icon: <BookOpen className="w-5 h-5 text-orange-500" />, link: "/tools/epub-to-azw3" },
-  { title: "Excel to XML", desc: "Convert Excel to XML", cat: "Converter Tools", icon: <FileCode className="w-5 h-5 text-blue-600" />, link: "/tools/excel-to-xml" },
+  { title: "EPUB to AZW3", desc: "Convert EPUB to AZW3", cat: "Converter Tools", icon: <BookOpen className="w-5 h-5 text-orange-500" />, link: "/tools/epub-to-azw3" },
+  { title: "HTML to PDF", desc: "Convert HTML to PDF", cat: "Converter Tools", icon: <Globe className="w-5 h-5 text-sky-500" />, link: "/tools/html-to-pdf" },
+  { title: "Extract ZIP", desc: "Extract ZIP files online", cat: "Converter Tools", icon: <Zap className="w-5 h-5 text-emerald-500" />, link: "/tools/extract-zip" },
+  { title: "Create ZIP", desc: "Create ZIP archive online", cat: "Converter Tools", icon: <Zap className="w-5 h-5 text-green-500" />, link: "/tools/create-zip" },
 
   // Other Tools (Görsel 4)
   { title: "QR Code Generator", desc: "Generate QR code", cat: "Other Tools", icon: <QrCode className="w-5 h-5 text-orange-400" />, link: "/tools/qr-generator" },

@@ -284,18 +284,48 @@ function Router() {
         <VideoTool title="Video to Text" desc="Convert video speech into editable text." icon={Type} />
       </Route>
 
-      {/* Converter Tools Ext */}
-      <Route path="/tools/epub-to-mobi">
-        <GenericPdfTool title="EPUB to MOBI" desc="Convert EPUB e-books to Kindle-compatible MOBI format." />
+      {/* Converter Silo Tools */}
+      <Route path="/tools/word-to-pdf">
+        <GenericPdfTool title="Word to PDF" desc="Convert Microsoft Word documents to professional PDF files instantly." />
       </Route>
-      <Route path="/tools/epub-to-azw3">
-        <GenericPdfTool title="EPUB to AZW3" desc="Convert EPUB files to Amazon AZW3 format." />
+      <Route path="/tools/excel-to-pdf">
+        <GenericPdfTool title="Excel to PDF" desc="Turn Excel spreadsheets into high-quality PDF documents." />
       </Route>
-      <Route path="/tools/json-to-xml">
-        <GenericPdfTool title="JSON to XML" desc="Convert JSON data structures into XML format." />
+      <Route path="/tools/ppt-to-pdf">
+        <GenericPdfTool title="PPT to PDF" desc="Convert PowerPoint presentations to PDF slides securely." />
+      </Route>
+      <Route path="/tools/pdf-to-word">
+        <GenericPdfTool title="PDF to Word" desc="Convert PDF documents to editable Microsoft Word files." />
+      </Route>
+      <Route path="/tools/pdf-to-excel">
+        <GenericPdfTool title="PDF to Excel" desc="Extract tables from PDF into editable Excel sheets." />
+      </Route>
+      <Route path="/tools/epub-to-pdf">
+        <GenericPdfTool title="EPUB to PDF" desc="Convert EPUB e-books to standard PDF format for any device." />
+      </Route>
+      <Route path="/tools/mobi-to-pdf">
+        <GenericPdfTool title="MOBI to PDF" desc="Convert Kindle MOBI files to PDF documents easily." />
+      </Route>
+      <Route path="/tools/pdf-to-epub">
+        <GenericPdfTool title="PDF to EPUB" desc="Transform PDF documents into reflowable EPUB e-books." />
       </Route>
       <Route path="/tools/csv-to-json">
-        <GenericPdfTool title="CSV to JSON" desc="Transform CSV data into JSON format." />
+        <GenericPdfTool title="CSV to JSON" desc="Convert structured CSV data into JSON format for developers." />
+      </Route>
+      <Route path="/tools/json-to-excel">
+        <GenericPdfTool title="JSON to Excel" desc="Transform JSON data into organized Excel spreadsheets." />
+      </Route>
+      <Route path="/tools/xml-to-json">
+        <GenericPdfTool title="XML to JSON" desc="Convert XML data structures into easy-to-use JSON format." />
+      </Route>
+      <Route path="/tools/html-to-pdf">
+        <GenericPdfTool title="HTML to PDF" desc="Save any web page or HTML code as a high-quality PDF." />
+      </Route>
+      <Route path="/tools/extract-zip">
+        <GenericPdfTool title="Extract ZIP" desc="Uncompress and extract files from ZIP archives online." />
+      </Route>
+      <Route path="/tools/create-zip">
+        <GenericPdfTool title="Create ZIP" desc="Compress multiple files into a single secure ZIP archive." />
       </Route>
 
       {/* Other Tools Ext */}
