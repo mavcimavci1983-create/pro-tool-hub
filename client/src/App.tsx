@@ -29,13 +29,11 @@ import {
   Smile,
   Clock,
   Layout,
-  Instagram,
-  Twitter,
   Sparkles,
   PenTool
 } from "lucide-react";
 
-// Lazy loading components for speed and bundle optimization
+// Lazy loading components
 const Home = lazy(() => import("@/pages/Home"));
 const ImageToWebp = lazy(() => import("@/pages/ImageToWebp"));
 const GenericPdfTool = lazy(() => import("@/pages/GenericPdfTool"));
@@ -139,20 +137,11 @@ function Router() {
         </Route>
 
         {/* Converter Silo Tools */}
-        <Route path="/tools/word-to-pdf">
-          <GenericPdfTool title="Word to PDF" desc="Convert Microsoft Word documents to professional PDF files instantly." />
-        </Route>
         <Route path="/tools/excel-to-pdf">
           <GenericPdfTool title="Excel to PDF" desc="Turn Excel spreadsheets into high-quality PDF documents." />
         </Route>
         <Route path="/tools/ppt-to-pdf">
           <GenericPdfTool title="PPT to PDF" desc="Convert PowerPoint presentations to PDF slides securely." />
-        </Route>
-        <Route path="/tools/pdf-to-word">
-          <GenericPdfTool title="PDF to Word" desc="Convert PDF documents to editable Microsoft Word files." />
-        </Route>
-        <Route path="/tools/pdf-to-excel">
-          <GenericPdfTool title="PDF to Excel" desc="Extract tables from PDF into editable Excel sheets." />
         </Route>
         <Route path="/tools/epub-to-pdf">
           <GenericPdfTool title="EPUB to PDF" desc="Convert EPUB e-books to standard PDF format for any device." />
@@ -218,9 +207,6 @@ function Router() {
         </Route>
         <Route path="/tools/meme-maker">
           <GenericPdfTool title="Meme Maker" desc="Create funny memes from your images easily." />
-        </Route>
-        <Route path="/tools/create-zip">
-          <GenericPdfTool title="Create Zip" desc="Compress multiple files into a single ZIP archive." />
         </Route>
         <Route path="/tools/epoch-converter">
           <GenericPdfTool title="Epoch Converter" desc="Convert Unix timestamps to human-readable dates." />
@@ -326,7 +312,7 @@ function Router() {
           <GenericPdfTool title="Upscale Image" desc="Increase the resolution and quality of your image using AI." />
         </Route>
 
-        {/* All Tools Views */}
+        {/* Meta Tools */}
         <Route path="/tools/all-pdf">
           <GenericPdfTool title="All PDF Tools" desc="Browse our complete collection of 45+ PDF processing tools." />
         </Route>
