@@ -34,7 +34,7 @@ import {
   Signature,
   Layout,
   History,
-  EyeOff,
+  Globe,
   Files,
   QrCode,
   StickyNote,
