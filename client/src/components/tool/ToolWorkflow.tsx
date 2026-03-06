@@ -120,7 +120,7 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
       console.log(`[CAPI Bridge] Sending conversion for ${toolName} to /api/event`);
     } catch (err) {
       console.error("Critical download error:", err);
-      setError(language === "en" ? "Library loading error, please refresh" : "Kütüphane yükleme hatası, lütfen sayfayı yenileyin");
+      setError(language === "en" ? "Browser compatibility error. Please ensure you are using a modern browser with cross-origin isolation enabled." : "Tarayıcı uyumluluk hatası. Lütfen modern bir tarayıcı kullandığınızdan ve cross-origin izolasyonunun etkin olduğundan emin olun.");
     }
   };
 

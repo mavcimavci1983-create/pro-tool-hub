@@ -120,12 +120,17 @@ export function ToolGrid() {
   const [visibleCount, setVisibleCount] = useState(24);
 
   const filteredTools = useMemo(() => {
-    return tools.filter(tool => {
-      const matchesTab = activeTab === "All Tools" || tool.cat === activeTab;
-      const matchesSearch = tool.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                           tool.desc.toLowerCase().includes(searchQuery.toLowerCase());
-      return matchesTab && matchesSearch;
-    });
+    try {
+      return tools.filter(tool => {
+        const matchesTab = activeTab === "All Tools" || tool.cat === activeTab;
+        const matchesSearch = tool.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                             tool.desc.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesTab && matchesSearch;
+      });
+    } catch (err) {
+      console.error("Filtering error:", err);
+      return [];
+    }
   }, [activeTab, searchQuery]);
 
   const tabs = [
