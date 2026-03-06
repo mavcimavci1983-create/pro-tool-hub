@@ -1,111 +1,98 @@
-import { useState } from "react";
-import { Link } from "wouter";
+import React, { useState, useMemo, useEffect } from "react";
 import { 
-  FileText, 
+  Scissors, 
+  VolumeX, 
+  Minimize, 
+  Music, 
+  Play, 
+  Download, 
   ImageIcon, 
   Video, 
-  PenTool,
-  Scissors,
-  Merge,
-  Type,
-  Minimize2,
-  Maximize2,
-  VolumeX,
-  Minimize,
-  FileCode,
-  Music,
-  Play,
-  Download,
-  Table,
-  FileJson,
+  Youtube, 
+  FileText, 
+  Type, 
+  Presentation, 
   RefreshCw,
-  Eraser,
-  Wand2,
-  Sparkles,
-  FileEdit,
-  ArrowRight,
-  Search,
+  Zap,
   Lock,
-  Youtube,
-  Instagram,
-  Twitter,
-  FileSearch,
-  Languages,
-  Signature,
-  Layout,
-  History,
   Globe,
-  Files,
+  FileCode,
+  FileJson,
   QrCode,
   StickyNote,
   Smile,
-  Zap,
   Clock,
-  BookOpen,
-  CheckCircle2,
-  MessageSquare,
-  Building2,
-  Clapperboard,
-  Contrast
+  Layout,
+  Search,
+  Sparkles,
+  PenTool,
+  ArrowRight
 } from "lucide-react";
+import { Link } from "wouter";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-const allTools = [
-  // PDF Tools (Görsel 1)
-  { title: "Merge PDF", desc: "Merge 2 or more PDF files into a single PDF file", cat: "Pdf Tools", icon: <Merge className="w-5 h-5 text-rose-500" />, link: "/tools/merge-pdf" },
-  { title: "Edit PDF", desc: "Free PDF Editor online", cat: "Pdf Tools", icon: <PenTool className="w-5 h-5 text-emerald-500" />, link: "/tools/edit-pdf" },
-  { title: "PDF to JPG", desc: "Convert PDF to JPG and download each page as an image", cat: "Pdf Tools", icon: <ImageIcon className="w-5 h-5 text-blue-500" />, link: "/tools/pdf-to-jpg" },
-  { title: "JPG to PDF", desc: "Upload images and receive as a PDF", cat: "Pdf Tools", icon: <ImageIcon className="w-5 h-5 text-emerald-500" />, link: "/tools/jpg-to-pdf" },
-  { title: "Compress PDF", desc: "Lessen the file size of a PDF file", cat: "Pdf Tools", icon: <Minimize2 className="w-5 h-5 text-purple-500" />, link: "/tools/compress-pdf" },
-  { title: "Split PDF", desc: "Split into one or multiple PDF files", cat: "Pdf Tools", icon: <Scissors className="w-5 h-5 text-purple-500" />, link: "/tools/split-pdf" },
-  { title: "PDF to Word", desc: "Convert a PDF to Word Document", cat: "Pdf Tools", icon: <FileText className="w-5 h-5 text-orange-500" />, link: "/tools/pdf-to-word" },
-  { title: "Word to PDF", desc: "Convert a Word Document to PDF", cat: "Pdf Tools", icon: <FileText className="w-5 h-5 text-blue-600" />, link: "/tools/word-to-pdf" },
-  { title: "Unlock PDF", desc: "Remove the password from a PDF file", cat: "Pdf Tools", icon: <Lock className="w-5 h-5 text-cyan-500" />, link: "/tools/remove-password" },
-  { title: "PDF to Excel", desc: "Convert from PDF to XLSX", cat: "Pdf Tools", icon: <Table className="w-5 h-5 text-green-600" />, link: "/tools/pdf-to-excel" },
-  { title: "PDF to Powerpoint", desc: "Upload a PDF and Download as a PPTX", cat: "Pdf Tools", icon: <Presentation className="w-5 h-5 text-orange-600" />, link: "/tools/pdf-to-powerpoint" },
-  { title: "PNG to PDF", desc: "Upload images and receive as a PDF", cat: "Pdf Tools", icon: <ImageIcon className="w-5 h-5 text-emerald-500" />, link: "/tools/png-to-pdf" },
-  { title: "Rotate PDF", desc: "Rotate your PDF pages easily", cat: "Pdf Tools", icon: <RefreshCw className="w-5 h-5 text-indigo-500" />, link: "/tools/rotate-pdf" },
-  { title: "Add Watermark", desc: "Add watermark to your PDF", cat: "Pdf Tools", icon: <Signature className="w-5 h-5 text-blue-400" />, link: "/tools/add-watermark" },
-  { title: "PDF to Text (OCR)", desc: "Extract text from PDF with AI", cat: "Pdf Tools", icon: <Type className="w-5 h-5 text-rose-400" />, link: "/tools/pdf-to-text" },
-  { title: "Protect PDF", desc: "Add password to your PDF", cat: "Pdf Tools", icon: <Lock className="w-5 h-5 text-red-500" />, link: "/tools/protect-pdf" },
+const tools = [
+  // PDF Tools
+  { title: "Rotate PDF", desc: "Rotate PDF online", cat: "Pdf Tools", icon: <RefreshCw className="w-5 h-5 text-blue-500" />, link: "/tools/rotate-pdf" },
+  { title: "Add Watermark", desc: "Add Watermark to PDF", cat: "Pdf Tools", icon: <Type className="w-5 h-5 text-indigo-500" />, link: "/tools/add-watermark" },
+  { title: "PDF to Text", desc: "Convert PDF to Text", cat: "Pdf Tools", icon: <FileText className="w-5 h-5 text-orange-500" />, link: "/tools/pdf-to-text" },
+  { title: "PDF to Word", desc: "Convert PDF to Word", cat: "Pdf Tools", icon: <FileText className="w-5 h-5 text-blue-600" />, link: "/tools/pdf-to-word" },
+  { title: "PDF to JPG", desc: "Convert PDF to JPG", cat: "Pdf Tools", icon: <ImageIcon className="w-5 h-5 text-pink-500" />, link: "/tools/pdf-to-jpg" },
+  { title: "PDF to Excel", desc: "Convert PDF to Excel", cat: "Pdf Tools", icon: <FileText className="w-5 h-5 text-green-600" />, link: "/tools/pdf-to-excel" },
+  { title: "PDF to PPT", desc: "Convert PDF to PPT", cat: "Pdf Tools", icon: <Presentation className="w-5 h-5 text-orange-600" />, link: "/tools/pdf-to-powerpoint" },
+  { title: "Word to PDF", desc: "Convert Word to PDF", cat: "Pdf Tools", icon: <FileText className="w-5 h-5 text-blue-500" />, link: "/tools/word-to-pdf" },
+  { title: "JPG to PDF", desc: "Convert JPG to PDF", cat: "Pdf Tools", icon: <ImageIcon className="w-5 h-5 text-red-500" />, link: "/tools/jpg-to-pdf" },
+  { title: "Merge PDF", desc: "Combine multiple PDF", cat: "Pdf Tools", icon: <Zap className="w-5 h-5 text-yellow-500" />, link: "/tools/merge-pdf" },
+  { title: "Split PDF", desc: "Split PDF file", cat: "Pdf Tools", icon: <Scissors className="w-5 h-5 text-purple-500" />, link: "/tools/split-pdf" },
+  { title: "Compress PDF", desc: "Reduce PDF size", cat: "Pdf Tools", icon: <Minimize className="w-5 h-5 text-emerald-500" />, link: "/tools/compress-pdf" },
+  { title: "Edit PDF", desc: "Free PDF editor", cat: "Pdf Tools", icon: <PenTool className="w-5 h-5 text-sky-500" />, link: "/tools/edit-pdf" },
+  { title: "Unlock PDF", desc: "Remove PDF password", cat: "Pdf Tools", icon: <Lock className="w-5 h-5 text-rose-500" />, link: "/tools/remove-password" },
+  { title: "Protect PDF", desc: "Encrypt PDF file", cat: "Pdf Tools", icon: <Lock className="w-5 h-5 text-gray-700" />, link: "/tools/protect-pdf" },
 
-  // Video Tools (Görsel 2)
-  { title: "Youtube to Text", desc: "Convert video to text", cat: "Video Tools", icon: <Youtube className="w-5 h-5 text-red-500" />, link: "/tools/youtube-to-text" },
-  { title: "Compress Video", desc: "Lessen the file size of a Video file", cat: "Video Tools", icon: <Minimize className="w-5 h-5 text-orange-400" />, link: "/tools/compress-video" },
-  { title: "Instagram Download", desc: "Download Video from Instagram", cat: "Video Tools", icon: <Instagram className="w-5 h-5 text-pink-500" />, link: "/tools/instagram-download" },
-  { title: "TikTok Video Download", desc: "Download Video from TikTok", cat: "Video Tools", icon: <Download className="w-5 h-5 text-black" />, link: "/tools/tiktok-downloader" },
-  { title: "Audio to Text", desc: "Transcribe audio to text", cat: "Video Tools", icon: <VolumeX className="w-5 h-5 text-indigo-400" />, link: "/tools/audio-to-text" },
-  { title: "MP4 to MP3", desc: "Convert MP4 to MP3 audio", cat: "Video Tools", icon: <Music className="w-5 h-5 text-yellow-400" />, link: "/tools/mp4-to-mp3" },
-  { title: "Extract Audio from Video", desc: "Extract audio from your video", cat: "Video Tools", icon: <Music className="w-5 h-5 text-blue-400" />, link: "/tools/extract-audio" },
-  { title: "YouTube Transcript", desc: "Transcribe YouTube Video", cat: "Video Tools", icon: <FileText className="w-5 h-5 text-red-400" />, link: "/tools/youtube-transcript" },
-  { title: "Video to Gif", desc: "Upload an MP4 and convert to animated GIF", cat: "Video Tools", icon: <Clapperboard className="w-5 h-5 text-rose-400" />, link: "/tools/video-to-gif" },
-  { title: "Video to Text", desc: "Transcribe video to text", cat: "Video Tools", icon: <Type className="w-5 h-5 text-blue-400" />, link: "/tools/video-to-text" },
-  { title: "Twitter Download", desc: "Download Video from Twitter", cat: "Video Tools", icon: <Twitter className="w-5 h-5 text-sky-500" />, link: "/tools/twitter-download" },
-  { title: "Trim Video", desc: "Select a start and stop of a video and download the trimmed video", cat: "Video Tools", icon: <Scissors className="w-5 h-5 text-purple-400" />, link: "/tools/trim-video" },
-  { title: "Rotate Video", desc: "Rotate video orientation", cat: "Video Tools", icon: <RefreshCw className="w-5 h-5 text-indigo-500" />, link: "/tools/rotate-video" },
-  { title: "Video to MP3", desc: "Extract audio from video", cat: "Video Tools", icon: <Music className="w-5 h-5 text-yellow-500" />, link: "/tools/video-to-mp3" },
-  { title: "MP4 to WebM", desc: "Convert MP4 to WebM", cat: "Video Tools", icon: <Play className="w-5 h-5 text-emerald-500" />, link: "/tools/mp4-to-webm" },
-  { title: "Facebook Download", desc: "Download Video from Facebook", cat: "Video Tools", icon: <Download className="w-5 h-5 text-blue-600" />, link: "/tools/facebook-download" },
+  // Video Tools
+  { title: "Video to GIF", desc: "Create animated GIF", cat: "Video Tools", icon: <Scissors className="w-5 h-5 text-purple-400" />, link: "/tools/video-to-gif" },
+  { title: "Video to MP3", desc: "Extract audio from video", cat: "Video Tools", icon: <Music className="w-5 h-5 text-pink-400" />, link: "/tools/video-to-mp3" },
+  { title: "MP4 to WebM", desc: "Convert MP4 to WebM", cat: "Video Tools", icon: <Play className="w-5 h-5 text-blue-400" />, link: "/tools/mp4-to-webm" },
+  { title: "Mute Video", desc: "Remove video sound", cat: "Video Tools", icon: <VolumeX className="w-5 h-5 text-gray-500" />, link: "/tools/mute-video" },
+  { title: "Video Resizer", desc: "Resize video for social", cat: "Video Tools", icon: <Minimize className="w-5 h-5 text-indigo-400" />, link: "/tools/video-resizer" },
+  { title: "Rotate Video", desc: "Fix sideways video", cat: "Video Tools", icon: <RefreshCw className="w-5 h-5 text-sky-400" />, link: "/tools/rotate-video" },
+  { title: "Trim Video", desc: "Cut video clips", cat: "Video Tools", icon: <Scissors className="w-5 h-5 text-rose-400" />, link: "/tools/trim-video" },
+  { title: "Compress Video", desc: "Reduce video size", cat: "Video Tools", icon: <Minimize className="w-5 h-5 text-emerald-400" />, link: "/tools/compress-video" },
+  { title: "Facebook Download", desc: "Download FB videos", cat: "Video Tools", icon: <Download className="w-5 h-5 text-blue-600" />, link: "/tools/facebook-download" },
+  { title: "TikTok Downloader", desc: "No watermark TikTok", cat: "Video Tools", icon: <Download className="w-5 h-5 text-pink-600" />, link: "/tools/tiktok-downloader" },
+  { title: "Instagram Download", desc: "Save IG reels & videos", cat: "Video Tools", icon: <Download className="w-5 h-5 text-purple-600" />, link: "/tools/instagram-download" },
+  { title: "Twitter Download", desc: "Download Twitter videos", cat: "Video Tools", icon: <Download className="w-5 h-5 text-sky-600" />, link: "/tools/twitter-download" },
+  { title: "YouTube to Text", desc: "Convert YT to text", cat: "Video Tools", icon: <Youtube className="w-5 h-5 text-red-600" />, link: "/tools/youtube-to-text" },
+  { title: "Video to Text", desc: "Transcribe video", cat: "Video Tools", icon: <Type className="w-5 h-5 text-slate-600" />, link: "/tools/video-to-text" },
 
-  // Converter Tools (Görsel 3)
-  { title: "Word to PDF", desc: "Convert Word to PDF", cat: "Converter Tools", icon: <FileText className="w-5 h-5 text-blue-600" />, link: "/tools/word-to-pdf" },
-  { title: "Excel to PDF", desc: "Convert Excel to PDF", cat: "Converter Tools", icon: <Table className="w-5 h-5 text-green-600" />, link: "/tools/excel-to-pdf" },
-  { title: "PPT to PDF", desc: "Convert PPT to PDF", cat: "Converter Tools", icon: <Presentation className="w-5 h-5 text-orange-600" />, link: "/tools/ppt-to-pdf" },
-  { title: "CSV to Excel", desc: "Convert CSV to Excel", cat: "Converter Tools", icon: <Table className="w-5 h-5 text-emerald-500" />, link: "/tools/csv-to-excel" },
-  { title: "Split Excel", desc: "Split into one or multiple Excel files", cat: "Converter Tools", icon: <Table className="w-5 h-5 text-green-400" />, link: "/tools/split-excel" },
-  { title: "XML to Excel", desc: "Convert XML to Excel", cat: "Converter Tools", icon: <FileCode className="w-5 h-5 text-blue-400" />, link: "/tools/xml-to-excel" },
-  { title: "EPUB to PDF", desc: "Convert EPUB to PDF", cat: "Converter Tools", icon: <BookOpen className="w-5 h-5 text-orange-400" />, link: "/tools/epub-to-pdf" },
-  { title: "JSON to Excel", desc: "Convert JSON to Excel", cat: "Converter Tools", icon: <FileJson className="w-5 h-5 text-yellow-500" />, link: "/tools/json-to-excel" },
-  { title: "Excel to CSV", desc: "Convert Excel to CSV", cat: "Converter Tools", icon: <Table className="w-5 h-5 text-green-500" />, link: "/tools/excel-to-csv" },
-  { title: "XML to CSV", desc: "Convert XML to CSV", cat: "Converter Tools", icon: <FileCode className="w-5 h-5 text-blue-500" />, link: "/tools/xml-to-csv" },
-  { title: "CSV to JSON", desc: "Convert CSV to JSON", cat: "Converter Tools", icon: <FileJson className="w-5 h-5 text-yellow-400" />, link: "/tools/csv-to-json" },
-  { title: "EPUB to AZW3", desc: "Convert EPUB to AZW3", cat: "Converter Tools", icon: <BookOpen className="w-5 h-5 text-orange-500" />, link: "/tools/epub-to-azw3" },
+  // Image Tools
+  { title: "Image to WebP", desc: "Fast WebP converter", cat: "Image Tools", icon: <ImageIcon className="w-5 h-5 text-emerald-500" />, link: "/tools/image-to-webp" },
+  { title: "Remove Background", desc: "AI Background remover", cat: "Image Tools", icon: <Zap className="w-5 h-5 text-purple-500" />, link: "/tools/remove-background" },
+  { title: "HEIC to JPG", desc: "iPhone photo converter", cat: "Image Tools", icon: <ImageIcon className="w-5 h-5 text-orange-500" />, link: "/tools/heic-to-jpg" },
+  { title: "WebP to JPG", desc: "Convert WebP to JPG", cat: "Image Tools", icon: <ImageIcon className="w-5 h-5 text-blue-500" />, link: "/tools/webp-to-jpg" },
+  { title: "PNG to JPG", desc: "Convert PNG to JPG", cat: "Image Tools", icon: <ImageIcon className="w-5 h-5 text-indigo-500" />, link: "/tools/png-to-jpg" },
+  { title: "Resize Image", desc: "Change dimensions", cat: "Image Tools", icon: <Minimize className="w-5 h-5 text-sky-500" />, link: "/tools/resize-image" },
+  { title: "Compress Image", desc: "Reduce image size", cat: "Image Tools", icon: <Minimize className="w-5 h-5 text-green-500" />, link: "/tools/compress-image" },
+  { title: "Crop Image", desc: "Crop photo easily", cat: "Image Tools", icon: <Scissors className="w-5 h-5 text-rose-500" />, link: "/tools/crop-image" },
+  { title: "Add Text", desc: "Text on image", cat: "Image Tools", icon: <Type className="w-5 h-5 text-amber-500" />, link: "/tools/add-text-to-image" },
+  { title: "Blur Background", desc: "Professional bokeh", cat: "Image Tools", icon: <ImageIcon className="w-5 h-5 text-blue-400" />, link: "/tools/blur-background" },
+  { title: "Profile Maker", desc: "Social profile photo", cat: "Image Tools", icon: <Smile className="w-5 h-5 text-purple-400" />, link: "/tools/profile-picture-maker" },
+  { title: "AI Image Gen", desc: "Text to image AI", cat: "Image Tools", icon: <Sparkles className="w-5 h-5 text-orange-400" />, link: "/tools/ai-image-generator" },
+  { title: "B&W Filter", desc: "Artistic black & white", cat: "Image Tools", icon: <ImageIcon className="w-5 h-5 text-gray-500" />, link: "/tools/black-and-white" },
+  { title: "Upscale Image", desc: "Increase resolution AI", cat: "Image Tools", icon: <Zap className="w-5 h-5 text-yellow-500" />, link: "/tools/upscale-image" },
+
+  // Converter Tools
+  { title: "Word to PDF", desc: "Fast Word to PDF", cat: "Converter Tools", icon: <FileText className="w-5 h-5 text-blue-500" />, link: "/tools/word-to-pdf" },
+  { title: "Excel to PDF", desc: "Spreadsheet to PDF", cat: "Converter Tools", icon: <FileText className="w-5 h-5 text-green-600" />, link: "/tools/excel-to-pdf" },
+  { title: "EPUB to PDF", desc: "Ebook to PDF converter", cat: "Converter Tools", icon: <Globe className="w-5 h-5 text-orange-500" />, link: "/tools/epub-to-pdf" },
+  { title: "CSV to JSON", desc: "Convert CSV to JSON", cat: "Converter Tools", icon: <FileJson className="w-5 h-5 text-emerald-500" />, link: "/tools/csv-to-json" },
   { title: "HTML to PDF", desc: "Convert HTML to PDF", cat: "Converter Tools", icon: <Globe className="w-5 h-5 text-sky-500" />, link: "/tools/html-to-pdf" },
   { title: "Extract ZIP", desc: "Extract ZIP files online", cat: "Converter Tools", icon: <Zap className="w-5 h-5 text-emerald-500" />, link: "/tools/extract-zip" },
   { title: "Create ZIP", desc: "Create ZIP archive online", cat: "Converter Tools", icon: <Zap className="w-5 h-5 text-green-500" />, link: "/tools/create-zip" },
 
-  // Other Tools (Görsel 4)
+  // Other Tools
   { title: "QR Code Generator", desc: "Generate QR code", cat: "Other Tools", icon: <QrCode className="w-5 h-5 text-orange-400" />, link: "/tools/qr-generator" },
   { title: "Barcode Generator", desc: "Generate Barcodes", cat: "Other Tools", icon: <QrCode className="w-5 h-5 text-blue-400" />, link: "/tools/barcode-generator" },
   { title: "Password Generator", desc: "Create secure passwords", cat: "Other Tools", icon: <Lock className="w-5 h-5 text-red-400" />, link: "/tools/password-generator" },
@@ -121,165 +108,117 @@ const allTools = [
   { title: "Create Zip", desc: "Create Zip file Online", cat: "Other Tools", icon: <Zap className="w-5 h-5 text-green-400" />, link: "/tools/create-zip" },
   { title: "Epoch Converter", desc: "Convert epoch to human-readable date and vice versa", cat: "Other Tools", icon: <Clock className="w-5 h-5 text-rose-400" />, link: "/tools/epoch-converter" },
 
-  // AI Write (Görsel 5)
+  // AI Write
   { title: "Content Improver", desc: "Improve your content", cat: "AI Write", icon: <Sparkles className="w-5 h-5 text-purple-400" />, link: "/tools/content-improver" },
   { title: "Essay Writer", desc: "Easily create an essay with AI", cat: "AI Write", icon: <PenTool className="w-5 h-5 text-orange-400" />, link: "/tools/essay-writer" },
   { title: "Paragraph Writer", desc: "Paragraph Writer", cat: "AI Write", icon: <Type className="w-5 h-5 text-rose-400" />, link: "/tools/paragraph-writer" },
-  { title: "Paragraph Completer", desc: "Paragraph Completer", cat: "AI Write", icon: <Type className="w-5 h-5 text-blue-400" />, link: "/tools/paragraph-completer" },
-  { title: "Story Generator", desc: "Generate a Story", cat: "AI Write", icon: <BookOpen className="w-5 h-5 text-yellow-400" />, link: "/tools/story-generator" },
-  { title: "Grammar Fixer", desc: "Easily fix the grammar in a block of text", cat: "AI Write", icon: <CheckCircle2 className="w-5 h-5 text-orange-400" />, link: "/tools/grammar-fixer" },
-  { title: "Sentence Rewriter", desc: "Sentence Rewriter", cat: "AI Write", icon: <RefreshCw className="w-5 h-5 text-yellow-500" />, link: "/tools/sentence-rewriter" },
-  { title: "Article Writer", desc: "Create an article from a title", cat: "AI Write", icon: <FileEdit className="w-5 h-5 text-rose-500" />, link: "/tools/article-writer" },
-  { title: "Content Summarizer", desc: "Summarize text", cat: "AI Write", icon: <Minimize2 className="w-5 h-5 text-orange-400" />, link: "/tools/content-summarizer" },
-  { title: "AI Humanizer", desc: "Use the AI Humanizer to makes AI text sound more human", cat: "AI Write", icon: <Type className="w-5 h-5 text-rose-400" />, link: "/tools/ai-humanizer" },
-  { title: "Tone of Voice", desc: "Tone of Voice Tool", cat: "AI Write", icon: <MessageSquare className="w-5 h-5 text-green-500" />, link: "/tools/tone-of-voice" },
-  { title: "YouTube Script Writer", desc: "Generate a YouTube script", cat: "AI Write", icon: <Youtube className="w-5 h-5 text-red-500" />, link: "/tools/youtube-script-writer" },
-  { title: "Blog Post Ideas", desc: "Generate blog post ideas", cat: "AI Write", icon: <Sparkles className="w-5 h-5 text-blue-400" />, link: "/tools/blog-post-ideas" },
-  { title: "Sentence Expander", desc: "Expand your sentences", cat: "AI Write", icon: <Type className="w-5 h-5 text-emerald-400" />, link: "/tools/sentence-expander" },
-  { title: "Instagram Caption", desc: "Instagram Caption Generator", cat: "AI Write", icon: <Instagram className="w-5 h-5 text-pink-500" />, link: "/tools/instagram-caption-generator" },
-  { title: "YouTube Title", desc: "YouTube Title Generator", cat: "AI Write", icon: <Youtube className="w-5 h-5 text-red-600" />, link: "/tools/youtube-title-generator" },
-  { title: "TikTok Script", desc: "TikTok Script Creator", cat: "AI Write", icon: <Video className="w-5 h-5 text-black" />, link: "/tools/tiktok-script-creator" },
-  { title: "Email Writer", desc: "Write professional emails", cat: "AI Write", icon: <PenTool className="w-5 h-5 text-blue-500" />, link: "/tools/email-writer" },
-  { title: "Cover Letter", desc: "Generate cover letters", cat: "AI Write", icon: <FileText className="w-5 h-5 text-orange-500" />, link: "/tools/cover-letter-generator" },
-  { title: "LinkedIn Post", desc: "LinkedIn Post Generator", cat: "AI Write", icon: <Twitter className="w-5 h-5 text-sky-500" />, link: "/tools/linkedin-post-generator" },
-  { title: "Article Rewriter", desc: "Rewrite your articles", cat: "AI Write", icon: <RefreshCw className="w-5 h-5 text-purple-500" />, link: "/tools/article-rewriter" },
-
-  { title: "Remove Background", desc: "Easily remove the background from any image using AI.", cat: "Image Tools", icon: <Eraser className="w-5 h-5 text-rose-500" />, link: "/tools/remove-background" },
-  { title: "Image to WebP", desc: "Convert your images to highly optimized WebP format.", cat: "Image Tools", icon: <ImageIcon className="w-5 h-5 text-blue-500" />, link: "/tools/image-to-webp" },
-  { title: "Upscale Image", desc: "Increase the resolution and quality of your image.", cat: "Image Tools", icon: <Maximize2 className="w-5 h-5 text-emerald-500" />, link: "/tools/upscale-image" },
-  { title: "AI Image Generator", desc: "Create beautiful images from text descriptions.", cat: "Image Tools", icon: <Sparkles className="w-5 h-5 text-amber-500" />, link: "/tools/ai-image-generator" },
-  { title: "JPG to PDF", desc: "Convert JPG images to PDF documents instantly.", cat: "Image Tools", icon: <FileText className="w-5 h-5 text-primary" />, link: "/tools/jpg-to-pdf" },
-  { title: "PDF to JPG", desc: "Extract pages from PDF as high-quality JPG images.", cat: "Image Tools", icon: <ImageIcon className="w-5 h-5 text-primary" />, link: "/tools/pdf-to-jpg" },
-  { title: "HEIC to JPG", desc: "Convert iPhone HEIC photos to compatible JPG format.", cat: "Image Tools", icon: <ImageIcon className="w-5 h-5 text-primary" />, link: "/tools/heic-to-jpg" },
-  { title: "PNG to JPG", desc: "Convert PNG images to JPG with adjustable quality.", cat: "Image Tools", icon: <RefreshCw className="w-5 h-5 text-primary" />, link: "/tools/png-to-jpg" },
-  { title: "WebP to JPG", desc: "Convert WebP images to high-quality JPG format.", cat: "Image Tools", icon: <ImageIcon className="w-5 h-5 text-primary" />, link: "/tools/webp-to-jpg" },
-  { title: "Resize Image", desc: "Change image dimensions while maintaining quality.", cat: "Image Tools", icon: <Maximize2 className="w-5 h-5 text-primary" />, link: "/tools/resize-image" },
-  { title: "Compress Image", desc: "Reduce image file size with minimal quality loss.", cat: "Image Tools", icon: <Zap className="w-5 h-5 text-primary" />, link: "/tools/compress-image" },
-  { title: "Crop Image", desc: "Crop images to specific aspect ratios or selections.", cat: "Image Tools", icon: <Scissors className="w-5 h-5 text-primary" />, link: "/tools/crop-image" },
-  { title: "Add Text to Image", desc: "Overlay text on your images with custom fonts.", cat: "Image Tools", icon: <Type className="w-5 h-5 text-primary" />, link: "/tools/add-text-to-image" },
-  { title: "Blur Background", desc: "Apply professional bokeh blur to image backgrounds.", cat: "Image Tools", icon: <Sparkles className="w-5 h-5 text-primary" />, link: "/tools/blur-background" },
-  { title: "Profile Picture Maker", desc: "Create professional social media profile pictures.", cat: "Image Tools", icon: <Smile className="w-5 h-5 text-primary" />, link: "/tools/profile-picture-maker" },
-  { title: "Black and White", desc: "Convert color images to artistic black and white.", cat: "Image Tools", icon: <Contrast className="w-5 h-5 text-primary" />, link: "/tools/black-and-white" }
+  { title: "Sentence Expander", desc: "Expand your sentences", cat: "AI Write", icon: <Type className="w-5 h-5 text-indigo-400" />, link: "/tools/sentence-expander" },
+  { title: "Instagram Caption", desc: "IG caption generator", cat: "AI Write", icon: <Type className="w-5 h-5 text-pink-500" />, link: "/tools/instagram-caption-generator" },
+  { title: "YouTube Title", desc: "YT title generator", cat: "AI Write", icon: <Youtube className="w-5 h-5 text-red-600" />, link: "/tools/youtube-title-generator" },
+  { title: "TikTok Script", desc: "TikTok script creator", cat: "AI Write", icon: <Video className="w-5 h-5 text-slate-700" />, link: "/tools/tiktok-script-creator" },
+  { title: "Email Writer", desc: "Professional email writer", cat: "AI Write", icon: <Type className="w-5 h-5 text-blue-500" />, link: "/tools/email-writer" },
+  { title: "Cover Letter", desc: "Job application helper", cat: "AI Write", icon: <FileText className="w-5 h-5 text-emerald-600" />, link: "/tools/cover-letter-generator" },
+  { title: "LinkedIn Post", desc: "Professional post gen", cat: "AI Write", icon: <Type className="w-5 h-5 text-blue-700" />, link: "/tools/linkedin-post-generator" },
+  { title: "Grammar Fixer", desc: "Check grammar AI", cat: "AI Write", icon: <Zap className="w-5 h-5 text-amber-500" />, link: "/tools/grammar-fixer" },
+  { title: "Summarizer", desc: "Text summarizer tool", cat: "AI Write", icon: <Minimize className="w-5 h-5 text-slate-500" />, link: "/tools/content-summarizer" },
+  { title: "Article Rewriter", desc: "Rewrite unique content", cat: "AI Write", icon: <RefreshCw className="w-5 h-5 text-sky-500" />, link: "/tools/article-rewriter" },
+  { title: "AI Humanizer", desc: "Human-like AI text", cat: "AI Write", icon: <Smile className="w-5 h-5 text-orange-500" />, link: "/tools/ai-humanizer" },
+  { title: "Tone of Voice", desc: "Tone analyzer AI", cat: "AI Write", icon: <VolumeX className="w-5 h-5 text-indigo-600" />, link: "/tools/tone-of-voice" },
 ];
 
 export function ToolGrid() {
   const [activeTab, setActiveTab] = useState("All Tools");
   const [searchQuery, setSearchQuery] = useState("");
+  const [visibleCount, setVisibleCount] = useState(24);
 
-  const filteredTools = (activeTab === "All Tools" 
-    ? allTools 
-    : allTools.filter(tool => tool.cat === activeTab)
-  ).filter(tool => 
-    tool.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    tool.desc.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredTools = useMemo(() => {
+    return tools.filter(tool => {
+      const matchesTab = activeTab === "All Tools" || tool.cat === activeTab;
+      const matchesSearch = tool.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                           tool.desc.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesTab && matchesSearch;
+    });
+  }, [activeTab, searchQuery]);
+
+  const tabs = ["All Tools", "Pdf Tools", "Video Tools", "Image Tools", "Converter Tools", "Other Tools", "AI Write"];
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.offsetHeight - 500) {
+        setVisibleCount(prev => Math.min(prev + 12, filteredTools.length));
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [filteredTools.length]);
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 pb-20 pt-12 relative overflow-visible">
-      <div className="text-center mb-12">
-        <h1 className="text-5xl font-bold tracking-tight mb-4">{activeTab === "All Tools" ? "All Tools" : activeTab}</h1>
-        <p className="text-muted-foreground text-lg mb-8">Free Online {activeTab === "All Tools" ? "" : activeTab} Tools</p>
-        
-        <div className="relative max-w-2xl mx-auto">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-primary" />
-          <input 
-            className="w-full pl-12 pr-24 py-4 rounded-full border-2 border-slate-100 shadow-sm text-lg focus:outline-none focus:border-primary/50 transition-all"
-            placeholder="Search tools"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <Button className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full px-8 bg-[#0091FF] hover:bg-[#007EE6]">
-            Search
-          </Button>
-        </div>
+    <div className="w-full max-w-7xl mx-auto px-4 py-8">
+      {/* Search Bar */}
+      <div className="mb-10 max-w-2xl mx-auto relative group">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
+        <Input 
+          placeholder="100'den fazla araç arasında ara..." 
+          className="pl-12 py-6 text-lg rounded-2xl border-2 focus-visible:ring-primary/20 shadow-sm"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
       </div>
 
-      <div className="text-center mb-10">
-        <h2 className="text-3xl font-heading font-bold mb-3">
-          {activeTab === "All Tools" ? "Our Most Popular Tools" : `${activeTab} Category`}
-        </h2>
-        <p className="text-muted-foreground">Premium tools, 100% free, forever.</p>
-      </div>
-
-      {/* Filter Tabs */}
-      <div className="flex flex-wrap justify-center gap-2 mb-10 bg-card p-1.5 rounded-full border border-border shadow-sm mx-auto w-fit">
-        <button 
-          onClick={() => setActiveTab("All Tools")}
-          className={`px-5 py-2 rounded-full text-sm font-semibold flex items-center gap-2 transition-all ${
-            activeTab === "All Tools" 
-              ? "bg-primary text-primary-foreground shadow-sm" 
-              : "text-muted-foreground hover:bg-muted"
-          }`}
-        >
-          <span className="w-4 h-4 grid grid-cols-2 gap-0.5">
-            <span className="bg-current rounded-sm opacity-80"></span>
-            <span className="bg-current rounded-sm opacity-80"></span>
-            <span className="bg-current rounded-sm opacity-80"></span>
-            <span className="bg-current rounded-sm opacity-80"></span>
-          </span>
-          All Tools
-        </button>
-        {["Pdf Tools", "Video Tools", "Image Tools", "Converter Tools", "Other Tools", "AI Write"].map((tab) => (
-          <button 
-            key={tab} 
-            onClick={() => setActiveTab(tab)}
-            className={`px-5 py-2 rounded-full text-sm font-semibold transition-all ${
-              activeTab === tab 
-                ? "bg-primary text-primary-foreground shadow-sm" 
-                : "text-muted-foreground hover:bg-muted"
+      {/* Categories */}
+      <div className="flex flex-wrap gap-2 justify-center mb-12">
+        {tabs.map((tab) => (
+          <Button
+            key={tab}
+            variant={activeTab === tab ? "default" : "outline"}
+            onClick={() => {
+              setActiveTab(tab);
+              setVisibleCount(24);
+            }}
+            className={`rounded-full px-6 py-5 font-bold transition-all ${
+              activeTab === tab ? "scale-105 shadow-md shadow-primary/20" : "hover:bg-primary/5"
             }`}
           >
+            {tab === "All Tools" && <Layout className="w-4 h-4 mr-2" />}
             {tab}
-          </button>
+          </Button>
         ))}
       </div>
 
-      {/* Tools Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {filteredTools.map((tool, i) => (
-          <div key={i}>
-            <Link href={tool.link}>
-              <div className="group bg-white border border-slate-100 rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col h-full relative overflow-hidden cursor-pointer">
-                <div className="absolute top-0 right-0 p-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <ArrowRight className="h-4 w-4 text-primary" />
-                </div>
-                
-                <div className="bg-slate-50 p-4 rounded-2xl w-fit mb-4 group-hover:bg-primary/10 transition-colors transform group-hover:scale-110">
-                  {tool.icon}
-                </div>
-                
-                <h3 className="font-bold text-lg mb-1 group-hover:text-primary transition-colors pr-6">{tool.title}</h3>
-                <span className="text-[10px] font-bold text-primary uppercase tracking-widest block mb-3">{tool.cat}</span>
-                <p className="text-sm text-muted-foreground mb-6 line-clamp-2 flex-grow">{tool.desc}</p>
-                
-                <div className="mt-auto">
-                  <Button variant="ghost" className="w-full justify-start p-0 h-auto font-bold text-primary group-hover:translate-x-1 transition-transform">
-                    Hemen Başla <ArrowRight className="ml-2 h-4 w-4" />
-                  </Button>
-                </div>
+      {/* Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {filteredTools.slice(0, visibleCount).map((tool, index) => (
+          <Link key={`${tool.title}-${index}`} href={tool.link}>
+            <Card className="p-6 h-full flex flex-col hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer border-2 hover:border-primary/50 group relative overflow-hidden bg-gradient-to-br from-card to-card/50">
+              <div className="mb-4 p-3 rounded-xl bg-background border group-hover:bg-primary/10 transition-colors w-fit shadow-sm">
+                {tool.icon}
               </div>
-            </Link>
-          </div>
+              <h3 className="font-heading font-black text-xl mb-1 text-foreground group-hover:text-primary transition-colors tracking-tight">
+                {tool.title}
+              </h3>
+              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-2 opacity-60">
+                {tool.cat}
+              </p>
+              <p className="text-sm text-muted-foreground/80 mb-6 flex-grow font-medium leading-snug">
+                {tool.desc}
+              </p>
+              <div className="flex items-center text-primary font-bold text-sm group-hover:translate-x-1 transition-transform">
+                Hemen Başla <ArrowRight className="ml-2 w-4 h-4" />
+              </div>
+              
+              <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
+                {React.cloneElement(tool.icon as React.ReactElement, { className: "w-24 h-24" })}
+              </div>
+            </Card>
+          </Link>
         ))}
       </div>
-    </div>
-  );
-}
 
-function Presentation({ className }: { className?: string }) {
-  return (
-    <svg 
-      className={className} 
-      viewBox="0 0 24 24" 
-      fill="none" 
-      stroke="currentColor" 
-      strokeWidth="2" 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-    >
-      <path d="M2 3h20" />
-      <path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3" />
-      <path d="m7 21 5-5 5 5" />
-    </svg>
+      {filteredTools.length === 0 && (
+        <div className="text-center py-20 bg-muted/20 rounded-3xl border-2 border-dashed">
+          <p className="text-xl font-bold text-muted-foreground">Aradığınız kriterde bir araç bulunamadı.</p>
+        </div>
+      )}
+    </div>
   );
 }
