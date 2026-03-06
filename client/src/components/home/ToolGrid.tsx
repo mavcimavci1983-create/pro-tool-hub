@@ -83,6 +83,10 @@ const allTools = [
   { title: "Video to Text", desc: "Transcribe video to text", cat: "Video Tools", icon: <Type className="w-5 h-5 text-blue-400" />, link: "/tools/video-to-text" },
   { title: "Twitter Download", desc: "Download Video from Twitter", cat: "Video Tools", icon: <Twitter className="w-5 h-5 text-sky-500" />, link: "/tools/twitter-download" },
   { title: "Trim Video", desc: "Select a start and stop of a video and download the trimmed video", cat: "Video Tools", icon: <Scissors className="w-5 h-5 text-purple-400" />, link: "/tools/trim-video" },
+  { title: "Rotate Video", desc: "Rotate video orientation", cat: "Video Tools", icon: <RefreshCw className="w-5 h-5 text-indigo-500" />, link: "/tools/rotate-video" },
+  { title: "Video to MP3", desc: "Extract audio from video", cat: "Video Tools", icon: <Music className="w-5 h-5 text-yellow-500" />, link: "/tools/video-to-mp3" },
+  { title: "MP4 to WebM", desc: "Convert MP4 to WebM", cat: "Video Tools", icon: <Play className="w-5 h-5 text-emerald-500" />, link: "/tools/mp4-to-webm" },
+  { title: "Facebook Download", desc: "Download Video from Facebook", cat: "Video Tools", icon: <Download className="w-5 h-5 text-blue-600" />, link: "/tools/facebook-download" },
 
   // Converter Tools (Görsel 3)
   { title: "Excel to PDF", desc: "Convert Excel to PDF", cat: "Converter Tools", icon: <Table className="w-5 h-5 text-green-600" />, link: "/tools/excel-to-pdf" },

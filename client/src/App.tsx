@@ -62,15 +62,35 @@ function Router() {
         <GenericPdfTool title="Protect PDF" desc="Add a password and encrypt your PDF files to keep them secure." />
       </Route>
 
-      {/* Video Silo Tools */}
       <Route path="/tools/video-to-gif">
-        <VideoTool title="Video to GIF" desc="Free online video to gif converter - No Watermark" icon={Scissors} />
+        <VideoTool title="Video to GIF" desc="Convert your MP4 or MOV videos to high-quality animated GIFs instantly." icon={Scissors} />
+      </Route>
+      <Route path="/tools/video-to-mp3">
+        <VideoTool title="Video to MP3" desc="Extract high-quality audio from any video file in seconds." icon={Music} />
+      </Route>
+      <Route path="/tools/mp4-to-webm">
+        <VideoTool title="MP4 to WebM" desc="Convert MP4 videos to WebM format for better web performance." icon={Play} />
       </Route>
       <Route path="/tools/mute-video">
-        <VideoTool title="Mute Video" desc="Remove audio from video online for free - Fast & Secure" icon={VolumeX} />
+        <VideoTool title="Mute Video" desc="Remove audio from your video files while keeping the visual quality." icon={VolumeX} />
       </Route>
       <Route path="/tools/video-resizer">
-        <VideoTool title="Video Resizer" desc="Resize video online for social media - No Watermark" icon={Minimize} />
+        <VideoTool title="Video Resizer" desc="Resize your videos for social media platforms without watermarks." icon={Minimize} />
+      </Route>
+      <Route path="/tools/rotate-video">
+        <VideoTool title="Rotate Video" desc="Fix sideways or upside-down videos by rotating them 90, 180, or 270 degrees." icon={RefreshCw} />
+      </Route>
+      <Route path="/tools/trim-video">
+        <VideoTool title="Trim Video" desc="Cut and trim specific parts of your video with frame-perfect accuracy." icon={Scissors} />
+      </Route>
+      <Route path="/tools/facebook-download">
+        <VideoTool title="Facebook Download" desc="Save public Facebook videos to your device for offline viewing." icon={Download} />
+      </Route>
+      <Route path="/tools/instagram-download">
+        <VideoTool title="Instagram Download" desc="Save Instagram reels and videos quickly and easily." icon={Download} />
+      </Route>
+      <Route path="/tools/twitter-download">
+        <VideoTool title="Twitter Download" desc="Download videos from Twitter (X) posts instantly." icon={Download} />
       </Route>
 
       {/* Write Silo Tools */}

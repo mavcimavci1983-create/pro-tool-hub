@@ -97,14 +97,20 @@ const videoTools = {
     { title: "TikTok Download", desc: "Download from TikTok", icon: <Download className="w-5 h-5 text-black" />, href: "/tools/tiktok-downloader" },
   ],
   others: [
+    { title: "Video to GIF", href: "/tools/video-to-gif" },
+    { title: "Video to MP3", href: "/tools/video-to-mp3" },
+    { title: "MP4 to WebM", href: "/tools/mp4-to-webm" },
+    { title: "Mute Video", href: "/tools/mute-video" },
+    { title: "Video Resizer", href: "/tools/video-resizer" },
+    { title: "Rotate Video", href: "/tools/rotate-video" },
+    { title: "Trim Video", href: "/tools/trim-video" },
+    { title: "Facebook Download", href: "/tools/facebook-download" },
+    { title: "Twitter Download", href: "/tools/twitter-download" },
     { title: "Audio to Text", href: "/tools/audio-to-text" },
     { title: "MP4 to MP3", href: "/tools/mp4-to-mp3" },
     { title: "Extract Audio", href: "/tools/extract-audio" },
     { title: "YouTube Transcript", href: "/tools/youtube-transcript" },
-    { title: "Video to GIF", href: "/tools/video-to-gif" },
     { title: "Video to Text", href: "/tools/video-to-text" },
-    { title: "Twitter Download", href: "/tools/twitter-download" },
-    { title: "Trim Video", href: "/tools/trim-video" },
   ]
 };
 

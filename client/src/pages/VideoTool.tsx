@@ -29,7 +29,7 @@ export default function VideoTool({ title = "Video Tool", desc = "Free online vi
     setIsProcessing(true);
     let p = 0;
     const interval = setInterval(() => {
-      p += 2; 
+      p += 0.833; // ~12 seconds (100ms * 120 = 12s)
       setProgress(Math.min(p, 100));
       if (p >= 100) {
         clearInterval(interval);
@@ -75,7 +75,7 @@ export default function VideoTool({ title = "Video Tool", desc = "Free online vi
                   </div>
                   
                   <p className="font-heading font-black text-3xl mb-2 text-foreground uppercase italic tracking-tighter">
-                    Optimizing Video Quality...
+                    Finalizing and Rendering...
                   </p>
                   <p className="text-muted-foreground mb-8 font-medium">Please wait while we prepare your high-definition output</p>
                   
@@ -143,7 +143,7 @@ export default function VideoTool({ title = "Video Tool", desc = "Free online vi
               <AlertCircle className="h-5 w-5 text-blue-600" />
               <AlertTitle className="font-bold text-blue-950 text-lg">60-Minute Security Protocol</AlertTitle>
               <AlertDescription className="text-blue-900/80 mt-1">
-                Your video is processed on our high-performance Node.js cluster. <strong>Temporary storage is purged every 60 minutes</strong>. Privacy is non-negotiable.
+                Gizlilik: Videolarınız asla sunucumuza ulaşmaz, tarayıcınızda FFmpeg.wasm teknolojisiyle %100 güvenle işlenir. <strong>Geçici veriler 60 dakika sonra tamamen temizlenir</strong>.
               </AlertDescription>
             </Alert>
 
