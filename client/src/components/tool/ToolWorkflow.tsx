@@ -61,7 +61,6 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
     setProgress(0);
     setError(null);
 
-    // Dwell Time: 10 seconds simulation for ad visibility
     const duration = 10000;
     const interval = 100;
     const step = (interval / duration) * 100;
@@ -78,6 +77,36 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
     }, interval);
   };
 
+  const handleDownload = () => {
+    if (!file) return;
+
+    // Meta Pixel Conversion Event
+    if (window.fbq) {
+      window.fbq('track', 'Download', {
+        content_name: toolName,
+        content_category: 'Tool Conversion',
+        value: 1.00,
+        currency: 'USD'
+      });
+    }
+
+    // Actual Download Logic using Blob for mockup/demo
+    // In a real app, this would be the processed file blob
+    const dummyContent = `Processed by ProToolHub: ${toolName}\nFile: ${file.name}\nTimestamp: ${new Date().toISOString()}`;
+    const blob = new Blob([dummyContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `protoolhub_${toolName.toLowerCase().replace(/\s+/g, '_')}_${file.name}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    console.log(`[CAPI Bridge] Sending conversion for ${toolName} to /api/event`);
+  };
+
   const reset = () => {
     setFile(null);
     setStatus("idle");
@@ -91,25 +120,6 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
     if (droppedFile) {
       validateAndUpload(droppedFile);
     }
-  };
-
-  const handleDownload = () => {
-    // Meta Pixel Conversion Event
-    if (window.fbq) {
-      window.fbq('track', 'Download', {
-        content_name: toolName,
-        content_category: 'Tool Conversion',
-        value: 1.00,
-        currency: 'USD'
-      });
-    }
-
-    // Mock CAPI Bridge (Server-side Event)
-    console.log(`[CAPI Bridge] Sending conversion for ${toolName} to /api/event`);
-    // fetch('/api/event', { method: 'POST', body: JSON.stringify({ event: 'Download', tool: toolName }) });
-
-    // Actual download logic would go here
-    console.log("Downloading processed file...");
   };
 
   return (

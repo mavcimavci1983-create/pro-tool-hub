@@ -61,11 +61,14 @@ function Router() {
 
       {/* Converter Tools */}
       <Route path="/tools/csv-to-json">{(params) => <GenericConverterTool title="CSV to JSON" desc="Convert CSV spreadsheets to JSON data." />}</Route>
+      <Route path="/tools/json-to-csv">{(params) => <GenericConverterTool title="JSON to CSV" desc="Convert JSON data to CSV spreadsheets." />}</Route>
       <Route path="/tools/excel-to-pdf">{(params) => <GenericConverterTool title="Excel to PDF" desc="Turn Excel spreadsheets into PDF documents." />}</Route>
 
       {/* AI Tools */}
       <Route path="/tools/paragraph-writer">{(params) => <GenericAiTool title="Paragraph Writer" desc="Generate professional paragraphs instantly." />}</Route>
       <Route path="/tools/essay-writer">{(params) => <GenericAiTool title="Essay Writer" desc="AI-powered essay writing assistant." />}</Route>
+      <Route path="/tools/story-generator">{(params) => <GenericAiTool title="Story Generator" desc="AI-powered creative story writing." />}</Route>
+      <Route path="/tools/content-improver">{(params) => <GenericAiTool title="Content Improver" desc="Enhance and polish your writing with AI." />}</Route>
       <Route path="/tools/instagram-caption-generator">{(params) => <GenericAiTool title="Instagram Caption" desc="Create engaging captions for your reels." />}</Route>
       <Route path="/tools/linkedin-post-generator">{(params) => <GenericAiTool title="LinkedIn Post" desc="Professional posts for your network." />}</Route>
 

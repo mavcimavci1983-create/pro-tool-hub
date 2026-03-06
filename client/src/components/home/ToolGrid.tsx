@@ -26,7 +26,10 @@ import {
   Search,
   Sparkles,
   PenTool,
-  ArrowRight
+  ArrowRight,
+  BookOpen,
+  User,
+  Heart
 } from "lucide-react";
 import { Link } from "wouter";
 import { Card } from "@/components/ui/card";
@@ -81,11 +84,18 @@ const tools = [
   { title: "Crop Image", desc: "Crop photos easily", cat: "Image Tools", icon: <Scissors className="w-5 h-5 text-rose-500" />, link: "/tools/crop-image" },
   { title: "Add Text to Image", desc: "Add text overlays", cat: "Image Tools", icon: <Type className="w-5 h-5 text-slate-500" />, link: "/tools/add-text-to-image" },
 
+  // Converter Tools
+  { title: "CSV to JSON", desc: "CSV to JSON converter", cat: "Converter Tools", icon: <FileCode className="w-5 h-5 text-amber-500" />, link: "/tools/csv-to-json" },
+  { title: "JSON to CSV", desc: "JSON to CSV converter", cat: "Converter Tools", icon: <FileJson className="w-5 h-5 text-blue-500" />, link: "/tools/json-to-csv" },
+  { title: "Excel to PDF", desc: "Excel to PDF converter", cat: "Converter Tools", icon: <FileText className="w-5 h-5 text-green-600" />, link: "/tools/excel-to-pdf" },
+
   // AI Tools
   { title: "Paragraph Writer", desc: "AI paragraph writing", cat: "AI Write", icon: <PenTool className="w-5 h-5 text-rose-400" />, link: "/tools/paragraph-writer" },
-  { title: "Essay Writer", desc: "AI essay assistant", cat: "AI Write", icon: <PenTool className="w-5 h-5 text-orange-400" />, link: "/tools/essay-writer" },
-  { title: "Instagram Caption", desc: "Social media captions", cat: "AI Write", icon: <PenTool className="w-5 h-5 text-pink-500" />, link: "/tools/instagram-caption-generator" },
-  { title: "LinkedIn Post", desc: "Professional AI posts", cat: "AI Write", icon: <PenTool className="w-5 h-5 text-sky-500" />, link: "/tools/linkedin-post-generator" },
+  { title: "Essay Writer", desc: "AI essay assistant", cat: "AI Write", icon: <BookOpen className="w-5 h-5 text-orange-400" />, link: "/tools/essay-writer" },
+  { title: "Instagram Caption", desc: "Social media captions", cat: "AI Write", icon: <Sparkles className="w-5 h-5 text-pink-500" />, link: "/tools/instagram-caption-generator" },
+  { title: "LinkedIn Post", desc: "Professional AI posts", cat: "AI Write", icon: <User className="w-5 h-5 text-sky-500" />, link: "/tools/linkedin-post-generator" },
+  { title: "Story Generator", desc: "AI creative writing", cat: "AI Write", icon: <Heart className="w-5 h-5 text-red-400" />, link: "/tools/story-generator" },
+  { title: "Content Improver", desc: "AI writing enhancer", cat: "AI Write", icon: <Zap className="w-5 h-5 text-yellow-500" />, link: "/tools/content-improver" },
 ];
 
 export function ToolGrid() {
@@ -109,8 +119,7 @@ export function ToolGrid() {
     { id: "Pdf Tools", label: "Pdf Tools", icon: <FileText className="w-3.5 h-3.5" /> },
     { id: "Video Tools", label: "Video Tools", icon: <Video className="w-3.5 h-3.5" /> },
     { id: "Image Tools", label: "Image Tools", icon: <ImageIcon className="w-3.5 h-3.5" /> },
-    { id: "Converter Tools", label: "Converter Tools", icon: <Layout className="w-3.5 h-3.5" /> },
-    { id: "Other Tools", label: "Other Tools", icon: <Layout className="w-3.5 h-3.5" /> },
+    { id: "Converter Tools", label: "Converter Tools", icon: <RefreshCw className="w-3.5 h-3.5" /> },
     { id: "AI Write", label: "AI Write", icon: <PenTool className="w-3.5 h-3.5" /> },
   ];
 
@@ -136,7 +145,6 @@ export function ToolGrid() {
         />
       </div>
 
-      {/* Modern Filter Bar */}
       <div className="flex justify-center mb-16 px-4">
         <div className="bg-white border border-slate-100 rounded-full p-1.5 shadow-xl shadow-slate-200/20 flex flex-wrap gap-1 items-center max-w-fit overflow-x-auto no-scrollbar">
           {tabs.map((tab) => (
