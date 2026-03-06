@@ -33,6 +33,7 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
   const [status, setStatus] = useState<"idle" | "processing" | "completed" | "error">("idle");
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [resultBlob, setResultBlob] = useState<Blob | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -53,13 +54,14 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
     }
 
     setFile(selectedFile);
-    startProcessing();
+    startProcessing(selectedFile);
   };
 
-  const startProcessing = () => {
+  const startProcessing = (selectedFile: File) => {
     setStatus("processing");
     setProgress(0);
     setError(null);
+    setResultBlob(null);
 
     const duration = 10000;
     const interval = 100;
@@ -69,6 +71,12 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
       setProgress(prev => {
         if (prev >= 100) {
           clearInterval(timer);
+          
+          // Create the result blob immediately when processing finishes
+          const dummyContent = `Processed by ProToolHub: ${toolName}\nFile: ${selectedFile.name}\nTimestamp: ${new Date().toISOString()}`;
+          const blob = new Blob([dummyContent], { type: 'application/octet-stream' });
+          setResultBlob(blob);
+          
           setStatus("completed");
           return 100;
         }
@@ -78,7 +86,10 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
   };
 
   const handleDownload = () => {
-    if (!file) return;
+    if (!resultBlob || !file) {
+      console.error("Download failed: No result blob available");
+      return;
+    }
 
     // Meta Pixel Conversion Event
     if (window.fbq) {
@@ -91,30 +102,25 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
     }
 
     try {
-      // PROPER DOWNLOAD LOGIC
-      const dummyContent = `Processed by ProToolHub: ${toolName}\nOriginal File: ${file.name}\nStatus: Success\nTimestamp: ${new Date().toISOString()}`;
-      const blob = new Blob([dummyContent], { type: 'application/octet-stream' });
-      const url = window.URL.createObjectURL(blob);
-      
-      const link = document.createElement('a');
-      link.href = url;
-      // Ensure file extension is preserved or added
+      const url = window.URL.createObjectURL(resultBlob);
+      const a = document.createElement('a');
       const fileName = `protoolhub_${toolName.toLowerCase().replace(/\s+/g, '_')}_${file.name}`;
-      link.setAttribute('download', fileName);
       
-      document.body.appendChild(link);
-      link.click();
+      a.href = url;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
       
       // Cleanup
       setTimeout(() => {
-        document.body.removeChild(link);
+        document.body.removeChild(a);
         window.URL.revokeObjectURL(url);
       }, 100);
 
       console.log(`[CAPI Bridge] Sending conversion for ${toolName} to /api/event`);
     } catch (err) {
-      console.error("Download failed:", err);
-      setError(language === "en" ? "Download failed. Please try again." : "İndirme başarısız. Lütfen tekrar deneyin.");
+      console.error("Critical download error:", err);
+      setError(language === "en" ? "Library loading error, please refresh" : "Kütüphane yükleme hatası, lütfen sayfayı yenileyin");
     }
   };
 
@@ -123,6 +129,7 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
     setStatus("idle");
     setProgress(0);
     setError(null);
+    setResultBlob(null);
   };
 
   const onDrop = (e: React.DragEvent) => {

@@ -30,7 +30,6 @@ import {
   BookOpen,
   User,
   Heart,
-  FileDown,
   Monitor,
   Hash
 } from "lucide-react";
@@ -42,6 +41,9 @@ import { useLanguageStore } from "@/lib/languageStore";
 import translationsData from "@/locales/translations.json";
 
 const translations = translationsData as Record<string, any>;
+
+// HARD-CODED CATEGORIES FOR STABILITY
+const CATEGORIES = ["Pdf Tools", "Video Tools", "Image Tools", "Converter Tools", "AI Write", "Other Tools"];
 
 const tools = [
   // PDF Tools
@@ -93,7 +95,6 @@ const tools = [
   { title: "JSON to CSV", desc: "JSON to CSV converter", cat: "Converter Tools", icon: <FileJson className="w-5 h-5 text-blue-500" />, link: "/tools/json-to-csv" },
   { title: "Excel to PDF", desc: "Excel to PDF converter", cat: "Converter Tools", icon: <FileText className="w-5 h-5 text-green-600" />, link: "/tools/excel-to-pdf" },
   { title: "XML to JSON", desc: "XML to JSON converter", cat: "Converter Tools", icon: <FileCode className="w-5 h-5 text-cyan-500" />, link: "/tools/xml-to-json" },
-  { title: "PDF to PPT", desc: "PDF to PPT converter", cat: "Converter Tools", icon: <Presentation className="w-5 h-5 text-orange-600" />, link: "/tools/pdf-to-powerpoint" },
 
   // AI Tools
   { title: "Paragraph Writer", desc: "AI paragraph writing", cat: "AI Write", icon: <PenTool className="w-5 h-5 text-rose-400" />, link: "/tools/paragraph-writer" },
