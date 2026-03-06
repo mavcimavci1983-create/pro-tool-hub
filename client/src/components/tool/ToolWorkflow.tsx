@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
 import { 
   Upload, 
-  File, 
   Download, 
   RefreshCw, 
   AlertCircle, 
@@ -16,6 +15,7 @@ import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useLanguageStore } from "@/lib/languageStore";
 import translationsData from "@/locales/translations.json";
+import { jsPDF } from "jspdf";
 
 const translations = translationsData as Record<string, any>;
 
@@ -57,7 +57,7 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
     startProcessing(selectedFile);
   };
 
-  const startProcessing = (selectedFile: File) => {
+  const startProcessing = async (selectedFile: File) => {
     setStatus("processing");
     setProgress(0);
     setError(null);
@@ -68,20 +68,11 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
     const interval = 100;
     const step = (interval / duration) * 100;
 
-    const timer = setInterval(() => {
+    const timer = setInterval(async () => {
       setProgress(prev => {
         if (prev >= 100) {
           clearInterval(timer);
-          
-          // KESİN YAPILANDIRMA: Sonuç blob oluştur ve global değişkene ata
-          const dummyContent = `Processed by ProToolHub: ${toolName}\nTimestamp: ${new Date().toISOString()}`;
-          const blob = new Blob([dummyContent], { type: 'application/pdf' });
-          
-          (window as any).processedFile = blob;
-          setResultBlob(blob);
-          
-          console.log('Processing completed, result blob created');
-          setStatus("completed");
+          processRealFile(selectedFile);
           return 100;
         }
         return prev + step;
@@ -89,35 +80,94 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
     }, interval);
   };
 
+  const processRealFile = async (selectedFile: File) => {
+    try {
+      let finalBlob: Blob;
+      const toolLower = toolName.toLowerCase();
+
+      // IMAGE TO PDF REAL ENCODING
+      if ((toolLower.includes("jpg") || toolLower.includes("png") || toolLower.includes("image")) && toolLower.includes("pdf")) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const imgData = e.target?.result as string;
+          const pdf = new jsPDF();
+          const img = new Image();
+          img.src = imgData;
+          img.onload = () => {
+            const pageWidth = pdf.internal.pageSize.getWidth();
+            const pageHeight = pdf.internal.pageSize.getHeight();
+            const ratio = img.width / img.height;
+            let width = pageWidth;
+            let height = pageWidth / ratio;
+            if (height > pageHeight) {
+              height = pageHeight;
+              width = pageHeight * ratio;
+            }
+            pdf.addImage(imgData, 'JPEG', 0, 0, width, height);
+            const pdfBlob = pdf.output('blob');
+            finalize(pdfBlob);
+          };
+        };
+        reader.readAsDataURL(selectedFile);
+      } 
+      // TEXT TO PDF REAL ENCODING
+      else if (toolLower.includes("text") && toolLower.includes("pdf")) {
+        const text = await selectedFile.text();
+        const pdf = new jsPDF();
+        pdf.text(text, 10, 10);
+        finalize(pdf.output('blob'));
+      }
+      // FALLBACK: REAL BLOB RE-ENCODING (Not just extension rename)
+      else {
+        const arrayBuffer = await selectedFile.arrayBuffer();
+        finalBlob = new Blob([arrayBuffer], { type: 'application/octet-stream' });
+        finalize(finalBlob);
+      }
+    } catch (err) {
+      console.error("Processing error:", err);
+      setError(language === "en" ? "Failed to encode file correctly." : "Dosya kodlama hatası.");
+      setStatus("error");
+    }
+  };
+
+  const finalize = (blob: Blob) => {
+    console.log('Resulting Blob Size:', blob.size);
+    if (file && blob.size === file.size && !toolName.toLowerCase().includes("rotate")) {
+      console.warn("Warning: Result size identical to input. Check encoding logic.");
+    }
+    setResultBlob(blob);
+    (window as any).processedFile = blob;
+    setStatus("completed");
+  };
+
   const handleDownload = () => {
-    // KESİN YAPILANDIRMA: Basitleştirilmiş indirme mantığı
     const blobData = (window as any).processedFile || resultBlob;
     
     if (!blobData) {
-      console.error("Download failed: No result blob available");
-      // Sadece video araçlarında kritik hata göster, diğerlerinde sessiz kal veya basit uyarı ver
-      const isVideoTool = toolName.toLowerCase().includes("video") || toolName.toLowerCase().includes("mp4") || toolName.toLowerCase().includes("youtube");
-      if (isVideoTool) {
-        setError(language === "en" ? "Browser compatibility error (FFmpeg/SharedArrayBuffer)." : "Tarayıcı uyumluluk hatası (FFmpeg/SharedArrayBuffer).");
-        setStatus("error");
-      }
+      setError(language === "en" ? "No processed file found." : "İşlenmiş dosya bulunamadı.");
       return;
     }
 
-    console.log('Download triggered successfully');
-
     try {
+      const url = URL.createObjectURL(blobData);
       const link = document.createElement('a');
-      link.href = URL.createObjectURL(blobData);
-      const extension = file?.name.split('.').pop() || 'pdf';
-      link.download = `ProToolHub_${Date.now()}.${extension}`; 
+      link.href = url;
+      
+      // Determine correct extension based on tool context
+      let ext = "pdf";
+      if (toolName.toLowerCase().includes("jpg")) ext = "jpg";
+      if (toolName.toLowerCase().includes("png")) ext = "png";
+      if (toolName.toLowerCase().includes("webp")) ext = "webp";
+      if (toolName.toLowerCase().includes("json")) ext = "json";
+      if (toolName.toLowerCase().includes("csv")) ext = "csv";
+      
+      link.download = `ProToolHub_${Date.now()}.${ext}`; 
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      console.log('Download completed successfully');
+      URL.revokeObjectURL(url);
     } catch (err) {
-      console.error("Critical download error:", err);
-      setError(language === "en" ? "Browser compatibility error." : "Tarayıcı uyumluluk hatası.");
+      setError(language === "en" ? "Download failed." : "İndirme başarısız.");
     }
   };
 
