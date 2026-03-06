@@ -39,6 +39,8 @@ import {
   Table,
   Play,
   Youtube,
+  Instagram,
+  Twitter,
   Presentation,
   QrCode,
   StickyNote,
