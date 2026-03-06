@@ -1,0 +1,60 @@
+{
+  "en": {
+    "common": {
+      "start_now": "Start Now",
+      "choose_file": "Choose File",
+      "drop_files": "Drop your files here",
+      "drag_drop": "Click to browse or drag & drop",
+      "processing": "Generating secure result...",
+      "wait": "Your process is being completed securely, please wait.",
+      "ready": "Your file is ready!",
+      "download": "Download Result",
+      "start_over": "Start Over",
+      "privacy_alert": "1-Hour Auto-Destruct Active",
+      "privacy_desc": "For your privacy, your file will be permanently deleted from our servers exactly 1 hour after upload using our automated node-cron system. We do not store any metadata or logs.",
+      "security_note": "Security Note:",
+      "privacy_policy": "Files are processed in the browser and never saved to the server. MicroWow operates with a 100% privacy policy.",
+      "all_tools": "All Tools"
+    },
+    "home": {
+      "hero_title": "100+ Free Online Tools",
+      "hero_subtitle": "Professional PDF, Video, Image, and AI writing tools. 100% Free. 100% Private.",
+      "search_placeholder": "Search among 100+ tools...",
+      "seo_title": "Free Online PDF and File Tools",
+      "seo_desc": "MicroWow provides all the PDF and image processing tools needed by the modern digital world in a single platform. Whether you want to perform PDF to Word conversion or speed up your website with Image to WebP, all your operations are carried out at the highest security standards.",
+      "security_title": "Security and Privacy",
+      "security_desc": "User data security is our priority. All files hosted on our servers are permanently deleted by our autonomous node-cron system exactly 1 hour after processing is complete.",
+      "speed_title": "Speed and Performance",
+      "speed_desc": "All our tools are optimized in accordance with Google Core Web Vitals metrics. Complete your transactions in seconds with fast loading times and a seamless user experience."
+    }
+  },
+  "tr": {
+    "common": {
+      "start_now": "Hemen Başla",
+      "choose_file": "Dosya Seç",
+      "drop_files": "Dosyalarınızı buraya bırakın",
+      "drag_drop": "Göz atmak için tıklayın veya sürükleyip bırakın",
+      "processing": "Güvenli sonuç oluşturuluyor...",
+      "wait": "İşleminiz güvenli bir şekilde tamamlanıyor, lütfen bekleyin.",
+      "ready": "Dosyanız hazır!",
+      "download": "Sonucu İndir",
+      "start_over": "Baştan Başla",
+      "privacy_alert": "1 Saatlik Otomatik Silme Aktif",
+      "privacy_desc": "Gizliliğiniz için, dosyanız yüklendikten tam 1 saat sonra otomatik node-cron sistemimiz kullanılarak sunucularımızdan kalıcı olarak silinecektir. Herhangi bir meta veri veya günlük tutmuyoruz.",
+      "security_note": "Güvenlik Notu:",
+      "privacy_policy": "Dosyalar tarayıcıda işlenir, sunucuya asla kaydedilmez. MicroWow %100 gizlilik politikasıyla çalışır.",
+      "all_tools": "Tüm Araçlar"
+    },
+    "home": {
+      "hero_title": "100+ Ücretsiz Online Araç",
+      "hero_subtitle": "Profesyonel PDF, Video, Resim ve AI yazma araçları. %100 Ücretsiz. %100 Gizli.",
+      "search_placeholder": "100'den fazla araç arasında ara...",
+      "seo_title": "Ücretsiz Online PDF ve Dosya Araçları",
+      "seo_desc": "MicroWow, modern dijital dünyanın ihtiyaç duyduğu tüm PDF ve görsel işleme araçlarını tek bir platformda sunar. İster PDF to Word çevirisi yapın, ister Image to WebP ile web sitenizi hızlandırın; tüm işlemleriniz en yüksek güvenlik standartlarında gerçekleştirilir.",
+      "security_title": "Güvenlik ve Gizlilik",
+      "security_desc": "Kullanıcı verilerinin güvenliği bizim önceliğimizdir. Sunucularımızda barındırılan tüm dosyalar, işlemin tamamlanmasından tam 1 saat sonra otonom node-cron sistemimiz tarafından kalıcı olarak silinir.",
+      "speed_title": "Hız ve Performans",
+      "speed_desc": "Tüm araçlarımız Google Core Web Vitals metriklerine uygun olarak optimize edilmiştir. Hızlı yükleme süreleri ve kesintisiz kullanıcı deneyimi ile işlemlerinizi saniyeler içinde tamamlayın."
+    }
+  }
+}

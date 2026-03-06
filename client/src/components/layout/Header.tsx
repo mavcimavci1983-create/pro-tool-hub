@@ -1,68 +1,32 @@
 import { Link } from "wouter";
 import { 
-  Search, 
-  Menu, 
-  Moon, 
-  Share2, 
-  ChevronDown,
-  FileText,
-  FileEdit,
-  FileUp,
-  Image as ImageIcon,
-  FileStack,
-  Lock,
-  Globe,
-  PenTool,
-  Scissors,
-  Maximize2,
-  Minimize2,
-  Type,
-  RefreshCw,
-  Eraser,
-  Wand2,
-  Brush,
-  Palette,
-  RotateCw,
-  Square,
-  Circle,
-  Sparkles,
-  VolumeX,
-  Minimize,
+  Zap, 
   Languages,
-  Pen,
-  Video,
-  File,
-  Download,
-  Music,
-  FileJson,
-  FileCode,
-  Table,
-  Play,
+  Menu,
+  FileStack,
+  FileEdit,
+  Image as ImageIcon,
   Youtube,
+  Minimize,
+  Download,
+  Table,
+  Type,
+  PenTool,
   Instagram,
-  Twitter,
-  Presentation,
-  QrCode,
-  StickyNote,
-  Smile,
-  Zap,
-  Clock,
-  BookOpen,
-  CheckCircle2,
-  MessageSquare,
-  Clapperboard,
-  History
+  Twitter
 } from "lucide-react";
 import {
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { useLanguageStore } from "@/lib/languageStore";
+import translationsData from "@/locales/translations.json";
+
+const translations = translationsData as Record<string, any>;
 
 const pdfTools = {
   featured: [
@@ -80,14 +44,6 @@ const pdfTools = {
     { title: "Protect PDF", href: "/tools/protect-pdf" },
     { title: "Rotate PDF", href: "/tools/rotate-pdf" },
     { title: "Add Watermark", href: "/tools/add-watermark" },
-    { title: "PDF to Text (OCR)", href: "/tools/pdf-to-text" },
-    { title: "PDF to Excel", href: "/tools/pdf-to-excel" },
-    { title: "PDF to PPT", href: "/tools/pdf-to-powerpoint" },
-    { title: "PNG to PDF", href: "/tools/png-to-pdf" },
-    { title: "PDF Translator", href: "/tools/pdf-translator" },
-    { title: "eSign PDF", href: "/tools/esign" },
-    { title: "Rearrange PDF", href: "/tools/rearrange-pdf" },
-    { title: "Extract Text", href: "/tools/extract-text" },
   ]
 };
 
@@ -103,35 +59,6 @@ const videoTools = {
     { title: "Video to MP3", href: "/tools/video-to-mp3" },
     { title: "MP4 to WebM", href: "/tools/mp4-to-webm" },
     { title: "Mute Video", href: "/tools/mute-video" },
-    { title: "Video Resizer", href: "/tools/video-resizer" },
-    { title: "Rotate Video", href: "/tools/rotate-video" },
-    { title: "Trim Video", href: "/tools/trim-video" },
-    { title: "Facebook Download", href: "/tools/facebook-download" },
-    { title: "Twitter Download", href: "/tools/twitter-download" },
-    { title: "Audio to Text", href: "/tools/audio-to-text" },
-    { title: "MP4 to MP3", href: "/tools/mp4-to-mp3" },
-    { title: "Extract Audio", href: "/tools/extract-audio" },
-    { title: "YouTube Transcript", href: "/tools/youtube-transcript" },
-    { title: "Video to Text", href: "/tools/video-to-text" },
-  ]
-};
-
-const converterTools = {
-  featured: [
-    { title: "Excel to PDF", desc: "Convert Excel to PDF", icon: <Table className="w-5 h-5 text-green-600" />, href: "/tools/excel-to-pdf" },
-    { title: "CSV to Excel", desc: "Convert CSV to Excel", icon: <Table className="w-5 h-5 text-emerald-500" />, href: "/tools/csv-to-excel" },
-    { title: "Split Excel", desc: "Divide Excel files", icon: <Table className="w-5 h-5 text-green-400" />, href: "/tools/split-excel" },
-    { title: "XML to Excel", desc: "Convert XML to Excel", icon: <FileCode className="w-5 h-5 text-blue-400" />, href: "/tools/xml-to-excel" },
-  ],
-  others: [
-    { title: "Split CSV", href: "/tools/split-csv" },
-    { title: "EPUB to MOBI", href: "/tools/epub-to-mobi" },
-    { title: "JSON to XML", href: "/tools/json-to-xml" },
-    { title: "Excel to CSV", href: "/tools/excel-to-csv" },
-    { title: "XML to CSV", href: "/tools/xml-to-csv" },
-    { title: "CSV to JSON", href: "/tools/csv-to-json" },
-    { title: "EPUB to AZW3", href: "/tools/epub-to-azw3" },
-    { title: "Excel to XML", href: "/tools/excel-to-xml" },
   ]
 };
 
@@ -143,57 +70,53 @@ const writeTools = {
     { title: "LinkedIn Post", desc: "Professional networking", icon: <Twitter className="w-5 h-5 text-sky-500" />, href: "/tools/linkedin-post-generator" },
   ],
   others: [
-    { title: "Blog Post Ideas", href: "/tools/blog-post-ideas" },
     { title: "Sentence Expander", href: "/tools/sentence-expander" },
     { title: "YouTube Title", href: "/tools/youtube-title-generator" },
     { title: "TikTok Script", href: "/tools/tiktok-script-creator" },
     { title: "Email Writer", href: "/tools/email-writer" },
-    { title: "Cover Letter", href: "/tools/cover-letter-generator" },
-    { title: "Grammar Fixer", href: "/tools/grammar-fixer" },
-    { title: "Text Summarizer", href: "/tools/content-summarizer" },
-    { title: "Rewrite Article", href: "/tools/article-rewriter" },
-    { title: "Story Generator", href: "/tools/story-generator" },
-    { title: "AI Humanizer", href: "/tools/ai-humanizer" },
-    { title: "Tone of Voice", href: "/tools/tone-of-voice" },
-  ]
-};
-
-const imageTools = {
-  featured: [
-    { title: "Remove Background", desc: "AI-powered background removal tool with 100% privacy.", icon: <Eraser className="w-5 h-5 text-rose-500" />, href: "/tools/remove-background" },
-    { title: "Image to WebP", desc: "Convert images to highly optimized WebP format instantly.", icon: <ImageIcon className="w-5 h-5 text-blue-500" />, href: "/tools/image-to-webp" },
-    { title: "Upscale Image", desc: "Increase resolution and quality of your images with AI.", icon: <Maximize2 className="w-5 h-5 text-emerald-500" />, href: "/tools/upscale-image" },
-    { title: "AI Image Generator", desc: "Create beautiful images from text descriptions using AI.", icon: <Sparkles className="w-5 h-5 text-amber-500" />, href: "/tools/ai-image-generator" },
-  ],
-  others: [
-    { title: "JPG to PDF", href: "/tools/jpg-to-pdf" },
-    { title: "PDF to JPG", href: "/tools/pdf-to-jpg" },
-    { title: "HEIC to JPG", href: "/tools/heic-to-jpg" },
-    { title: "PNG to JPG", href: "/tools/png-to-jpg" },
-    { title: "WebP to JPG", href: "/tools/webp-to-jpg" },
-    { title: "Resize Image", href: "/tools/resize-image" },
-    { title: "Compress Image", href: "/tools/compress-image" },
-    { title: "Crop Image", href: "/tools/crop-image" },
-    { title: "Add Text to Image", href: "/tools/add-text-to-image" },
-    { title: "Blur Background", href: "/tools/blur-background" },
-    { title: "Profile Picture Maker", href: "/tools/profile-picture-maker" },
-    { title: "Black and White", href: "/tools/black-and-white" },
-  ]
-};
-
-const otherTools = {
-  featured: [
-    { title: "QR Generator", desc: "Create QR codes", icon: <QrCode className="w-5 h-5 text-orange-400" />, href: "/tools/qr-generator" },
-    { title: "Lorem Ipsum", desc: "Placeholder text", icon: <StickyNote className="w-5 h-5 text-yellow-400" />, href: "/tools/lorem-ipsum" },
-    { title: "Meme Maker", desc: "Create memes", icon: <Smile className="w-5 h-5 text-blue-400" />, href: "/tools/meme-maker" },
-    { title: "Create Zip", desc: "Compress files", icon: <Zap className="w-5 h-5 text-green-400" />, href: "/tools/create-zip" },
-  ],
-  others: [
-    { title: "Epoch Converter", href: "/tools/epoch-converter" }
   ]
 };
 
 export function Header() {
+  const { language, setLanguage } = useLanguageStore();
+
+  const renderToolList = (category: any, title: string) => (
+    <div className="grid grid-cols-[300px_450px] p-6 gap-6 bg-white rounded-xl shadow-2xl min-w-[750px]">
+      <div className="border-r pr-6">
+        <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Featured Tools</h4>
+        <div className="space-y-4 text-left">
+          {category.featured.map((tool: any) => (
+            <div key={tool.title}>
+              <Link href={tool.href}>
+                <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
+                  <div className="mt-1">{tool.icon}</div>
+                  <div>
+                    <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
+                    <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
+                  </div>
+                </div>
+              </Link>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div>
+        <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Other {title} Tools</h4>
+        <div className="grid grid-cols-2 gap-y-3 gap-x-8 text-left">
+          {category.others.map((tool: any) => (
+            <div key={tool.title}>
+              <Link href={tool.href}>
+                <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
+                  {tool.title}
+                </span>
+              </Link>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
@@ -213,301 +136,38 @@ export function Header() {
         <nav className="hidden lg:flex items-center gap-2">
           <NavigationMenu>
             <NavigationMenuList>
-              {/* PDF Menu */}
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3">
-                  PDF
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="grid grid-cols-[300px_450px] p-6 gap-6 bg-white rounded-xl shadow-2xl">
-                    <div className="border-r pr-6">
-                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Featured Tools</h4>
-                      <div className="space-y-4 text-left">
-                        {pdfTools.featured.map((tool) => (
-                          <div key={tool.title} className="p-0">
-                            <Link href={tool.href}>
-                              <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
-                                <div className="mt-1">{tool.icon}</div>
-                                <div>
-                                  <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
-                                  <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
-                                </div>
-                              </div>
-                            </Link>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Other PDF Tools</h4>
-                      <div className="grid grid-cols-2 gap-y-3 gap-x-8 text-left">
-                        {pdfTools.others.map((tool) => (
-                          <div key={tool.title}>
-                            <Link href={tool.href}>
-                              <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
-                                {tool.title}
-                              </span>
-                            </Link>
-                          </div>
-                        ))}
-                        <div>
-                          <Link href="/tools/all-pdf">
-                            <span className="text-[13px] font-bold text-primary hover:underline cursor-pointer">All Pdf Tools</span>
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </NavigationMenuContent>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3 uppercase italic tracking-tighter">PDF</NavigationMenuTrigger>
+                <NavigationMenuContent>{renderToolList(pdfTools, "PDF")}</NavigationMenuContent>
               </NavigationMenuItem>
-
-              {/* Video Menu */}
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3">
-                  Video
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="grid grid-cols-[300px_450px] p-6 gap-6 bg-white rounded-xl shadow-2xl min-w-[750px]">
-                    <div className="border-r pr-6">
-                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Featured Tools</h4>
-                      <div className="space-y-4 text-left">
-                        {videoTools.featured.map((tool) => (
-                          <div key={tool.title}>
-                            <Link href={tool.href}>
-                              <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
-                                <div className="mt-1">{tool.icon}</div>
-                                <div>
-                                  <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
-                                  <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
-                                </div>
-                              </div>
-                            </Link>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Other Video Tools</h4>
-                      <div className="grid grid-cols-2 gap-y-3 gap-x-8 text-left">
-                        {videoTools.others.map((tool) => (
-                          <div key={tool.title}>
-                            <Link href={tool.href}>
-                              <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
-                                {tool.title}
-                              </span>
-                            </Link>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </NavigationMenuContent>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3 uppercase italic tracking-tighter">VIDEO</NavigationMenuTrigger>
+                <NavigationMenuContent>{renderToolList(videoTools, "Video")}</NavigationMenuContent>
               </NavigationMenuItem>
-
-              {/* Image Menu */}
               <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3">
-                  Image
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="grid grid-cols-[300px_450px] p-6 gap-6 bg-white rounded-xl shadow-2xl min-w-[750px]">
-                    <div className="border-r pr-6">
-                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Featured Tools</h4>
-                      <div className="space-y-4 text-left">
-                        {imageTools.featured.map((tool) => (
-                          <div key={tool.title}>
-                            <Link href={tool.href}>
-                              <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
-                                <div className="mt-1">{tool.icon}</div>
-                                <div>
-                                  <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
-                                  <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
-                                </div>
-                              </div>
-                            </Link>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Other Image Tools</h4>
-                      <div className="grid grid-cols-2 gap-y-3 gap-x-8 text-left">
-                        {imageTools.others.map((tool) => (
-                          <div key={tool.title}>
-                            <Link href={tool.href}>
-                              <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
-                                {tool.title}
-                              </span>
-                            </Link>
-                          </div>
-                        ))}
-                        <div>
-                          <Link href="/tools/all-image">
-                            <span className="text-[13px] font-bold text-primary hover:underline cursor-pointer">All Image Tools</span>
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-
-              {/* Converter Menu */}
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3">
-                  Converter
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="grid grid-cols-[300px_450px] p-6 gap-6 bg-white rounded-xl shadow-2xl min-w-[750px]">
-                    <div className="border-r pr-6">
-                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Featured Tools</h4>
-                      <div className="space-y-4 text-left">
-                        {converterTools.featured.map((tool) => (
-                          <div key={tool.title}>
-                            <Link href={tool.href}>
-                              <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
-                                <div className="mt-1">{tool.icon}</div>
-                                <div>
-                                  <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
-                                  <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
-                                </div>
-                              </div>
-                            </Link>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Other Converter Tools</h4>
-                      <div className="grid grid-cols-2 gap-y-3 gap-x-8 text-left">
-                        {converterTools.others.map((tool) => (
-                          <div key={tool.title}>
-                            <Link href={tool.href}>
-                              <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
-                                {tool.title}
-                              </span>
-                            </Link>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-
-              {/* Write Menu */}
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3">
-                  Write
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="grid grid-cols-[300px_450px] p-6 gap-6 bg-white rounded-xl shadow-2xl min-w-[750px]">
-                    <div className="border-r pr-6">
-                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Featured Tools</h4>
-                      <div className="space-y-4 text-left">
-                        {writeTools.featured.map((tool) => (
-                          <div key={tool.title}>
-                            <Link href={tool.href}>
-                              <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
-                                <div className="mt-1">{tool.icon}</div>
-                                <div>
-                                  <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
-                                  <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
-                                </div>
-                              </div>
-                            </Link>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Other AI Tools</h4>
-                      <div className="grid grid-cols-2 gap-y-3 gap-x-8 text-left">
-                        {writeTools.others.map((tool) => (
-                          <div key={tool.title}>
-                            <Link href={tool.href}>
-                              <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
-                                {tool.title}
-                              </span>
-                            </Link>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </NavigationMenuContent>
-              </NavigationMenuItem>
-
-              {/* Other Menu */}
-              <NavigationMenuItem>
-                <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3">
-                  Other
-                </NavigationMenuTrigger>
-                <NavigationMenuContent>
-                  <div className="grid grid-cols-[300px_450px] p-6 gap-6 bg-white rounded-xl shadow-2xl min-w-[750px]">
-                    <div className="border-r pr-6">
-                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Featured Tools</h4>
-                      <div className="space-y-4 text-left">
-                        {otherTools.featured.map((tool) => (
-                          <div key={tool.title}>
-                            <Link href={tool.href}>
-                              <div className="flex items-start gap-3 p-2 rounded-lg hover:bg-muted cursor-pointer transition-colors group text-left">
-                                <div className="mt-1">{tool.icon}</div>
-                                <div>
-                                  <div className="text-sm font-bold group-hover:text-primary">{tool.title}</div>
-                                  <div className="text-[11px] text-muted-foreground">{tool.desc}</div>
-                                </div>
-                              </div>
-                            </Link>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <h4 className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-4 text-left">Other Tools</h4>
-                      <div className="grid grid-cols-2 gap-y-3 gap-x-8 text-left">
-                        {otherTools.others.map((tool) => (
-                          <div key={tool.title}>
-                            <Link href={tool.href}>
-                              <span className="text-[13px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors block">
-                                {tool.title}
-                              </span>
-                            </Link>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                </NavigationMenuContent>
+                <NavigationMenuTrigger className="bg-transparent hover:bg-muted font-medium text-sm px-3 uppercase italic tracking-tighter">WRITE</NavigationMenuTrigger>
+                <NavigationMenuContent>{renderToolList(writeTools, "AI")}</NavigationMenuContent>
               </NavigationMenuItem>
             </NavigationMenuList>
           </NavigationMenu>
         </nav>
 
-        <div className="flex items-center gap-2 flex-1 justify-end">
-          <div className="hidden md:flex relative w-full max-w-[200px]">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input 
-              type="search" 
-              placeholder="Search tools" 
-              className="w-full bg-muted/50 border-none pl-9 rounded-full h-9 text-sm"
-            />
+        <div className="flex items-center gap-2">
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={() => setLanguage(language === 'en' ? 'tr' : 'en')}
+            className="font-black text-xs h-9 px-3 rounded-full border-2 hover:bg-primary/5 transition-all uppercase italic tracking-tighter"
+          >
+            <Languages className="w-4 h-4 mr-1.5 text-primary" />
+            {language.toUpperCase()}
+          </Button>
+          <div className="hidden md:flex h-[36px] px-3 bg-muted/10 border-2 border-dashed rounded-full text-[9px] font-black items-center justify-center text-muted-foreground uppercase tracking-widest">
+            AD SPACE
           </div>
-          <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground h-9 w-9">
-            <Moon className="h-4 w-4" />
+          <Button variant="ghost" size="icon" className="lg:hidden">
+            <Menu className="h-6 w-6" />
           </Button>
-          <Button variant="ghost" size="icon" className="rounded-full text-muted-foreground h-9 w-9">
-            <Share2 className="h-4 w-4" />
-          </Button>
-          <Button className="rounded-full px-5 bg-primary hover:bg-primary/90 text-white font-bold h-9 text-sm">
-            Sign In
-          </Button>
-        </div>
-      </div>
-      
-      <div className="w-full bg-muted/30 border-t py-2 text-center text-xs text-muted-foreground">
-        <div className="container mx-auto max-w-3xl h-12 border border-dashed border-muted-foreground/30 bg-muted/10 flex items-center justify-center rounded">
-          Advertisement Placeholder (728x90)
         </div>
       </div>
     </header>
