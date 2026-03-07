@@ -67,8 +67,16 @@ async function buildAll() {
             contents = contents.replace(/import\.meta\.url/g, "__import_meta_url");
             contents = contents.replace(/import\.meta\.dirname/g, "__dirname");
             contents = contents.replace(
-              /import\s*\{\s*createRequire\s*\}\s*from\s*["']module["'];?\s*\n?\s*const\s+\w+\s*=\s*createRequire\([^)]*\);?\s*\n?\s*const\s+(\w+)\s*=\s*\w+\(\s*["']([^"']+)["']\s*\);?/g,
-              'const $1 = require("$2");'
+              /import\s*\{\s*createRequire\s*\}\s*from\s*["']module["'];?/g,
+              ""
+            );
+            contents = contents.replace(
+              /const\s+\w+\s*=\s*createRequire\([^)]*\);?/g,
+              ""
+            );
+            contents = contents.replace(
+              /_require\s*\(/g,
+              "require("
             );
             return { contents, loader: args.path.endsWith(".tsx") ? "tsx" : args.path.endsWith(".jsx") ? "jsx" : "ts" };
           });
