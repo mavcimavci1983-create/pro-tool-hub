@@ -21,14 +21,14 @@ TinyWow-inspired multi-utility platform with 53+ tools across PDF, Image, Video,
 - `client/src/locales/translations.json` — EN/TR translations
 - `client/src/lib/languageStore.ts` — Zustand language store
 
-## Backend Dependencies
-- `multer` — File upload handling
-- `pdf-parse` — PDF text extraction (CJS module, imported via createRequire)
-- `docx` — Word document generation
-- `xlsx` — Excel spreadsheet generation (smart column detection: tab/multi-space split)
+## Backend Dependencies (PINNED VERSIONS — do not upgrade)
+- `multer@1.4.5-lts.1` — File upload handling (LTS, memoryStorage only)
+- `pdf-parse@1.1.1` — PDF text extraction. MUST use `require('pdf-parse/lib/pdf-parse.js')` safe path (skips test/ folder). v2+ has breaking API changes.
+- `docx@8.5.0` — Word document generation (v9+ has breaking changes)
+- `xlsx@0.18.5` — Excel spreadsheet generation (v0.19+ may require commercial license)
 - `jspdf` — Client-side PDF generation
 
-## Conversion Logic (ToolWorkflow v5)
+## Conversion Logic (ToolWorkflow v6)
 - **Image → PDF**: Client-side via jsPDF + Canvas 2x supersampling
 - **Text → PDF**: Client-side via jsPDF with pagination
 - **CSV → JSON**: Client-side parser
@@ -48,7 +48,8 @@ TinyWow-inspired multi-utility platform with 53+ tools across PDF, Image, Video,
 - Health check: `GET /api/health` returns `{ status: "ok", timestamp }` with 200
 
 ## Important Patterns
-- `pdf-parse` must be imported via `createRequire` (no ESM default export)
+- `pdf-parse@1.1.1` MUST be imported via `createRequire` + safe path: `_require("pdf-parse/lib/pdf-parse.js")`. Never use `import from "pdf-parse"` or `require("pdf-parse")` (index.js reads test/ folder → crash).
+- esbuild config externalizes `pdf-parse` and `pdf-parse/lib/pdf-parse.js` — never bundle it.
 - COOP/COEP headers set in vite.config.ts for SharedArrayBuffer (FFmpeg.wasm)
 - Processing progress uses ease-out animation (8s client, 50s server)
 - Success flag ref prevents download of incomplete/corrupt files

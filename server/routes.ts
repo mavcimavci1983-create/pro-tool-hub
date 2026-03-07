@@ -5,20 +5,7 @@ import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } fro
 import * as XLSX from "xlsx";
 import { createRequire } from "module";
 const _require = createRequire(import.meta.url);
-const { PDFParse } = _require("pdf-parse");
-
-async function extractPdfText(buffer: Buffer): Promise<{ text: string; numpages: number }> {
-  const parser = new PDFParse({ data: new Uint8Array(buffer) });
-  await parser.load();
-  const totalPages = parser.doc.numPages;
-  const textParts: string[] = [];
-  for (let i = 1; i <= totalPages; i++) {
-    const pageText = await parser.getPageText(i);
-    textParts.push(pageText);
-  }
-  parser.destroy();
-  return { text: textParts.join("\n"), numpages: totalPages };
-}
+const pdfParse = _require("pdf-parse/lib/pdf-parse.js");
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -114,14 +101,14 @@ export async function registerRoutes(
     );
 
     const conversionPromise = (async () => {
-      let result: { text: string; numpages: number };
+      let data: any;
       try {
-        result = await extractPdfText(req.file!.buffer);
+        data = await pdfParse(req.file!.buffer);
       } catch (e: any) {
         throw new Error(`PDF could not be read: ${e.message}`);
       }
 
-      const text = result.text ?? "";
+      const text = data.text ?? "";
       if (!text.trim()) {
         throw new Error("No text could be extracted from PDF. The file may be a scanned image (OCR required).");
       }
@@ -162,14 +149,14 @@ export async function registerRoutes(
     );
 
     const conversionPromise = (async () => {
-      let result: { text: string; numpages: number };
+      let data: any;
       try {
-        result = await extractPdfText(req.file!.buffer);
+        data = await pdfParse(req.file!.buffer);
       } catch (e: any) {
         throw new Error(`PDF could not be read: ${e.message}`);
       }
 
-      const rawText = result.text ?? "";
+      const rawText = data.text ?? "";
       if (!rawText.trim()) {
         throw new Error("No text could be extracted from PDF. The file may be a scanned image (OCR required).");
       }

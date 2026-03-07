@@ -84,7 +84,7 @@ async function buildAll() {
       },
     ],
     minify: true,
-    external: [...externals, "pdf-parse"],
+    external: [...externals, "pdf-parse", "pdf-parse/lib/pdf-parse.js"],
     logLevel: "info",
   });
 }
