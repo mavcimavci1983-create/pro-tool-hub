@@ -22,7 +22,6 @@ const allowlist = [
   "openai",
   "passport",
   "passport-local",
-  "pdf-parse",
   "pg",
   "stripe",
   "uuid",
@@ -60,20 +59,24 @@ async function buildAll() {
     },
     plugins: [
       {
-        name: "import-meta-url",
+        name: "import-meta-and-cjs-fix",
         setup(build) {
           build.onLoad({ filter: /\.[tj]sx?$/ }, async (args) => {
             const fs = await import("fs/promises");
             let contents = await fs.readFile(args.path, "utf8");
             contents = contents.replace(/import\.meta\.url/g, "__import_meta_url");
             contents = contents.replace(/import\.meta\.dirname/g, "__dirname");
+            contents = contents.replace(
+              /import\s*\{\s*createRequire\s*\}\s*from\s*["']module["'];?\s*\n?\s*const\s+\w+\s*=\s*createRequire\([^)]*\);?\s*\n?\s*const\s+(\w+)\s*=\s*\w+\(\s*["']([^"']+)["']\s*\);?/g,
+              'const $1 = require("$2");'
+            );
             return { contents, loader: args.path.endsWith(".tsx") ? "tsx" : args.path.endsWith(".jsx") ? "jsx" : "ts" };
           });
         },
       },
     ],
     minify: true,
-    external: externals,
+    external: [...externals, "pdf-parse"],
     logLevel: "info",
   });
 }

@@ -4,8 +4,8 @@ import multer from "multer";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from "docx";
 import * as XLSX from "xlsx";
 import { createRequire } from "module";
-const require = createRequire(import.meta.url);
-const pdf = require("pdf-parse");
+const _require = createRequire(import.meta.url);
+const pdfParse = _require("pdf-parse");
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -103,7 +103,7 @@ export async function registerRoutes(
     const conversionPromise = (async () => {
       let data: any;
       try {
-        data = await pdf(req.file!.buffer, { max: 0 });
+        data = await pdfParse(req.file!.buffer, { max: 0 });
       } catch (e: any) {
         throw new Error(`PDF could not be read: ${e.message}`);
       }
@@ -151,7 +151,7 @@ export async function registerRoutes(
     const conversionPromise = (async () => {
       let data: any;
       try {
-        data = await pdf(req.file!.buffer, { max: 0 });
+        data = await pdfParse(req.file!.buffer, { max: 0 });
       } catch (e: any) {
         throw new Error(`PDF could not be read: ${e.message}`);
       }
