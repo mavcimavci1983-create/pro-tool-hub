@@ -1,14 +1,3 @@
-/**
- * ToolWorkflow.tsx — ProToolHub v4
- * ─────────────────────────────────────────────────────────────────────────────
- * v4:
- *  • usePdfToWord() hook → /api/convert'e fetch atar, blob döner
- *  • PdfToWordTool bileşeni → ToolWorkflow'a onProcess prop'unu bağlar
- *  • Upload/indirme süreci sırasında detaylı durum mesajları
- *  • Sunucu hataları kullanıcıya Türkçe/İngilizce gösterilir
- * ─────────────────────────────────────────────────────────────────────────────
- */
-
 import React, { useState, useRef, useCallback } from "react";
 import {
   Upload,
@@ -35,7 +24,7 @@ function trackEvent(name: string, params?: Record<string, unknown>) {
   try {
     const fbq = (window as any).fbq;
     if (typeof fbq === "function") fbq("track", name, params ?? {});
-  } catch { /* sessizce yut */ }
+  } catch {}
 }
 
 function kw(toolName: string, ...keywords: string[]): boolean {
@@ -44,7 +33,7 @@ function kw(toolName: string, ...keywords: string[]): boolean {
 }
 
 type ToolType =
-  | "image-to-pdf" | "pdf-to-word" | "pdf-to-image"
+  | "image-to-pdf" | "pdf-to-word" | "pdf-to-excel" | "pdf-to-image"
   | "text-to-pdf"  | "pdf-compress"| "pdf-merge"
   | "pdf-split"    | "image-resize"| "image-compress"
   | "image-convert"| "csv-to-json" | "json-to-csv"
@@ -55,6 +44,7 @@ function detectToolType(toolName: string): ToolType {
   const isPdf   = kw(toolName, "pdf");
   const isText  = kw(toolName, "txt","text","plain");
 
+  if (isPdf && kw(toolName, "excel","xlsx","xls","spreadsheet"))  return "pdf-to-excel";
   if (isPdf && kw(toolName, "word","docx","doc"))                 return "pdf-to-word";
   if (isImage && isPdf)                                           return "image-to-pdf";
   if (isPdf   && isImage)                                         return "pdf-to-image";
@@ -75,9 +65,10 @@ function getOutputExtension(toolType: ToolType, inputFile?: File): string {
     "image-to-pdf":   "pdf",  "text-to-pdf":    "pdf",
     "pdf-compress":   "pdf",  "pdf-merge":       "pdf",
     "pdf-split":      "pdf",  "pdf-to-word":     "docx",
-    "pdf-to-image":   "png",  "image-resize":    "jpg",
-    "image-compress": "jpg",  "image-convert":   "jpg",
-    "csv-to-json":    "json", "json-to-csv":     "csv",
+    "pdf-to-excel":   "xlsx", "pdf-to-image":   "png",
+    "image-resize":   "jpg",  "image-compress": "jpg",
+    "image-convert":  "jpg",  "csv-to-json":    "json",
+    "json-to-csv":    "csv",
   };
   return map[toolType] ?? inputFile?.name.split(".").pop()?.toLowerCase() ?? "bin";
 }
@@ -85,13 +76,12 @@ function getOutputExtension(toolType: ToolType, inputFile?: File): string {
 function imageFileToPdf(file: File): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onerror = () => reject(new Error("Dosya okunamadı"));
+    reader.onerror = () => reject(new Error("File could not be read"));
     reader.onload  = (e) => {
       const dataUrl = e.target?.result as string;
       const img = new Image();
-      img.onerror = () => reject(new Error("Görüntü yüklenemedi"));
+      img.onerror = () => reject(new Error("Image could not be loaded"));
       img.onload  = () => {
-        console.log("Image loaded successfully, starting PDF generation...");
         try {
           const A4_W = 595.28, A4_H = 841.89, MARGIN = 28;
           const isLandscape = img.naturalWidth > img.naturalHeight;
@@ -111,12 +101,12 @@ function imageFileToPdf(file: File): Promise<Blob> {
           ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight);
 
           const hqUrl = canvas.toDataURL("image/jpeg", 0.95);
-          const pdf = new jsPDF({
+          const pdfDoc = new jsPDF({
             orientation: isLandscape ? "landscape" : "portrait",
             unit: "pt", format: "a4", compress: false,
           });
-          pdf.addImage(hqUrl, "JPEG", (pageW-dW)/2, (pageH-dH)/2, dW, dH, undefined, "FAST");
-          resolve(pdf.output("blob"));
+          pdfDoc.addImage(hqUrl, "JPEG", (pageW-dW)/2, (pageH-dH)/2, dW, dH, undefined, "FAST");
+          resolve(pdfDoc.output("blob"));
         } catch (err) { reject(err); }
       };
       img.src = dataUrl;
@@ -127,18 +117,18 @@ function imageFileToPdf(file: File): Promise<Blob> {
 
 async function textFileToPdf(file: File): Promise<Blob> {
   const text   = await file.text();
-  const pdf    = new jsPDF({ unit: "pt", format: "a4" });
+  const pdfDoc = new jsPDF({ unit: "pt", format: "a4" });
   const margin = 40;
-  const maxW   = pdf.internal.pageSize.getWidth() - margin * 2;
-  pdf.setFontSize(11);
-  const lines  = pdf.splitTextToSize(text, maxW);
+  const maxW   = pdfDoc.internal.pageSize.getWidth() - margin * 2;
+  pdfDoc.setFontSize(11);
+  const lines  = pdfDoc.splitTextToSize(text, maxW);
   let y = margin + 20;
   for (const line of lines) {
-    if (y + 16 > pdf.internal.pageSize.getHeight() - margin) { pdf.addPage(); y = margin + 20; }
-    pdf.text(line, margin, y);
+    if (y + 16 > pdfDoc.internal.pageSize.getHeight() - margin) { pdfDoc.addPage(); y = margin + 20; }
+    pdfDoc.text(line, margin, y);
     y += 16;
   }
-  return pdf.output("blob");
+  return pdfDoc.output("blob");
 }
 
 async function csvToJson(file: File): Promise<Blob> {
@@ -150,14 +140,15 @@ async function csvToJson(file: File): Promise<Blob> {
 
 async function jsonToCsv(file: File): Promise<Blob> {
   const data: Record<string, unknown>[] = JSON.parse(await file.text());
-  if (!Array.isArray(data) || !data.length) throw new Error("Geçersiz JSON dizisi");
+  if (!Array.isArray(data) || !data.length) throw new Error("Invalid JSON array");
   const headers = Object.keys(data[0]);
   const csv = [headers.join(","), ...data.map(r => headers.map(h => r[h]??"").join(","))].join("\n");
   return new Blob([csv], { type: "text/csv" });
 }
 
-async function uploadPdfForConversion(
+function uploadPdfToServer(
   file: File,
+  endpoint: string,
   onUploadProgress?: (pct: number) => void
 ): Promise<Blob> {
   return new Promise((resolve, reject) => {
@@ -176,28 +167,28 @@ async function uploadPdfForConversion(
       if (xhr.status >= 200 && xhr.status < 300) {
         resolve(xhr.response as Blob);
       } else {
-        let msg = `Sunucu hatası (${xhr.status})`;
+        let msg = `Server error (${xhr.status})`;
         try {
           const reader = new FileReader();
           reader.onload = () => {
             try {
               const errJson = JSON.parse(reader.result as string);
               if (errJson.error) msg = errJson.error;
-            } catch { /* ignore */ }
+            } catch {}
             reject(new Error(msg));
           };
           reader.onerror = () => reject(new Error(msg));
           reader.readAsText(xhr.response);
           return;
-        } catch { /* ignore */ }
+        } catch {}
         reject(new Error(msg));
       }
     });
 
-    xhr.addEventListener("error",   () => reject(new Error("Ağ bağlantı hatası")));
-    xhr.addEventListener("timeout", () => reject(new Error("İstek zaman aşımına uğradı")));
+    xhr.addEventListener("error",   () => reject(new Error("Network connection error")));
+    xhr.addEventListener("timeout", () => reject(new Error("Request timed out")));
 
-    xhr.open("POST", "/api/convert");
+    xhr.open("POST", endpoint);
     xhr.responseType = "blob";
     xhr.timeout      = 58_000;
     xhr.send(formData);
@@ -216,7 +207,8 @@ async function convertFile(
     case "text-to-pdf":  return textFileToPdf(file);
     case "csv-to-json":  return csvToJson(file);
     case "json-to-csv":  return jsonToCsv(file);
-    case "pdf-to-word":  return uploadPdfForConversion(file, onUploadProgress);
+    case "pdf-to-word":  return uploadPdfToServer(file, "/api/convert", onUploadProgress);
+    case "pdf-to-excel": return uploadPdfToServer(file, "/api/convert-excel", onUploadProgress);
     default: {
       const buf = await file.arrayBuffer();
       return new Blob([buf], { type: file.type || "application/octet-stream" });
@@ -288,7 +280,7 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
     successFlagRef.current = false;
 
     const toolType    = detectToolType(toolName);
-    const isServerJob = toolType === "pdf-to-word";
+    const isServerJob = toolType === "pdf-to-word" || toolType === "pdf-to-excel";
 
     const DURATION = isServerJob ? 50_000 : 7_000;
     const TICK     = 80;
@@ -314,7 +306,7 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
 
       if (onProcess) {
         const result = await onProcess(selectedFile);
-        if (!result) throw new Error("onProcess boş döndü");
+        if (!result) throw new Error("onProcess returned empty");
         blob = result;
       } else {
         blob = await convertFile(selectedFile, toolName, (uploadPct) => {
@@ -477,7 +469,7 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
         </div>
 
         <h3 className="text-3xl font-bold text-slate-900 mb-2 tracking-tight">{t.common.ready}</h3>
-        <p className="text-slate-500 mb-10 font-medium">{file?.name}</p>
+        <p className="text-slate-500 mb-10 font-medium" data-testid="text-filename">{file?.name}</p>
 
         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center mb-10">
           <Button

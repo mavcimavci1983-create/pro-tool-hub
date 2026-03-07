@@ -1,0 +1,401 @@
+/**
+ * server/index.ts — ProToolHub
+ * ─────────────────────────────────────────────────────────────────────────────
+ * Endpointler:
+ *  • POST /api/convert        → PDF → Word (.docx)
+ *  • POST /api/convert-excel  → PDF → Excel (.xlsx)
+ *    - multer   : hafif multipart parser (~100 KB, no native deps)
+ *    - pdf-parse: hafif pure-JS PDF text extractor (~2 MB, no native deps)
+ *    - docx     : hafif pure-JS Word üretici (~1.2 MB, no native deps)
+ *    - xlsx     : hafif pure-JS Excel üretici (~1.5 MB, no native deps)
+ *  • 55 saniyelik Replit-safe timeout (Replit 60 s limitinin altında)
+ *  • Tüm geçici dosyalar bellekte tutulur (disk I/O yok)
+ * ─────────────────────────────────────────────────────────────────────────────
+ *
+ * Kurulum (Replit Shell):
+ *   npm install multer pdf-parse docx xlsx
+ *   npm install --save-dev @types/multer @types/pdf-parse
+ */
+
+import express, { type Request, Response, NextFunction } from "express";
+import multer from "multer";
+import pdfParse from "pdf-parse";
+import {
+  Document,
+  Packer,
+  Paragraph,
+  TextRun,
+  HeadingLevel,
+  AlignmentType,
+} from "docx";
+import * as XLSX from "xlsx";
+import { registerRoutes } from "./routes";
+import { serveStatic } from "./static";
+import { createServer } from "http";
+
+// ─── Express kurulumu ─────────────────────────────────────────────────────────
+
+const app        = express();
+const httpServer = createServer(app);
+
+declare module "http" {
+  interface IncomingMessage { rawBody: unknown; }
+}
+
+app.use(express.json({
+  verify: (req, _res, buf) => { req.rawBody = buf; },
+}));
+app.use(express.urlencoded({ extended: false }));
+
+export function log(message: string, source = "express") {
+  const time = new Date().toLocaleTimeString("en-US", {
+    hour: "numeric", minute: "2-digit", second: "2-digit", hour12: true,
+  });
+  console.log(`${time} [${source}] ${message}`);
+}
+
+// İstek loglama
+app.use((req, res, next) => {
+  const start = Date.now();
+  const path  = req.path;
+  let captured: Record<string, any> | undefined;
+  const origJson = res.json;
+  res.json = function (body, ...args) {
+    captured = body;
+    return origJson.apply(res, [body, ...args]);
+  };
+  res.on("finish", () => {
+    if (path.startsWith("/api")) {
+      let line = `${req.method} ${path} ${res.statusCode} in ${Date.now() - start}ms`;
+      if (captured) line += ` :: ${JSON.stringify(captured)}`;
+      log(line);
+    }
+  });
+  next();
+});
+
+// ─── /api/convert  ────────────────────────────────────────────────────────────
+
+/**
+ * multer memoryStorage — dosya diske yazılmaz, RAM'de tutulur.
+ * Replit'te disk yazma izni kısıtlı olabilir; bu yaklaşım daha güvenli.
+ * Limit: 20 MB (büyük PDF'leri zaman aşımından korur)
+ */
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits:  { fileSize: 20 * 1024 * 1024 }, // 20 MB
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype === "application/pdf") {
+      cb(null, true);
+    } else {
+      cb(new Error("Yalnızca PDF dosyaları kabul edilir"));
+    }
+  },
+});
+
+/**
+ * PDF metnini satırlara böler ve docx Paragraph dizisine çevirir.
+ * Boş satırlar → boşluk paragrafı
+ * "BAŞLIK" gibi ALL-CAPS kısa satırlar → Heading 2
+ * Normal satırlar → Normal paragraf
+ */
+function textToParagraphs(rawText: string): Paragraph[] {
+  const lines = rawText
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n")
+    .split("\n");
+
+  const paragraphs: Paragraph[] = [];
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+
+    // Boş satır
+    if (!trimmed) {
+      paragraphs.push(new Paragraph({ text: "" }));
+      continue;
+    }
+
+    // ALL-CAPS ve kısa (≤60 karakter) → başlık
+    const isHeading =
+      trimmed === trimmed.toUpperCase() &&
+      trimmed.length <= 60 &&
+      /[A-ZÇĞİÖŞÜ]/.test(trimmed);
+
+    if (isHeading) {
+      paragraphs.push(
+        new Paragraph({
+          text:    trimmed,
+          heading: HeadingLevel.HEADING_2,
+        })
+      );
+    } else {
+      paragraphs.push(
+        new Paragraph({
+          alignment: AlignmentType.JUSTIFIED,
+          children: [
+            new TextRun({
+              text:    trimmed,
+              size:    24, // 12pt
+              font:    "Calibri",
+            }),
+          ],
+        })
+      );
+    }
+  }
+
+  return paragraphs;
+}
+
+/**
+ * POST /api/convert
+ * Body: multipart/form-data  →  field adı: "file"  (PDF)
+ * Response: application/vnd.openxmlformats-officedocument.wordprocessingml.document
+ *
+ * Timeout koruması:
+ *  - multer 20 MB limit → büyük dosyayı erkenden keser
+ *  - Promise.race ile 55 saniyelik hard timeout (Replit 60 s limit altında)
+ */
+app.post(
+  "/api/convert",
+  upload.single("file"),
+  async (req: Request, res: Response): Promise<void> => {
+    // ── 1. Dosya kontrolü ───────────────────────────────────────────────────
+    if (!req.file) {
+      res.status(400).json({ error: "PDF dosyası bulunamadı (field adı: 'file')" });
+      return;
+    }
+
+    // ── 2. Timeout yarışı ───────────────────────────────────────────────────
+    const TIMEOUT_MS = 55_000;
+
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("İşlem zaman aşımına uğradı (55s)")), TIMEOUT_MS)
+    );
+
+    const conversionPromise = (async () => {
+      // ── 3. PDF metnini çıkar ──────────────────────────────────────────────
+      let pdfData: Awaited<ReturnType<typeof pdfParse>>;
+      try {
+        pdfData = await pdfParse(req.file!.buffer, {
+          // pdf-parse'ın test dosyası yüklemesini devre dışı bırak (Replit'te hata verir)
+          max: 0,
+        });
+      } catch (parseErr: any) {
+        throw new Error(`PDF okunamadı: ${parseErr.message}`);
+      }
+
+      const rawText = pdfData.text ?? "";
+      if (!rawText.trim()) {
+        throw new Error(
+          "PDF'den metin çıkarılamadı. Dosya taranmış görüntü olabilir (OCR gerektirir)."
+        );
+      }
+
+      // ── 4. Word belgesi oluştur ───────────────────────────────────────────
+      const paragraphs = textToParagraphs(rawText);
+
+      const doc = new Document({
+        creator:     "ProToolHub",
+        description: "PDF'den dönüştürüldü",
+        sections: [
+          {
+            properties: {},
+            children:   paragraphs,
+          },
+        ],
+      });
+
+      // ── 5. Buffer'a dönüştür ─────────────────────────────────────────────
+      const buffer = await Packer.toBuffer(doc);
+      return buffer;
+    })();
+
+    try {
+      const buffer = await Promise.race([conversionPromise, timeoutPromise]);
+
+      const originalName = req.file.originalname.replace(/\.pdf$/i, "");
+      const safeFileName  = encodeURIComponent(`${originalName}.docx`);
+
+      res.setHeader("Content-Type",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+      res.setHeader("Content-Disposition", `attachment; filename*=UTF-8''${safeFileName}`);
+      res.setHeader("Content-Length",      buffer.length.toString());
+      res.setHeader("X-Conversion-Pages",  String(/* pdfData.numpages */ 0)); // isteğe bağlı meta
+      res.send(buffer);
+    } catch (err: any) {
+      log(`[/api/convert] Error: ${err.message}`, "convert");
+      const status = err.message.includes("zaman aşımı") ? 504 : 422;
+      res.status(status).json({ error: err.message });
+    }
+  }
+);
+
+// ─── /api/convert-excel ───────────────────────────────────────────────────────
+
+/**
+ * PDF metnini satırlara böler ve her satırı bir Excel satırına dönüştürür.
+ *
+ * Akıllı sütun tespiti:
+ *  1. Eğer satır TAB karakteri içeriyorsa → TAB ile böl
+ *  2. Eğer satır 2+ ardışık boşluk içeriyorsa → çoklu boşlukla böl
+ *  3. Aksi hâlde → satırın tamamı tek hücreye
+ *
+ * İlk ALL-CAPS satır varsa → başlık satırı olarak işle (kalın)
+ */
+function textToSheetData(rawText: string): (string | number)[][] {
+  const lines = rawText
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n")
+    .split("\n")
+    .map(l => l.trim())
+    .filter(l => l.length > 0);   // tamamen boş satırları at
+
+  return lines.map(line => {
+    // TAB ayrımlı
+    if (line.includes("\t")) {
+      return line.split("\t").map(cell => {
+        const n = Number(cell.trim());
+        return isNaN(n) || cell.trim() === "" ? cell.trim() : n;
+      });
+    }
+    // 2+ boşlukla ayrımlı (PDF'lerde yaygın sütun hizalaması)
+    if (/\s{2,}/.test(line)) {
+      return line.split(/\s{2,}/).map(cell => {
+        const n = Number(cell.trim());
+        return isNaN(n) || cell.trim() === "" ? cell.trim() : n;
+      });
+    }
+    // Tek sütun
+    return [line];
+  });
+}
+
+/**
+ * POST /api/convert-excel
+ * Body: multipart/form-data  →  field adı: "file"  (PDF)
+ * Response: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+ */
+app.post(
+  "/api/convert-excel",
+  upload.single("file"),
+  async (req: Request, res: Response): Promise<void> => {
+    if (!req.file) {
+      res.status(400).json({ error: "PDF dosyası bulunamadı (field adı: 'file')" });
+      return;
+    }
+
+    const TIMEOUT_MS = 55_000;
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("İşlem zaman aşımına uğradı (55s)")), TIMEOUT_MS)
+    );
+
+    const conversionPromise = (async () => {
+      // 1. PDF metnini çıkar
+      let pdfData: Awaited<ReturnType<typeof pdfParse>>;
+      try {
+        pdfData = await pdfParse(req.file!.buffer, { max: 0 });
+      } catch (e: any) {
+        throw new Error(`PDF okunamadı: ${e.message}`);
+      }
+
+      const rawText = pdfData.text ?? "";
+      if (!rawText.trim()) {
+        throw new Error(
+          "PDF'den metin çıkarılamadı. Taranmış görüntü olabilir (OCR gerektirir)."
+        );
+      }
+
+      // 2. Satır matrisini oluştur
+      const rows = textToSheetData(rawText);
+      if (rows.length === 0) throw new Error("Excel'e aktarılacak veri bulunamadı.");
+
+      // 3. Worksheet → Workbook → Buffer
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+
+      // İlk satır ALL-CAPS ise başlık stili uygula
+      const firstRow = rows[0];
+      const isHeader = firstRow.every(
+        c => typeof c === "string" && c === c.toUpperCase() && /[A-ZÇĞİÖŞÜ]/.test(c)
+      );
+      if (isHeader && ws["!ref"]) {
+        const range = XLSX.utils.decode_range(ws["!ref"]);
+        for (let col = range.s.c; col <= range.e.c; col++) {
+          const cellAddr = XLSX.utils.encode_cell({ r: 0, c: col });
+          if (!ws[cellAddr]) continue;
+          ws[cellAddr].s = { font: { bold: true } };
+        }
+      }
+
+      // Sütun genişliklerini otomatik ayarla (max 60 karakter)
+      const colWidths = rows.reduce<number[]>((acc, row) => {
+        row.forEach((cell, i) => {
+          const len = String(cell).length;
+          acc[i] = Math.min(Math.max(acc[i] ?? 10, len), 60);
+        });
+        return acc;
+      }, []);
+      ws["!cols"] = colWidths.map(w => ({ wch: w }));
+
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+      // xlsx.write → Node Buffer (type: "buffer")
+      const xlsxBuffer = XLSX.write(wb, {
+        type:      "buffer",
+        bookType:  "xlsx",
+        compression: true,
+      }) as Buffer;
+
+      return xlsxBuffer;
+    })();
+
+    try {
+      const buffer = await Promise.race([conversionPromise, timeoutPromise]);
+
+      const originalName = req.file.originalname.replace(/\.pdf$/i, "");
+      const safeFileName  = encodeURIComponent(`${originalName}.xlsx`);
+
+      res.setHeader("Content-Type",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      res.setHeader("Content-Disposition", `attachment; filename*=UTF-8''${safeFileName}`);
+      res.setHeader("Content-Length", buffer.length.toString());
+      res.send(buffer);
+    } catch (err: any) {
+      log(`[/api/convert-excel] Error: ${err.message}`, "convert");
+      const status = err.message.includes("zaman aşımı") ? 504 : 422;
+      res.status(status).json({ error: err.message });
+    }
+  }
+);
+
+// ─── Hata middleware ──────────────────────────────────────────────────────────
+
+(async () => {
+  await registerRoutes(httpServer, app);
+
+  app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
+    // multer boyut hatası
+    if (err.code === "LIMIT_FILE_SIZE") {
+      return res.status(413).json({ error: "Dosya boyutu 20 MB'ı aşıyor" });
+    }
+    const status  = err.status || err.statusCode || 500;
+    const message = err.message || "Internal Server Error";
+    console.error("Server Error:", err);
+    if (res.headersSent) return next(err);
+    return res.status(status).json({ message });
+  });
+
+  if (process.env.NODE_ENV === "production") {
+    serveStatic(app);
+  } else {
+    const { setupVite } = await import("./vite");
+    await setupVite(httpServer, app);
+  }
+
+  const port = parseInt(process.env.PORT || "5000", 10);
+  httpServer.listen({ port, host: "0.0.0.0", reusePort: true }, () => {
+    log(`serving on port ${port}`);
+  });
+})();

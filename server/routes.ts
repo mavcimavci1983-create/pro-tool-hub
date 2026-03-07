@@ -1,78 +1,218 @@
 import type { Express } from "express";
 import { type Server } from "http";
 import multer from "multer";
-import { Document, Packer, Paragraph, TextRun } from "docx";
+import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from "docx";
+import * as XLSX from "xlsx";
 import { createRequire } from "module";
 const require = createRequire(import.meta.url);
 const pdf = require("pdf-parse");
 
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 10 * 1024 * 1024 },
+  limits: { fileSize: 20 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype === "application/pdf") {
+      cb(null, true);
+    } else {
+      cb(new Error("Only PDF files are accepted"));
+    }
+  },
 });
+
+function textToParagraphs(rawText: string): Paragraph[] {
+  const lines = rawText.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
+  const paragraphs: Paragraph[] = [];
+
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) {
+      paragraphs.push(new Paragraph({ text: "" }));
+      continue;
+    }
+    const isHeading =
+      trimmed === trimmed.toUpperCase() &&
+      trimmed.length <= 60 &&
+      /[A-ZÇĞİÖŞÜ]/.test(trimmed);
+
+    if (isHeading) {
+      paragraphs.push(new Paragraph({ text: trimmed, heading: HeadingLevel.HEADING_2 }));
+    } else {
+      paragraphs.push(
+        new Paragraph({
+          alignment: AlignmentType.JUSTIFIED,
+          children: [new TextRun({ text: trimmed, size: 24, font: "Calibri" })],
+        })
+      );
+    }
+  }
+  return paragraphs;
+}
+
+function textToSheetData(rawText: string): (string | number)[][] {
+  const lines = rawText
+    .replace(/\r\n/g, "\n")
+    .replace(/\r/g, "\n")
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.length > 0);
+
+  return lines.map((line) => {
+    if (line.includes("\t")) {
+      return line.split("\t").map((cell) => {
+        const n = Number(cell.trim());
+        return isNaN(n) || cell.trim() === "" ? cell.trim() : n;
+      });
+    }
+    if (/\s{2,}/.test(line)) {
+      return line.split(/\s{2,}/).map((cell) => {
+        const n = Number(cell.trim());
+        return isNaN(n) || cell.trim() === "" ? cell.trim() : n;
+      });
+    }
+    return [line];
+  });
+}
+
+function handleMulterError(req: any, res: any, next: any) {
+  upload.single("file")(req, res, (err: any) => {
+    if (err) {
+      if (err.code === "LIMIT_FILE_SIZE") {
+        return res.status(413).json({ error: "File too large. Maximum size is 20MB." });
+      }
+      return res.status(400).json({ error: err.message || "Upload failed" });
+    }
+    next();
+  });
+}
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  const TIMEOUT_MS = 55_000;
 
-  app.post("/api/convert", (req, res, next) => {
-    upload.single("file")(req, res, (err: any) => {
-      if (err) {
-        if (err.code === "LIMIT_FILE_SIZE") {
-          return res.status(413).json({ error: "File too large. Maximum size is 10MB." });
-        }
-        return res.status(400).json({ error: err.message || "Upload failed" });
-      }
-      next();
-    });
-  }, async (req, res) => {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ error: "No file uploaded" });
-      }
+  app.post("/api/convert", handleMulterError, async (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
 
-      if (req.file.mimetype !== "application/pdf") {
-        return res.status(400).json({ error: "Only PDF files are supported" });
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Processing timed out (55s)")), TIMEOUT_MS)
+    );
+
+    const conversionPromise = (async () => {
+      let data: any;
+      try {
+        data = await pdf(req.file!.buffer, { max: 0 });
+      } catch (e: any) {
+        throw new Error(`PDF could not be read: ${e.message}`);
       }
 
-      console.log(`[convert] Processing PDF: ${req.file.originalname} (${req.file.size} bytes)`);
-
-      const data = await pdf(req.file.buffer);
-      const text = data.text;
-
-      if (!text || text.trim().length === 0) {
-        return res.status(400).json({ error: "PDF contains no extractable text" });
+      const text = data.text ?? "";
+      if (!text.trim()) {
+        throw new Error("No text could be extracted from PDF. The file may be a scanned image (OCR required).");
       }
 
-      const paragraphs = text
-        .split(/\n+/)
-        .filter((line: string) => line.trim().length > 0)
-        .map((line: string) =>
-          new Paragraph({
-            children: [new TextRun({ text: line.trim(), size: 24 })],
-            spacing: { after: 200 },
-          })
-        );
-
+      const paragraphs = textToParagraphs(text);
       const doc = new Document({
-        sections: [{
-          properties: {},
-          children: paragraphs,
-        }],
+        creator: "ProToolHub",
+        description: "Converted from PDF",
+        sections: [{ properties: {}, children: paragraphs }],
       });
 
-      const buffer = await Packer.toBuffer(doc);
+      return await Packer.toBuffer(doc);
+    })();
 
-      console.log(`[convert] Generated DOCX: ${buffer.byteLength} bytes from ${data.numpages} page(s)`);
+    try {
+      const buffer = await Promise.race([conversionPromise, timeoutPromise]);
+      const originalName = req.file.originalname.replace(/\.pdf$/i, "");
+      const safeFileName = encodeURIComponent(`${originalName}.docx`);
 
       res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-      res.setHeader("Content-Disposition", `attachment; filename=ProToolHub_${Date.now()}.docx`);
+      res.setHeader("Content-Disposition", `attachment; filename*=UTF-8''${safeFileName}`);
+      res.setHeader("Content-Length", buffer.length.toString());
       res.send(Buffer.from(buffer));
+    } catch (err: any) {
+      console.error("[/api/convert] Error:", err.message);
+      const status = err.message.includes("timed out") ? 504 : 422;
+      res.status(status).json({ error: err.message });
+    }
+  });
 
-    } catch (error: any) {
-      console.error("[convert] Error:", error);
-      res.status(500).json({ error: error.message || "Internal server error during conversion" });
+  app.post("/api/convert-excel", handleMulterError, async (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Processing timed out (55s)")), TIMEOUT_MS)
+    );
+
+    const conversionPromise = (async () => {
+      let data: any;
+      try {
+        data = await pdf(req.file!.buffer, { max: 0 });
+      } catch (e: any) {
+        throw new Error(`PDF could not be read: ${e.message}`);
+      }
+
+      const rawText = data.text ?? "";
+      if (!rawText.trim()) {
+        throw new Error("No text could be extracted from PDF. The file may be a scanned image (OCR required).");
+      }
+
+      const rows = textToSheetData(rawText);
+      if (rows.length === 0) throw new Error("No data found for Excel export.");
+
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+
+      const firstRow = rows[0];
+      const isHeader = firstRow.every(
+        (c) => typeof c === "string" && c === c.toUpperCase() && /[A-ZÇĞİÖŞÜ]/.test(c)
+      );
+      if (isHeader && ws["!ref"]) {
+        const range = XLSX.utils.decode_range(ws["!ref"]);
+        for (let col = range.s.c; col <= range.e.c; col++) {
+          const cellAddr = XLSX.utils.encode_cell({ r: 0, c: col });
+          if (!ws[cellAddr]) continue;
+          ws[cellAddr].s = { font: { bold: true } };
+        }
+      }
+
+      const colWidths = rows.reduce<number[]>((acc, row) => {
+        row.forEach((cell, i) => {
+          const len = String(cell).length;
+          acc[i] = Math.min(Math.max(acc[i] ?? 10, len), 60);
+        });
+        return acc;
+      }, []);
+      ws["!cols"] = colWidths.map((w) => ({ wch: w }));
+
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+      const xlsxBuffer = XLSX.write(wb, {
+        type: "buffer",
+        bookType: "xlsx",
+        compression: true,
+      }) as Buffer;
+
+      return xlsxBuffer;
+    })();
+
+    try {
+      const buffer = await Promise.race([conversionPromise, timeoutPromise]);
+      const originalName = req.file.originalname.replace(/\.pdf$/i, "");
+      const safeFileName = encodeURIComponent(`${originalName}.xlsx`);
+
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+      res.setHeader("Content-Disposition", `attachment; filename*=UTF-8''${safeFileName}`);
+      res.setHeader("Content-Length", buffer.length.toString());
+      res.send(buffer);
+    } catch (err: any) {
+      console.error("[/api/convert-excel] Error:", err.message);
+      const status = err.message.includes("timed out") ? 504 : 422;
+      res.status(status).json({ error: err.message });
     }
   });
 

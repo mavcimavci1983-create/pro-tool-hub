@@ -25,14 +25,16 @@ TinyWow-inspired multi-utility platform with 53+ tools across PDF, Image, Video,
 - `multer` — File upload handling
 - `pdf-parse` — PDF text extraction (CJS module, imported via createRequire)
 - `docx` — Word document generation
+- `xlsx` — Excel spreadsheet generation (smart column detection: tab/multi-space split)
 - `jspdf` — Client-side PDF generation
 
-## Conversion Logic (ToolWorkflow v4)
+## Conversion Logic (ToolWorkflow v5)
 - **Image → PDF**: Client-side via jsPDF + Canvas 2x supersampling
 - **Text → PDF**: Client-side via jsPDF with pagination
 - **CSV → JSON**: Client-side parser
 - **JSON → CSV**: Client-side serializer
-- **PDF → Word**: Server-side via /api/convert (multer + pdf-parse + docx)
+- **PDF → Word**: Server-side via POST /api/convert (multer + pdf-parse + docx)
+- **PDF → Excel**: Server-side via POST /api/convert-excel (multer + pdf-parse + xlsx)
 
 ## Category IDs
 "PDF", "Image", "Video", "Converter", "AI Writing", "Other"
