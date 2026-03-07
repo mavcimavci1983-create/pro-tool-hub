@@ -24,10 +24,13 @@ export type ToolCategory = "organize" | "convert-from" | "convert-to" | "securit
 
 export type ToolType =
   | "merge" | "split" | "rotate" | "delete-pages" | "reorder" | "page-numbers"
+  | "edit-pdf" | "crop-pdf" | "repair-pdf" | "flatten-pdf"
   | "pdf-to-word" | "pdf-to-excel" | "pdf-to-image" | "pdf-to-text"
+  | "pdf-to-pdfa" | "ocr-pdf"
   | "image-to-pdf" | "text-to-pdf" | "word-to-pdf" | "excel-to-pdf"
-  | "html-to-pdf"  | "ppt-to-pdf"
+  | "html-to-pdf"  | "ppt-to-pdf" | "scan-to-pdf"
   | "compress" | "protect" | "unlock" | "watermark"
+  | "sign-pdf" | "compare-pdf" | "translate-pdf"
   | "csv-to-json" | "json-to-csv"
   | "identity";
 
@@ -57,35 +60,51 @@ export interface ToolDefinition {
 }
 
 export const TOOL_CATALOG: ToolDefinition[] = [
-  { type: "merge",        category: "organize",     label: "Merge PDF",        labelTr: "PDF Birleştir",   accepts: ".pdf", actionType: "merge",        multiFile: true },
-  { type: "split",        category: "organize",     label: "Split PDF",        labelTr: "PDF Böl",         accepts: ".pdf", actionType: "split" },
-  { type: "rotate",       category: "organize",     label: "Rotate PDF",       labelTr: "PDF Döndür",      accepts: ".pdf", actionType: "rotate" },
-  { type: "delete-pages", category: "organize",     label: "Remove Pages",     labelTr: "Sayfa Sil",       accepts: ".pdf", actionType: "delete-pages" },
-  { type: "reorder",      category: "organize",     label: "Reorder Pages",    labelTr: "Sayfa Sırala",    accepts: ".pdf", actionType: "reorder" },
-  { type: "page-numbers", category: "organize",     label: "Page Numbers",     labelTr: "Sayfa Numarası",  accepts: ".pdf", actionType: "page-numbers" },
+  // ── Organize ──────────────────────────────────────────────────────────────
+  { type: "merge",        category: "organize",     label: "Merge PDF",        labelTr: "PDF Birleştir",    accepts: ".pdf", actionType: "merge",        multiFile: true },
+  { type: "split",        category: "organize",     label: "Split PDF",        labelTr: "PDF Ayır",         accepts: ".pdf", actionType: "split" },
+  { type: "rotate",       category: "organize",     label: "Rotate PDF",       labelTr: "PDF Döndür",       accepts: ".pdf", actionType: "rotate" },
+  { type: "page-numbers", category: "organize",     label: "Page Numbers",     labelTr: "Sayfa Numaraları", accepts: ".pdf", actionType: "page-numbers" },
+  { type: "delete-pages", category: "organize",     label: "Remove Pages",     labelTr: "Sayfa Sil",        accepts: ".pdf", actionType: "delete-pages" },
+  { type: "reorder",      category: "organize",     label: "Reorder Pages",    labelTr: "Sayfa Sırala",     accepts: ".pdf", actionType: "reorder" },
+  { type: "edit-pdf",     category: "organize",     label: "Edit PDF",         labelTr: "PDF Düzenle",      accepts: ".pdf" },
+  { type: "crop-pdf",     category: "organize",     label: "Crop PDF",         labelTr: "PDF Kırpma",       accepts: ".pdf" },
+  { type: "repair-pdf",   category: "organize",     label: "Repair PDF",       labelTr: "PDF Onar",         accepts: ".pdf" },
+  { type: "flatten-pdf",  category: "organize",     label: "Flatten PDF",      labelTr: "PDF Düzelt",       accepts: ".pdf" },
 
-  { type: "pdf-to-word",  category: "convert-from", label: "PDF to Word",      labelTr: "PDF → Word",      accepts: ".pdf", endpoint: "/api/convert" },
-  { type: "pdf-to-excel", category: "convert-from", label: "PDF to Excel",     labelTr: "PDF → Excel",     accepts: ".pdf", endpoint: "/api/convert-excel" },
-  { type: "pdf-to-image", category: "convert-from", label: "PDF to JPG",       labelTr: "PDF → JPG",       accepts: ".pdf", endpoint: "/api/convert-image" },
-  { type: "pdf-to-text",  category: "convert-from", label: "PDF to Text",      labelTr: "PDF → Metin",     accepts: ".pdf", endpoint: "/api/convert-text" },
+  // ── Convert FROM PDF ──────────────────────────────────────────────────────
+  { type: "pdf-to-word",  category: "convert-from", label: "PDF to Word",      labelTr: "PDF → Word",       accepts: ".pdf", endpoint: "/api/convert" },
+  { type: "pdf-to-excel", category: "convert-from", label: "PDF to Excel",     labelTr: "PDF → Excel",      accepts: ".pdf", endpoint: "/api/convert-excel" },
+  { type: "pdf-to-image", category: "convert-from", label: "PDF to JPG",       labelTr: "PDF → JPG",        accepts: ".pdf", endpoint: "/api/convert-image" },
+  { type: "pdf-to-text",  category: "convert-from", label: "PDF to Text",      labelTr: "PDF → Metin",      accepts: ".pdf", endpoint: "/api/convert-text" },
+  { type: "identity",     category: "convert-from", label: "PDF to PPT",       labelTr: "PDF → PPT",        accepts: ".pdf" },
+  { type: "pdf-to-pdfa",  category: "convert-from", label: "PDF to PDF/A",     labelTr: "PDF → PDF/A",      accepts: ".pdf" },
+  { type: "ocr-pdf",      category: "convert-from", label: "OCR PDF",          labelTr: "OCR PDF",          accepts: ".pdf" },
 
-  { type: "image-to-pdf", category: "convert-to",   label: "Image to PDF",     labelTr: "Görüntü → PDF",   accepts: ".jpg,.jpeg,.png,.webp,.gif,.bmp" },
-  { type: "image-to-pdf", category: "convert-to",   label: "JPG to PDF",       labelTr: "JPG → PDF",       accepts: ".jpg,.jpeg,.png" },
-  { type: "text-to-pdf",  category: "convert-to",   label: "Text to PDF",      labelTr: "Metin → PDF",     accepts: ".txt" },
-  { type: "word-to-pdf",  category: "convert-to",   label: "Word to PDF",      labelTr: "Word → PDF",      accepts: ".docx,.doc" },
-  { type: "excel-to-pdf", category: "convert-to",   label: "Excel to PDF",     labelTr: "Excel → PDF",     accepts: ".xlsx,.xls,.csv" },
-  { type: "html-to-pdf",  category: "convert-to",   label: "HTML to PDF",      labelTr: "HTML → PDF",      accepts: ".html,.htm" },
-  { type: "ppt-to-pdf",   category: "convert-to",   label: "PowerPoint to PDF",labelTr: "PPT → PDF",       accepts: ".pptx,.ppt" },
-  { type: "identity",     category: "convert-from", label: "PDF to PPT",       labelTr: "PDF → PPT",       accepts: ".pdf" },
+  // ── Convert TO PDF ────────────────────────────────────────────────────────
+  { type: "image-to-pdf", category: "convert-to",   label: "Image to PDF",     labelTr: "Görüntü → PDF",    accepts: ".jpg,.jpeg,.png,.webp,.gif,.bmp" },
+  { type: "image-to-pdf", category: "convert-to",   label: "JPG to PDF",       labelTr: "JPG → PDF",        accepts: ".jpg,.jpeg,.png" },
+  { type: "text-to-pdf",  category: "convert-to",   label: "Text to PDF",      labelTr: "Metin → PDF",      accepts: ".txt" },
+  { type: "word-to-pdf",  category: "convert-to",   label: "Word to PDF",      labelTr: "Word → PDF",       accepts: ".docx,.doc" },
+  { type: "excel-to-pdf", category: "convert-to",   label: "Excel to PDF",     labelTr: "Excel → PDF",      accepts: ".xlsx,.xls,.csv" },
+  { type: "html-to-pdf",  category: "convert-to",   label: "HTML to PDF",      labelTr: "HTML → PDF",       accepts: ".html,.htm" },
+  { type: "ppt-to-pdf",   category: "convert-to",   label: "PowerPoint to PDF",labelTr: "PPT → PDF",        accepts: ".pptx,.ppt" },
+  { type: "ppt-to-pdf",   category: "convert-to",   label: "PPT to PDF",       labelTr: "PPT → PDF",        accepts: ".pptx,.ppt" },
+  { type: "scan-to-pdf",  category: "convert-to",   label: "Scan to PDF",      labelTr: "PDF'e Tara",       accepts: ".jpg,.jpeg,.png,.pdf,.tiff" },
 
-  { type: "compress",     category: "security",     label: "Compress PDF",     labelTr: "PDF Küçült",      accepts: ".pdf", actionType: "compress" },
-  { type: "protect",      category: "security",     label: "Protect PDF",      labelTr: "PDF Şifrele",     accepts: ".pdf", actionType: "protect" },
-  { type: "unlock",       category: "security",     label: "Unlock PDF",       labelTr: "PDF Kilidi Aç",   accepts: ".pdf", actionType: "unlock" },
-  { type: "watermark",    category: "security",     label: "Watermark PDF",    labelTr: "Filigran Ekle",   accepts: ".pdf", actionType: "watermark" },
-  { type: "watermark",    category: "security",     label: "Add Watermark",    labelTr: "Filigran Ekle",   accepts: ".pdf", actionType: "watermark" },
+  // ── Security & Optimization ───────────────────────────────────────────────
+  { type: "compress",       category: "security",   label: "Compress PDF",     labelTr: "PDF Küçült",       accepts: ".pdf", actionType: "compress" },
+  { type: "protect",        category: "security",   label: "Protect PDF",      labelTr: "PDF Koru",         accepts: ".pdf", actionType: "protect" },
+  { type: "unlock",         category: "security",   label: "Unlock PDF",       labelTr: "PDF Kilidi Aç",    accepts: ".pdf", actionType: "unlock" },
+  { type: "watermark",      category: "security",   label: "Watermark PDF",    labelTr: "Filigran Ekle",    accepts: ".pdf", actionType: "watermark" },
+  { type: "watermark",      category: "security",   label: "Add Watermark",    labelTr: "Filigran Ekle",    accepts: ".pdf", actionType: "watermark" },
+  { type: "sign-pdf",       category: "security",   label: "Sign PDF",         labelTr: "PDF İmzala",       accepts: ".pdf" },
+  { type: "compare-pdf",    category: "security",   label: "Compare PDF",      labelTr: "PDF Karşılaştır",  accepts: ".pdf" },
+  { type: "translate-pdf",  category: "security",   label: "Translate PDF",    labelTr: "PDF Çevir",        accepts: ".pdf" },
 
-  { type: "csv-to-json",  category: "convert-to",   label: "CSV to JSON",      labelTr: "CSV → JSON",      accepts: ".csv" },
-  { type: "json-to-csv",  category: "convert-to",   label: "JSON to CSV",      labelTr: "JSON → CSV",      accepts: ".json" },
+  // ── Data ──────────────────────────────────────────────────────────────────
+  { type: "csv-to-json",  category: "convert-to",   label: "CSV to JSON",      labelTr: "CSV → JSON",       accepts: ".csv" },
+  { type: "json-to-csv",  category: "convert-to",   label: "JSON to CSV",      labelTr: "JSON → CSV",       accepts: ".json" },
 ];
 
 function kw(toolName: string, ...keywords: string[]): boolean {
@@ -113,13 +132,23 @@ export function detectToolType(toolName: string): ToolType {
   if (isPdf && kw(tn, "protect","password","şifre","lock","koru"))                  return "protect";
   if (isPdf && kw(tn, "unlock","remove password","şifre kaldır","kilid"))           return "unlock";
   if (kw(tn, "watermark","filigran","damga"))                                       return "watermark";
+  if (isPdf && kw(tn, "sign","imza","signature"))                                   return "sign-pdf";
+  if (isPdf && kw(tn, "compare","karşılaştır","diff"))                              return "compare-pdf";
+  if (isPdf && kw(tn, "translat","çevir","tercüme"))                                return "translate-pdf";
 
   if (isPdf && kw(tn, "merge","combine","join","birleştir","concat"))               return "merge";
   if (isPdf && kw(tn, "split","divide","separate","böl","ayır"))                    return "split";
-  if (isPdf && kw(tn, "rotate","döndür","çevir"))                                   return "rotate";
+  if (isPdf && kw(tn, "rotate","döndür"))                                           return "rotate";
   if (isPdf && kw(tn, "delete","remove","erase","sil","kaldır") && kw(tn, "page","sayfa")) return "delete-pages";
   if (isPdf && kw(tn, "reorder","rearrange","yeniden sırala","sort page"))          return "reorder";
   if (isPdf && kw(tn, "page number","numara","numbering","sayfa no"))               return "page-numbers";
+  if (isPdf && kw(tn, "crop","kırp","trim page"))                                   return "crop-pdf";
+  if (isPdf && kw(tn, "repair","onar","fix","bozuk"))                               return "repair-pdf";
+  if (isPdf && kw(tn, "flatten","düzelt","düzleştir"))                              return "flatten-pdf";
+  if (isPdf && kw(tn, "edit","düzenle"))                                             return "edit-pdf";
+  if (kw(tn, "ocr"))                                                                 return "ocr-pdf";
+  if (isPdf && kw(tn, "pdf/a","pdfa","archiv","arşiv"))                             return "pdf-to-pdfa";
+  if (kw(tn, "scan") && isPdf)                                                       return "scan-to-pdf";
 
   if (isPdf && isImage) {
     const pdfPos = tn.indexOf("pdf");
