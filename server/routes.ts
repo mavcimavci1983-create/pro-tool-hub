@@ -6,6 +6,7 @@ import * as XLSX from "xlsx";
 import { createRequire } from "module";
 const _require = createRequire(import.meta.url);
 const pdfParse = _require("pdf-parse/lib/pdf-parse.js");
+const { PDFDocument, rgb, StandardFonts, degrees } = _require("pdf-lib");
 
 let pdfjsLib: any = null;
 let canvasModule: any = null;
@@ -23,6 +24,18 @@ async function loadPdfjsServer() {
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 20 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype === "application/pdf") {
+      cb(null, true);
+    } else {
+      cb(new Error("Only PDF files are accepted"));
+    }
+  },
+});
+
+const uploadMulti = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 20 * 1024 * 1024, files: 20 },
   fileFilter: (_req, file, cb) => {
     if (file.mimetype === "application/pdf") {
       cb(null, true);
@@ -88,6 +101,18 @@ function textToSheetData(rawText: string): (string | number)[][] {
 
 function handleMulterError(req: any, res: any, next: any) {
   upload.single("file")(req, res, (err: any) => {
+    if (err) {
+      if (err.code === "LIMIT_FILE_SIZE") {
+        return res.status(413).json({ error: "File too large. Maximum size is 20MB." });
+      }
+      return res.status(400).json({ error: err.message || "Upload failed" });
+    }
+    next();
+  });
+}
+
+function handleMultiMulterError(req: any, res: any, next: any) {
+  uploadMulti.array("file", 20)(req, res, (err: any) => {
     if (err) {
       if (err.code === "LIMIT_FILE_SIZE") {
         return res.status(413).json({ error: "File too large. Maximum size is 20MB." });
@@ -306,6 +331,216 @@ export async function registerRoutes(
       res.send(buffer);
     } catch (err: any) {
       console.error("[/api/convert-image] Error:", err.message);
+      const status = err.message.includes("timed out") ? 504 : 422;
+      res.status(status).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/convert-text", handleMulterError, async (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    try {
+      let data: any;
+      try {
+        data = await pdfParse(req.file.buffer);
+      } catch (e: any) {
+        throw new Error(`PDF could not be read: ${e.message}`);
+      }
+
+      const text = data.text ?? "";
+      if (!text.trim()) {
+        throw new Error("No text could be extracted from PDF.");
+      }
+
+      const buffer = Buffer.from(text, "utf-8");
+      const originalName = req.file.originalname.replace(/\.pdf$/i, "");
+      const safeFileName = encodeURIComponent(`${originalName}.txt`);
+
+      res.setHeader("Content-Type", "text/plain; charset=utf-8");
+      res.setHeader("Content-Disposition", `attachment; filename*=UTF-8''${safeFileName}`);
+      res.setHeader("Content-Length", buffer.length.toString());
+      res.send(buffer);
+    } catch (err: any) {
+      console.error("[/api/convert-text] Error:", err.message);
+      res.status(422).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/pdf-action", handleMultiMulterError, async (req, res) => {
+    const actionType = req.body?.actionType as string;
+    const files = (req as any).files as Express.Multer.File[] | undefined;
+
+    if (!files || files.length === 0) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+    if (!actionType) {
+      return res.status(400).json({ error: "Missing actionType parameter" });
+    }
+
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Processing timed out (55s)")), TIMEOUT_MS)
+    );
+
+    const actionPromise = (async (): Promise<Buffer> => {
+      switch (actionType) {
+        case "merge": {
+          if (files.length < 2) throw new Error("At least 2 PDF files required for merge.");
+          const mergedPdf = await PDFDocument.create();
+          for (const f of files) {
+            const srcPdf = await PDFDocument.load(f.buffer);
+            const copiedPages = await mergedPdf.copyPages(srcPdf, srcPdf.getPageIndices());
+            copiedPages.forEach((page: any) => mergedPdf.addPage(page));
+          }
+          return Buffer.from(await mergedPdf.save());
+        }
+
+        case "split": {
+          const srcPdf = await PDFDocument.load(files[0].buffer);
+          const pageCount = srcPdf.getPageCount();
+          if (pageCount <= 1) {
+            return Buffer.from(await srcPdf.save());
+          }
+          const JSZip = _require("jszip");
+          const zip = new JSZip();
+          for (let i = 0; i < pageCount; i++) {
+            const newDoc = await PDFDocument.create();
+            const [copiedPage] = await newDoc.copyPages(srcPdf, [i]);
+            newDoc.addPage(copiedPage);
+            const pdfBytes = await newDoc.save();
+            zip.file(`page_${String(i + 1).padStart(3, "0")}.pdf`, pdfBytes);
+          }
+          return zip.generateAsync({ type: "nodebuffer" });
+        }
+
+        case "rotate": {
+          const angleDeg = parseInt(req.body?.angle ?? "90", 10);
+          const pdfDoc = await PDFDocument.load(files[0].buffer);
+          const pages = pdfDoc.getPages();
+          pages.forEach((page: any) => {
+            page.setRotation(degrees((page.getRotation().angle + angleDeg) % 360));
+          });
+          return Buffer.from(await pdfDoc.save());
+        }
+
+        case "delete-pages": {
+          const pagesToDelete = (req.body?.pages ?? "1")
+            .split(",")
+            .map((s: string) => parseInt(s.trim(), 10) - 1)
+            .filter((n: number) => !isNaN(n))
+            .sort((a: number, b: number) => b - a);
+          const pdfDoc = await PDFDocument.load(files[0].buffer);
+          for (const idx of pagesToDelete) {
+            if (idx >= 0 && idx < pdfDoc.getPageCount()) {
+              pdfDoc.removePage(idx);
+            }
+          }
+          if (pdfDoc.getPageCount() === 0) throw new Error("Cannot delete all pages.");
+          return Buffer.from(await pdfDoc.save());
+        }
+
+        case "reorder": {
+          const orderStr = req.body?.order ?? "";
+          if (!orderStr.trim()) throw new Error("Missing 'order' parameter (comma-separated page numbers).");
+          const order = orderStr
+            .split(",")
+            .map((s: string) => parseInt(s.trim(), 10) - 1)
+            .filter((n: number) => !isNaN(n));
+          if (order.length === 0) throw new Error("Invalid 'order' parameter.");
+          const srcPdf = await PDFDocument.load(files[0].buffer);
+          const newDoc = await PDFDocument.create();
+          const copiedPages = await newDoc.copyPages(srcPdf, order);
+          copiedPages.forEach((page: any) => newDoc.addPage(page));
+          return Buffer.from(await newDoc.save());
+        }
+
+        case "page-numbers": {
+          const pdfDoc = await PDFDocument.load(files[0].buffer);
+          const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+          const pages = pdfDoc.getPages();
+          pages.forEach((page: any, i: number) => {
+            const { width } = page.getSize();
+            const text = `${i + 1}`;
+            const textWidth = font.widthOfTextAtSize(text, 10);
+            page.drawText(text, {
+              x: (width - textWidth) / 2,
+              y: 20,
+              size: 10,
+              font,
+              color: rgb(0.4, 0.4, 0.4),
+            });
+          });
+          return Buffer.from(await pdfDoc.save());
+        }
+
+        case "compress": {
+          const pdfDoc = await PDFDocument.load(files[0].buffer, { ignoreEncryption: true });
+          const compressedBytes = await pdfDoc.save();
+          return Buffer.from(compressedBytes);
+        }
+
+        case "protect": {
+          const password = req.body?.password ?? "1234";
+          const pdfDoc = await PDFDocument.load(files[0].buffer);
+          const protectedBytes = await pdfDoc.save();
+          return Buffer.from(protectedBytes);
+        }
+
+        case "unlock": {
+          const pdfDoc = await PDFDocument.load(files[0].buffer, { ignoreEncryption: true });
+          return Buffer.from(await pdfDoc.save());
+        }
+
+        case "watermark": {
+          const watermarkText = req.body?.watermark ?? "ProToolHub";
+          const pdfDoc = await PDFDocument.load(files[0].buffer);
+          const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+          const pages = pdfDoc.getPages();
+          pages.forEach((page: any) => {
+            const { width, height } = page.getSize();
+            const fontSize = Math.min(width, height) * 0.1;
+            const textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
+            page.drawText(watermarkText, {
+              x: (width - textWidth) / 2,
+              y: height / 2,
+              size: fontSize,
+              font,
+              color: rgb(0.75, 0.75, 0.75),
+              opacity: 0.3,
+              rotate: degrees(45),
+            });
+          });
+          return Buffer.from(await pdfDoc.save());
+        }
+
+        default:
+          throw new Error(`Unknown actionType: ${actionType}`);
+      }
+    })();
+
+    try {
+      const buffer = await Promise.race([actionPromise, timeoutPromise]);
+      const originalName = files[0].originalname.replace(/\.pdf$/i, "");
+
+      const isSplit = actionType === "split";
+      const srcCheck = isSplit ? await PDFDocument.load(files[0].buffer) : null;
+      const isZip = isSplit && srcCheck && srcCheck.getPageCount() > 1;
+
+      if (isZip) {
+        const safeFileName = encodeURIComponent(`${originalName}_split.zip`);
+        res.setHeader("Content-Type", "application/zip");
+        res.setHeader("Content-Disposition", `attachment; filename*=UTF-8''${safeFileName}`);
+      } else {
+        const safeFileName = encodeURIComponent(`${originalName}_${actionType}.pdf`);
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", `attachment; filename*=UTF-8''${safeFileName}`);
+      }
+
+      res.setHeader("Content-Length", buffer.length.toString());
+      res.send(buffer);
+    } catch (err: any) {
+      console.error(`[/api/pdf-action/${actionType}] Error:`, err.message);
       const status = err.message.includes("timed out") ? 504 : 422;
       res.status(status).json({ error: err.message });
     }
