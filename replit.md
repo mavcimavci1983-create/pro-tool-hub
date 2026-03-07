@@ -1,7 +1,7 @@
 # ProToolHub — Multi-Utility Tool Platform
 
 ## Overview
-TinyWow-inspired multi-utility platform with 53+ tools across PDF, Image, Video, Converter, AI Writing, and Other categories. Built for maximum SEO/AdSense revenue with bilingual EN/TR support.
+TinyWow-inspired multi-utility platform with 67+ tools across PDF, Image, Video, Converter, AI Writing, and Other categories. Built for maximum SEO/AdSense revenue with bilingual EN/TR support.
 
 ## Architecture
 - **Frontend**: React + Vite + Tailwind CSS + shadcn/ui + wouter routing
@@ -9,8 +9,8 @@ TinyWow-inspired multi-utility platform with 53+ tools across PDF, Image, Video,
 - **No Database**: All file processing is client-side or ephemeral server-side
 
 ## Key Files
-- `client/src/components/tool/ToolWorkflow.tsx` — Core processing engine (v7). 22-tool catalog, multi-file support, TOOL_CATALOG + detectToolType with catalog-first matching.
-- `client/src/components/home/ToolGrid.tsx` — Tool catalog with 53 tools, category tabs, search.
+- `client/src/components/tool/ToolWorkflow.tsx` — Core processing engine (v7). 36-entry TOOL_CATALOG, multi-file support, detectToolType with catalog-first matching + position-based keyword fallback.
+- `client/src/components/home/ToolGrid.tsx` — Tool catalog with 67 tools, category tabs, search. PDF tab shows 4 sub-categories (Organize, Convert FROM PDF, Convert TO PDF, Security & Optimize) with 30 PDF tools.
 - `client/src/pages/GenericPdfTool.tsx` — PDF tool page template
 - `client/src/pages/ImageTool.tsx` — Image tool page template
 - `client/src/pages/VideoTool.tsx` — Video tool page template
@@ -24,12 +24,19 @@ TinyWow-inspired multi-utility platform with 53+ tools across PDF, Image, Video,
 ## Backend Dependencies (PINNED VERSIONS — do not upgrade)
 - `multer@1.4.5-lts.1` — File upload handling (LTS, memoryStorage only)
 - `pdf-parse@1.1.1` — PDF text extraction. MUST use `require('pdf-parse/lib/pdf-parse.js')` safe path (skips test/ folder). v2+ has breaking API changes.
-- `pdf-lib` — PDF manipulation (merge, split, rotate, watermark, page-numbers, delete-pages, reorder, compress, protect, unlock)
+- `pdf-lib@1.17.1` — PDF manipulation (merge, split, rotate, watermark, page-numbers, delete-pages, reorder, compress, protect, unlock). 1.17.1 is the latest published version.
 - `docx@8.5.0` — Word document generation (v9+ has breaking changes)
 - `xlsx@0.18.5` — Excel spreadsheet generation (v0.19+ may require commercial license)
 - `pdfjs-dist@3.11.174` — PDF rendering (server-side with node-canvas for PDF→Image)
 - `canvas` — Server-side canvas for PDF rendering (requires libuuid system dep)
 - `jspdf` — Client-side PDF generation
+
+## PDF Sub-Categories (ToolGrid)
+When PDF tab is active, tools are organized under:
+1. **Organize PDF** (10 tools): Merge, Split, Rotate, Page Numbers, Remove Pages, Reorder Pages, Edit PDF, Crop PDF, Repair PDF, Flatten PDF
+2. **Convert FROM PDF** (7 tools): PDF to Word, PDF to Excel, PDF to PPT, PDF to JPG, PDF to Text, PDF to PDF/A, OCR PDF
+3. **Convert TO PDF** (6 tools): Word to PDF, PPT to PDF, Excel to PDF, JPG to PDF, HTML to PDF, Scan to PDF
+4. **Security & Optimize** (7 tools): Compress, Protect, Unlock, Watermark, Sign PDF, Compare PDF, Translate PDF
 
 ## Conversion Logic (ToolWorkflow v7)
 
@@ -42,7 +49,7 @@ TinyWow-inspired multi-utility platform with 53+ tools across PDF, Image, Video,
 ### Custom endpoints
 - **PDF → Word**: POST /api/convert (pdf-parse + docx)
 - **PDF → Excel**: POST /api/convert-excel (pdf-parse + xlsx)
-- **PDF → Image**: Client-first pdfjs-dist CDN; fallback POST /api/convert-image (pdfjs-dist/legacy + canvas)
+- **PDF → Image**: Client-first pdfjs-dist CDN; fallback POST /api/convert-image (pdfjs-dist/legacy + canvas). Multi-page PDFs throw "MULTI_PAGE" → server returns ZIP.
 - **PDF → Text**: POST /api/convert-text (pdf-parse)
 
 ### /api/pdf-action (actionType parameter)
@@ -50,7 +57,7 @@ TinyWow-inspired multi-utility platform with 53+ tools across PDF, Image, Video,
 - **split**: Single file → ZIP of individual page PDFs
 - **rotate**: All pages rotated by `angle` param (default 90°)
 - **delete-pages**: Remove pages by `pages` param (comma-separated 1-based)
-- **reorder**: Reorder pages by `order` param (comma-separated 1-based)
+- **reorder**: Reorder pages by `order` param (comma-separated 1-based, required)
 - **page-numbers**: Add centered page numbers at bottom
 - **compress**: Re-save via pdf-lib (strips unused objects)
 - **protect**: Placeholder (pdf-lib lacks encryption API)
@@ -58,11 +65,13 @@ TinyWow-inspired multi-utility platform with 53+ tools across PDF, Image, Video,
 - **watermark**: Diagonal centered text with 30% opacity
 
 ## Tool Type System (v7)
-- TOOL_CATALOG array with 22 ToolDefinition entries
-- detectToolType: catalog exact-match FIRST, then keyword fallback
+- TOOL_CATALOG array with 36 ToolDefinition entries (including aliases like JPG to PDF, Add Watermark, PPT to PDF)
+- detectToolType: catalog exact-match FIRST, then keyword fallback with position-based disambiguation
+- Position logic: "PDF to JPG" → pdf-to-image, "JPG to PDF" → image-to-pdf (word position determines direction)
 - MULTI_FILE_TOOLS: Set containing "merge" (enables multi-file input)
 - SERVER_TOOLS: Set of all server-side tools
-- Each catalog entry has: type, category, label, labelTr, accepts, actionType?, endpoint?, multiFile?
+- New tool types added: edit-pdf, crop-pdf, repair-pdf, flatten-pdf, pdf-to-pdfa, ocr-pdf, scan-to-pdf, sign-pdf, compare-pdf, translate-pdf
+- Placeholder tools (identity/client-only without backend): Edit PDF, Crop PDF, Repair PDF, Flatten PDF, PDF to PPT, PDF to PDF/A, OCR PDF, Scan to PDF, Sign PDF, Compare PDF, Translate PDF
 
 ## Category IDs
 "PDF", "Image", "Video", "Converter", "AI Writing", "Other"
