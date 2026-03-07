@@ -2,14 +2,13 @@ import { build as esbuild } from "esbuild";
 import { build as viteBuild } from "vite";
 import { rm, readFile } from "fs/promises";
 
-// server deps to bundle to reduce openat(2) syscalls
-// which helps cold start times
 const allowlist = [
   "@google/generative-ai",
   "axios",
   "connect-pg-simple",
   "cors",
   "date-fns",
+  "docx",
   "drizzle-orm",
   "drizzle-zod",
   "express",
@@ -23,6 +22,7 @@ const allowlist = [
   "openai",
   "passport",
   "passport-local",
+  "pdf-parse",
   "pg",
   "stripe",
   "uuid",
@@ -55,6 +55,23 @@ async function buildAll() {
     define: {
       "process.env.NODE_ENV": '"production"',
     },
+    banner: {
+      js: `const __import_meta_url = require("url").pathToFileURL(__filename).href;`,
+    },
+    plugins: [
+      {
+        name: "import-meta-url",
+        setup(build) {
+          build.onLoad({ filter: /\.[tj]sx?$/ }, async (args) => {
+            const fs = await import("fs/promises");
+            let contents = await fs.readFile(args.path, "utf8");
+            contents = contents.replace(/import\.meta\.url/g, "__import_meta_url");
+            contents = contents.replace(/import\.meta\.dirname/g, "__dirname");
+            return { contents, loader: args.path.endsWith(".tsx") ? "tsx" : args.path.endsWith(".jsx") ? "jsx" : "ts" };
+          });
+        },
+      },
+    ],
     minify: true,
     external: externals,
     logLevel: "info",

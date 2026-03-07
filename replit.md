@@ -37,6 +37,14 @@ TinyWow-inspired multi-utility platform with 53+ tools across PDF, Image, Video,
 ## Category IDs
 "PDF", "Image", "Video", "Converter", "AI Writing", "Other"
 
+## Deployment / Build
+- Build: `npm run build` → Vite builds client to `dist/public/`, esbuild bundles server to `dist/index.cjs` (CJS format)
+- `script/build.ts` has an esbuild plugin that replaces `import.meta.url` → `__import_meta_url` and `import.meta.dirname` → `__dirname` for CJS compatibility
+- Banner injects `const __import_meta_url = require("url").pathToFileURL(__filename).href;` at top of CJS bundle
+- All server files (`server/index.ts`, `server/static.ts`, `server/vite.ts`) use `fileURLToPath(import.meta.url)` + `dirname()` for `__filename`/`__dirname` polyfill
+- `pdf-parse` and `docx` are in the esbuild allowlist (bundled, not external)
+- Health check: `GET /api/health` returns `{ status: "ok", timestamp }` with 200
+
 ## Important Patterns
 - `pdf-parse` must be imported via `createRequire` (no ESM default export)
 - COOP/COEP headers set in vite.config.ts for SharedArrayBuffer (FFmpeg.wasm)
