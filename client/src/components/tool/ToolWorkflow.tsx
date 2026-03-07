@@ -70,16 +70,19 @@ export const TOOL_CATALOG: ToolDefinition[] = [
   { type: "pdf-to-text",  category: "convert-from", label: "PDF to Text",      labelTr: "PDF → Metin",     accepts: ".pdf", endpoint: "/api/convert-text" },
 
   { type: "image-to-pdf", category: "convert-to",   label: "Image to PDF",     labelTr: "Görüntü → PDF",   accepts: ".jpg,.jpeg,.png,.webp,.gif,.bmp" },
+  { type: "image-to-pdf", category: "convert-to",   label: "JPG to PDF",       labelTr: "JPG → PDF",       accepts: ".jpg,.jpeg,.png" },
   { type: "text-to-pdf",  category: "convert-to",   label: "Text to PDF",      labelTr: "Metin → PDF",     accepts: ".txt" },
   { type: "word-to-pdf",  category: "convert-to",   label: "Word to PDF",      labelTr: "Word → PDF",      accepts: ".docx,.doc" },
   { type: "excel-to-pdf", category: "convert-to",   label: "Excel to PDF",     labelTr: "Excel → PDF",     accepts: ".xlsx,.xls,.csv" },
   { type: "html-to-pdf",  category: "convert-to",   label: "HTML to PDF",      labelTr: "HTML → PDF",      accepts: ".html,.htm" },
   { type: "ppt-to-pdf",   category: "convert-to",   label: "PowerPoint to PDF",labelTr: "PPT → PDF",       accepts: ".pptx,.ppt" },
+  { type: "identity",     category: "convert-from", label: "PDF to PPT",       labelTr: "PDF → PPT",       accepts: ".pdf" },
 
   { type: "compress",     category: "security",     label: "Compress PDF",     labelTr: "PDF Küçült",      accepts: ".pdf", actionType: "compress" },
   { type: "protect",      category: "security",     label: "Protect PDF",      labelTr: "PDF Şifrele",     accepts: ".pdf", actionType: "protect" },
   { type: "unlock",       category: "security",     label: "Unlock PDF",       labelTr: "PDF Kilidi Aç",   accepts: ".pdf", actionType: "unlock" },
   { type: "watermark",    category: "security",     label: "Watermark PDF",    labelTr: "Filigran Ekle",   accepts: ".pdf", actionType: "watermark" },
+  { type: "watermark",    category: "security",     label: "Add Watermark",    labelTr: "Filigran Ekle",   accepts: ".pdf", actionType: "watermark" },
 
   { type: "csv-to-json",  category: "convert-to",   label: "CSV to JSON",      labelTr: "CSV → JSON",      accepts: ".csv" },
   { type: "json-to-csv",  category: "convert-to",   label: "JSON to CSV",      labelTr: "JSON → CSV",      accepts: ".json" },
@@ -109,7 +112,7 @@ export function detectToolType(toolName: string): ToolType {
   if (isPdf && kw(tn, "compress","shrink","reduce","küçült","sıkıştır","optimize")) return "compress";
   if (isPdf && kw(tn, "protect","password","şifre","lock","koru"))                  return "protect";
   if (isPdf && kw(tn, "unlock","remove password","şifre kaldır","kilid"))           return "unlock";
-  if (isPdf && kw(tn, "watermark","filigran","damga"))                              return "watermark";
+  if (kw(tn, "watermark","filigran","damga"))                                       return "watermark";
 
   if (isPdf && kw(tn, "merge","combine","join","birleştir","concat"))               return "merge";
   if (isPdf && kw(tn, "split","divide","separate","böl","ayır"))                    return "split";
@@ -118,17 +121,37 @@ export function detectToolType(toolName: string): ToolType {
   if (isPdf && kw(tn, "reorder","rearrange","yeniden sırala","sort page"))          return "reorder";
   if (isPdf && kw(tn, "page number","numara","numbering","sayfa no"))               return "page-numbers";
 
-  if (isPdf && isExcel) return "pdf-to-excel";
-  if (isPdf && isWord)  return "pdf-to-word";
-  if (isPdf && isImage) return "pdf-to-image";
-  if (isPdf && isText)  return "pdf-to-text";
-
-  if (isWord  && isPdf) return "word-to-pdf";
-  if (isExcel && isPdf) return "excel-to-pdf";
-  if (isPpt   && isPdf) return "ppt-to-pdf";
-  if (isHtml  && isPdf) return "html-to-pdf";
-  if (isImage && isPdf) return "image-to-pdf";
-  if (isText  && isPdf) return "text-to-pdf";
+  if (isPdf && isImage) {
+    const pdfPos = tn.indexOf("pdf");
+    const imgPos = Math.min(
+      ...(["image","img","jpg","jpeg","png","webp","gif","bmp","tiff","photo","picture"]
+        .map(k => { const i = tn.indexOf(k); return i >= 0 ? i : Infinity; }))
+    );
+    return pdfPos < imgPos ? "pdf-to-image" : "image-to-pdf";
+  }
+  if (isPdf && isExcel) {
+    const pdfPos = tn.indexOf("pdf");
+    const excelPos = Math.min(
+      ...(["excel","xlsx","xls","spreadsheet","tablo"]
+        .map(k => { const i = tn.indexOf(k); return i >= 0 ? i : Infinity; }))
+    );
+    return pdfPos < excelPos ? "pdf-to-excel" : "excel-to-pdf";
+  }
+  if (isPdf && isWord) {
+    const pdfPos = tn.indexOf("pdf");
+    const wordPos = tn.indexOf("word");
+    return pdfPos < wordPos ? "pdf-to-word" : "word-to-pdf";
+  }
+  if (isPdf && isText) {
+    const pdfPos = tn.indexOf("pdf");
+    const textPos = Math.min(
+      ...(["txt","text","plain","metin"]
+        .map(k => { const i = tn.indexOf(k); return i >= 0 ? i : Infinity; }))
+    );
+    return pdfPos < textPos ? "pdf-to-text" : "text-to-pdf";
+  }
+  if (isPdf && isPpt)  return "ppt-to-pdf";
+  if (isPdf && isHtml) return "html-to-pdf";
 
   if (kw(tn, "csv") && kw(tn, "json")) return "csv-to-json";
   if (kw(tn, "json") && kw(tn, "csv")) return "json-to-csv";
