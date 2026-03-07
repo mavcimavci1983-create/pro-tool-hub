@@ -9,14 +9,14 @@ TinyWow-inspired multi-utility platform with 53+ tools across PDF, Image, Video,
 - **No Database**: All file processing is client-side or ephemeral server-side
 
 ## Key Files
-- `client/src/components/tool/ToolWorkflow.tsx` — Core processing engine (v4). Handles file upload, conversion, progress animation, download.
+- `client/src/components/tool/ToolWorkflow.tsx` — Core processing engine (v6.1). Handles file upload, conversion, progress animation, download.
 - `client/src/components/home/ToolGrid.tsx` — Tool catalog with 53 tools, category tabs, search.
 - `client/src/pages/GenericPdfTool.tsx` — PDF tool page template
 - `client/src/pages/ImageTool.tsx` — Image tool page template
 - `client/src/pages/VideoTool.tsx` — Video tool page template
 - `client/src/pages/GenericAiTool.tsx` — AI writing tool page template
 - `client/src/pages/GenericConverterTool.tsx` — Converter tool page template
-- `server/routes.ts` — Backend API routes (/api/convert for PDF-to-Word)
+- `server/routes.ts` — Backend API routes (/api/convert, /api/convert-excel, /api/convert-image)
 - `server/index.ts` — Express server entry point
 - `client/src/locales/translations.json` — EN/TR translations
 - `client/src/lib/languageStore.ts` — Zustand language store
@@ -28,13 +28,14 @@ TinyWow-inspired multi-utility platform with 53+ tools across PDF, Image, Video,
 - `xlsx@0.18.5` — Excel spreadsheet generation (v0.19+ may require commercial license)
 - `jspdf` — Client-side PDF generation
 
-## Conversion Logic (ToolWorkflow v6)
+## Conversion Logic (ToolWorkflow v6.1)
 - **Image → PDF**: Client-side via jsPDF + Canvas 2x supersampling
 - **Text → PDF**: Client-side via jsPDF with pagination
 - **CSV → JSON**: Client-side parser
 - **JSON → CSV**: Client-side serializer
 - **PDF → Word**: Server-side via POST /api/convert (multer + pdf-parse + docx)
 - **PDF → Excel**: Server-side via POST /api/convert-excel (multer + pdf-parse + xlsx)
+- **PDF → Image**: Client-first via pdfjs-dist browser + Canvas; fallback to server POST /api/convert-image (pdfjs-dist/legacy + node-canvas). Single page → JPG, multi-page → ZIP of JPGs.
 
 ## Category IDs
 "PDF", "Image", "Video", "Converter", "AI Writing", "Other"
@@ -49,7 +50,8 @@ TinyWow-inspired multi-utility platform with 53+ tools across PDF, Image, Video,
 
 ## Important Patterns
 - `pdf-parse@1.1.1` MUST be imported via `createRequire` + safe path: `_require("pdf-parse/lib/pdf-parse.js")`. Never use `import from "pdf-parse"` or `require("pdf-parse")` (index.js reads test/ folder → crash).
-- esbuild config externalizes `pdf-parse` and `pdf-parse/lib/pdf-parse.js` — never bundle it.
+- esbuild config externalizes `pdf-parse`, `pdf-parse/lib/pdf-parse.js`, `pdfjs-dist/legacy/build/pdf.js`, `canvas`, `jszip` — never bundle them.
+- `detectToolType` uses keyword-position logic to distinguish "PDF to JPG" (pdf-to-image) from "JPG to PDF" (image-to-pdf).
 - COOP/COEP headers set in vite.config.ts for SharedArrayBuffer (FFmpeg.wasm)
 - Processing progress uses ease-out animation (8s client, 50s server)
 - Success flag ref prevents download of incomplete/corrupt files

@@ -7,6 +7,19 @@ import { createRequire } from "module";
 const _require = createRequire(import.meta.url);
 const pdfParse = _require("pdf-parse/lib/pdf-parse.js");
 
+let pdfjsLib: any = null;
+let canvasModule: any = null;
+
+async function loadPdfjsServer() {
+  if (!pdfjsLib) {
+    pdfjsLib = _require("pdfjs-dist/legacy/build/pdf.js");
+  }
+  if (!canvasModule) {
+    canvasModule = _require("canvas");
+  }
+  return { pdfjsLib, canvasModule };
+}
+
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 20 * 1024 * 1024 },
@@ -211,6 +224,88 @@ export async function registerRoutes(
       res.send(buffer);
     } catch (err: any) {
       console.error("[/api/convert-excel] Error:", err.message);
+      const status = err.message.includes("timed out") ? 504 : 422;
+      res.status(status).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/convert-image", handleMulterError, async (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const timeoutPromise = new Promise<never>((_, reject) =>
+      setTimeout(() => reject(new Error("Processing timed out (55s)")), TIMEOUT_MS)
+    );
+
+    const conversionPromise = (async () => {
+      const { pdfjsLib, canvasModule } = await loadPdfjsServer();
+      const { createCanvas } = canvasModule;
+
+      const data = new Uint8Array(req.file!.buffer);
+      const pdf = await pdfjsLib.getDocument({ data, disableFontFace: true }).promise;
+      const totalPages: number = pdf.numPages;
+
+      const renderPage = async (pageNum: number): Promise<Buffer> => {
+        const page = await pdf.getPage(pageNum);
+        const scale = 2;
+        const viewport = page.getViewport({ scale });
+        const canvas = createCanvas(viewport.width, viewport.height);
+        const ctx = canvas.getContext("2d");
+
+        const renderContext = {
+          canvasContext: ctx,
+          viewport,
+          canvasFactory: {
+            create(w: number, h: number) {
+              const c = createCanvas(w, h);
+              return { canvas: c, context: c.getContext("2d") };
+            },
+            reset(canvasAndContext: any, w: number, h: number) {
+              canvasAndContext.canvas.width = w;
+              canvasAndContext.canvas.height = h;
+            },
+            destroy(canvasAndContext: any) {},
+          },
+        };
+
+        await page.render(renderContext).promise;
+        return canvas.toBuffer("image/jpeg", { quality: 0.92 });
+      };
+
+      if (totalPages === 1) {
+        return { buffer: await renderPage(1), isMultiPage: false };
+      }
+
+      const JSZip = _require("jszip");
+      const zip = new JSZip();
+      for (let i = 1; i <= totalPages; i++) {
+        const imgBuf = await renderPage(i);
+        zip.file(`page_${String(i).padStart(3, "0")}.jpg`, imgBuf);
+      }
+      const zipBuffer = await zip.generateAsync({ type: "nodebuffer" });
+      return { buffer: zipBuffer as Buffer, isMultiPage: true };
+    })();
+
+    try {
+      const resultData = await Promise.race([conversionPromise, timeoutPromise]) as { buffer: Buffer; isMultiPage: boolean };
+      const buffer = resultData.buffer;
+      const originalName = req.file.originalname.replace(/\.pdf$/i, "");
+
+      if (resultData.isMultiPage) {
+        const safeFileName = encodeURIComponent(`${originalName}_images.zip`);
+        res.setHeader("Content-Type", "application/zip");
+        res.setHeader("Content-Disposition", `attachment; filename*=UTF-8''${safeFileName}`);
+      } else {
+        const safeFileName = encodeURIComponent(`${originalName}.jpg`);
+        res.setHeader("Content-Type", "image/jpeg");
+        res.setHeader("Content-Disposition", `attachment; filename*=UTF-8''${safeFileName}`);
+      }
+
+      res.setHeader("Content-Length", buffer.length.toString());
+      res.send(buffer);
+    } catch (err: any) {
+      console.error("[/api/convert-image] Error:", err.message);
       const status = err.message.includes("timed out") ? 504 : 422;
       res.status(status).json({ error: err.message });
     }

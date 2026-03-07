@@ -17,6 +17,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useLanguageStore }                from "@/lib/languageStore";
 import translationsData                    from "@/locales/translations.json";
 import { jsPDF }                           from "jspdf";
+import JSZip                               from "jszip";
 
 const translations = translationsData as Record<string, any>;
 
@@ -40,14 +41,24 @@ type ToolType =
   | "identity";
 
 function detectToolType(toolName: string): ToolType {
+  const t = toolName.toLowerCase();
   const isImage = kw(toolName, "image","img","jpg","jpeg","png","webp","gif","bmp","tiff");
   const isPdf   = kw(toolName, "pdf");
   const isText  = kw(toolName, "txt","text","plain");
 
   if (isPdf && kw(toolName, "excel","xlsx","xls","spreadsheet"))  return "pdf-to-excel";
   if (isPdf && kw(toolName, "word","docx","doc"))                 return "pdf-to-word";
-  if (isImage && isPdf)                                           return "image-to-pdf";
-  if (isPdf   && isImage)                                         return "pdf-to-image";
+
+  if (isImage && isPdf) {
+    const pdfIdx = t.indexOf("pdf");
+    const imgIdx = Math.min(
+      ...(["image","img","jpg","jpeg","png","webp","gif","bmp","tiff"]
+        .map(k => { const i = t.indexOf(k); return i >= 0 ? i : Infinity; }))
+    );
+    if (pdfIdx < imgIdx) return "pdf-to-image";
+    return "image-to-pdf";
+  }
+
   if (isText  && isPdf)                                           return "text-to-pdf";
   if (isPdf   && kw(toolName, "compress","shrink","reduce"))      return "pdf-compress";
   if (isPdf   && kw(toolName, "merge","combine","join"))          return "pdf-merge";
@@ -60,12 +71,15 @@ function detectToolType(toolName: string): ToolType {
   return "identity";
 }
 
-function getOutputExtension(toolType: ToolType, inputFile?: File): string {
+function getOutputExtension(toolType: ToolType, inputFile?: File, resultBlob?: Blob | null): string {
+  if (toolType === "pdf-to-image" && resultBlob) {
+    return resultBlob.type === "application/zip" ? "zip" : "jpg";
+  }
   const map: Partial<Record<ToolType, string>> = {
     "image-to-pdf":   "pdf",  "text-to-pdf":    "pdf",
     "pdf-compress":   "pdf",  "pdf-merge":       "pdf",
     "pdf-split":      "pdf",  "pdf-to-word":     "docx",
-    "pdf-to-excel":   "xlsx", "pdf-to-image":   "png",
+    "pdf-to-excel":   "xlsx", "pdf-to-image":   "jpg",
     "image-resize":   "jpg",  "image-compress": "jpg",
     "image-convert":  "jpg",  "csv-to-json":    "json",
     "json-to-csv":    "csv",
@@ -195,6 +209,54 @@ function uploadPdfToServer(
   });
 }
 
+async function pdfToImageClient(file: File): Promise<Blob> {
+  const pdfjsLib = await import("pdfjs-dist");
+  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+
+  const arrayBuffer = await file.arrayBuffer();
+  const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
+  const totalPages = pdf.numPages;
+
+  if (totalPages === 1) {
+    const page = await pdf.getPage(1);
+    const scale = 2;
+    const viewport = page.getViewport({ scale });
+    const canvas = document.createElement("canvas");
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    const ctx = canvas.getContext("2d")!;
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    return new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob(
+        (b) => (b ? resolve(b) : reject(new Error("Canvas export failed"))),
+        "image/jpeg",
+        0.92
+      );
+    });
+  }
+
+  const zip = new JSZip();
+  for (let i = 1; i <= totalPages; i++) {
+    const page = await pdf.getPage(i);
+    const scale = 2;
+    const viewport = page.getViewport({ scale });
+    const canvas = document.createElement("canvas");
+    canvas.width = viewport.width;
+    canvas.height = viewport.height;
+    const ctx = canvas.getContext("2d")!;
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    const blob: Blob = await new Promise((resolve, reject) => {
+      canvas.toBlob(
+        (b) => (b ? resolve(b) : reject(new Error("Canvas export failed"))),
+        "image/jpeg",
+        0.92
+      );
+    });
+    zip.file(`page_${String(i).padStart(3, "0")}.jpg`, blob);
+  }
+  return zip.generateAsync({ type: "blob" });
+}
+
 async function convertFile(
   file: File,
   toolName: string,
@@ -209,6 +271,14 @@ async function convertFile(
     case "json-to-csv":  return jsonToCsv(file);
     case "pdf-to-word":  return uploadPdfToServer(file, "/api/convert", onUploadProgress);
     case "pdf-to-excel": return uploadPdfToServer(file, "/api/convert-excel", onUploadProgress);
+    case "pdf-to-image": {
+      try {
+        return await pdfToImageClient(file);
+      } catch (clientErr) {
+        console.warn("[ToolWorkflow] Client PDF-to-image failed, falling back to server:", clientErr);
+        return uploadPdfToServer(file, "/api/convert-image", onUploadProgress);
+      }
+    }
     default: {
       const buf = await file.arrayBuffer();
       return new Blob([buf], { type: file.type || "application/octet-stream" });
@@ -280,7 +350,7 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
     successFlagRef.current = false;
 
     const toolType    = detectToolType(toolName);
-    const isServerJob = toolType === "pdf-to-word" || toolType === "pdf-to-excel";
+    const isServerJob = toolType === "pdf-to-word" || toolType === "pdf-to-excel" || toolType === "pdf-to-image";
 
     const DURATION = isServerJob ? 50_000 : 7_000;
     const TICK     = 80;
@@ -364,7 +434,7 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess }: ToolWor
     }
     try {
       const toolType = detectToolType(toolName);
-      const ext      = getOutputExtension(toolType, file ?? undefined);
+      const ext      = getOutputExtension(toolType, file ?? undefined, blob);
       const url      = URL.createObjectURL(blob);
       const a        = document.createElement("a");
       a.href         = url;

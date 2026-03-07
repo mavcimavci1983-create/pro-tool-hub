@@ -1,0 +1,57 @@
+{
+  "_comment": "─────────────────────────────────────────────────────────────────",
+  "_comment2": "Bu dosya tam package.json değil — sadece sabitlenecek bağımlılıklar.",
+  "_comment3": "Mevcut package.json'unuzdaki 'dependencies' ve 'devDependencies'",
+  "_comment4": "bölümlerine aşağıdaki sürümleri AYNEN kopyalayın.",
+  "_comment5": "─────────────────────────────────────────────────────────────────",
+
+  "dependencies": {
+    "multer":     "1.4.5-lts.1",
+    "pdf-parse":  "1.1.1",
+    "docx":       "8.5.0",
+    "xlsx":       "0.18.5"
+  },
+
+  "devDependencies": {
+    "@types/multer":     "1.4.11",
+    "@types/pdf-parse":  "1.1.4"
+  },
+
+  "_pinning_notes": {
+    "pdf-parse@1.1.1": [
+      "v1.1.1 kendi içinde pdfjs 2.0.550 BUNDLE eder.",
+      "getViewport API'si: page.getViewport(scale) → sayı parametre (eski stil).",
+      "v1.1.2+ ve sonrası pdfjs 2.x API değişikliklerine açık — KULLANMAYIN.",
+      "ZORUNLU: require('pdf-parse/lib/pdf-parse.js') kullanın.",
+      "  require('pdf-parse') → index.js → test/ klasörünü okur → Replit'te hata.",
+      "  import pdfParse from 'pdf-parse' → bundler pdfjs-dist'i resolve edebilir → getViewport hatası."
+    ],
+    "docx@8.5.0": [
+      "v8.x stabil API. v9+ breaking changes içeriyor (section yapısı değişti).",
+      "Packer.toBuffer() garantili çalışır."
+    ],
+    "xlsx@0.18.5": [
+      "SheetJS community (OSS) son stabil sürümü.",
+      "v0.19+ ticari lisans gerektirebilir — dikkat.",
+      "aoa_to_sheet, book_new, book_append_sheet, write API'leri stabil."
+    ],
+    "multer@1.4.5-lts.1": [
+      "Güvenlik yamalarını içeren LTS sürüm.",
+      "memoryStorage() ile disk I/O tamamen devre dışı.",
+      "Replit disk izin sorunlarını önler."
+    ]
+  },
+
+  "_replit_shell_commands": {
+    "temiz_kurulum": [
+      "npm uninstall pdfjs-dist",
+      "npm install multer@1.4.5-lts.1 pdf-parse@1.1.1 docx@8.5.0 xlsx@0.18.5",
+      "npm install --save-dev @types/multer@1.4.11 @types/pdf-parse@1.1.4"
+    ],
+    "sorun_giderme": [
+      "ls node_modules/pdf-parse/lib/                   # pdf-parse.js görünmeli",
+      "node -e \"require('pdf-parse/lib/pdf-parse.js')\"  # hatasız yüklenmeli",
+      "node -e \"require('xlsx')\"                        # hatasız yüklenmeli"
+    ]
+  }
+}
