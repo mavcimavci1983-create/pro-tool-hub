@@ -54,6 +54,11 @@ When PDF tab is active, tools are organized under:
 - **PDF → Image**: Client-first pdfjs-dist CDN; fallback POST /api/convert-image (pdfjs-dist/legacy + canvas). Multi-page PDFs throw "MULTI_PAGE" → server returns ZIP.
 - **PDF → Text**: POST /api/convert-text (pdf-parse)
 
+### /api/compare-pdf (Two-file comparison)
+- **Compare PDF**: Accepts two PDFs, extracts text via pdf-parse, line-by-line diff, generates color-coded PDF comparison report via pdf-lib
+- Outputs: similarity %, diff count, removed/added/changed lines (red/green/amber)
+- 20MB per file, 55s timeout, max 200 diffs shown in report
+
 ### /api/translate-pdf (LibreTranslate)
 - **Translate PDF**: Extract text via pdf-parse, chunk (max 500 chars), translate via LibreTranslate public API, rebuild PDF via pdf-lib
 - 15 supported languages: tr, en, de, fr, es, it, pt, ru, ja, zh, ar, ko, nl, pl, sv

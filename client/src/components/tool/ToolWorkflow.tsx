@@ -39,7 +39,7 @@ type PdfActionType =
   | "reorder" | "page-numbers" | "compress"
   | "protect" | "unlock" | "watermark";
 
-const MULTI_FILE_TOOLS = new Set<ToolType>(["merge"]);
+const MULTI_FILE_TOOLS = new Set<ToolType>(["merge", "compare-pdf"]);
 
 const SERVER_TOOLS = new Set<ToolType>([
   "merge", "split", "rotate", "delete-pages", "reorder", "page-numbers",
@@ -47,6 +47,7 @@ const SERVER_TOOLS = new Set<ToolType>([
   "pdf-to-word", "pdf-to-excel", "pdf-to-image", "pdf-to-text",
   "word-to-pdf", "excel-to-pdf", "ppt-to-pdf", "html-to-pdf",
   "translate-pdf",
+  "compare-pdf",
 ]);
 
 export interface ToolDefinition {
@@ -101,7 +102,7 @@ export const TOOL_CATALOG: ToolDefinition[] = [
   { type: "watermark",      category: "security",   label: "Watermark PDF",    labelTr: "Filigran Ekle",    accepts: ".pdf", actionType: "watermark" },
   { type: "watermark",      category: "security",   label: "Add Watermark",    labelTr: "Filigran Ekle",    accepts: ".pdf", actionType: "watermark" },
   { type: "sign-pdf",       category: "security",   label: "Sign PDF",         labelTr: "PDF İmzala",       accepts: ".pdf" },
-  { type: "compare-pdf",    category: "security",   label: "Compare PDF",      labelTr: "PDF Karşılaştır",  accepts: ".pdf" },
+  { type: "compare-pdf",    category: "security",   label: "Compare PDF",      labelTr: "PDF Karşılaştır",  accepts: ".pdf",  endpoint: "/api/compare-pdf", multiFile: true },
   { type: "translate-pdf",  category: "security",   label: "Translate PDF",    labelTr: "PDF Çevir",        accepts: ".pdf",  endpoint: "/api/translate-pdf" },
 
   // ── Data ──────────────────────────────────────────────────────────────────
@@ -378,7 +379,7 @@ async function convertFile(
         return uploadFiles([file], "/api/convert-image", undefined, onProgress);
       }
     }
-    return uploadFiles([file], toolDef.endpoint, extraParams, onProgress);
+    return uploadFiles(toolDef.multiFile ? files : [file], toolDef.endpoint, extraParams, onProgress);
   }
 
   switch (toolType) {

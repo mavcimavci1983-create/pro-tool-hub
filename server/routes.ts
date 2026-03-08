@@ -527,6 +527,148 @@ export async function registerRoutes(
     }
   );
 
+  // ═══════════════════════════════════════════════════════════════════════
+  // POST /api/compare-pdf — Compare two PDF documents
+  // ═══════════════════════════════════════════════════════════════════════
+  app.post("/api/compare-pdf", handleMultiMulterError, async (req: any, res: any) => {
+    const files = (req as any).files as Express.Multer.File[] | undefined;
+
+    if (!files || files.length < 2) {
+      res.status(400).json({ error: "İki PDF dosyası gerekli (fileA ve fileB)." });
+      return;
+    }
+
+    try {
+      const TIMEOUT = 55_000;
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("Karşılaştırma zaman aşımına uğradı (55s)")), TIMEOUT)
+      );
+
+      const comparePromise = (async () => {
+        let textA: string, textB: string;
+        try {
+          const dataA = await pdfParse(files[0].buffer);
+          textA = (dataA.text ?? "").trim();
+        } catch (e: any) {
+          throw new Error(`PDF A okunamadı: ${e.message}`);
+        }
+        try {
+          const dataB = await pdfParse(files[1].buffer);
+          textB = (dataB.text ?? "").trim();
+        } catch (e: any) {
+          throw new Error(`PDF B okunamadı: ${e.message}`);
+        }
+
+        const linesA = textA.split("\n");
+        const linesB = textB.split("\n");
+        const maxLen = Math.max(linesA.length, linesB.length);
+
+        const diffs: { line: number; type: "removed" | "added" | "changed"; a?: string; b?: string }[] = [];
+        let identical = 0;
+
+        for (let i = 0; i < maxLen; i++) {
+          const a = linesA[i] ?? null;
+          const b = linesB[i] ?? null;
+          if (a === b) { identical++; continue; }
+          if (a !== null && b === null) {
+            diffs.push({ line: i + 1, type: "removed", a });
+          } else if (a === null && b !== null) {
+            diffs.push({ line: i + 1, type: "added", b });
+          } else {
+            diffs.push({ line: i + 1, type: "changed", a: a!, b: b! });
+          }
+        }
+
+        const isIdentical = diffs.length === 0;
+        const similarity = maxLen > 0 ? Math.round((identical / maxLen) * 100) : 100;
+
+        const outDoc = await PDFDocument.create();
+        const font = await outDoc.embedFont(StandardFonts.Helvetica);
+        const fontBold = await outDoc.embedFont(StandardFonts.HelveticaBold);
+        const fontSize = 10;
+        const lineH = fontSize * 1.5;
+        const MARGIN = 40;
+        const PAGE_W = 595.28;
+        const PAGE_H = 841.89;
+        const maxW = PAGE_W - MARGIN * 2;
+        const maxLines = Math.floor((PAGE_H - MARGIN * 2) / lineH);
+
+        const reportLines: { text: string; color: [number, number, number]; bold?: boolean }[] = [];
+
+        const nameA = files[0].originalname || "Document A";
+        const nameB = files[1].originalname || "Document B";
+
+        reportLines.push({ text: "PDF COMPARISON REPORT", color: [0, 0, 0], bold: true });
+        reportLines.push({ text: "", color: [0, 0, 0] });
+        reportLines.push({ text: `File A: ${nameA}  (${linesA.length} lines)`, color: [0, 0, 0] });
+        reportLines.push({ text: `File B: ${nameB}  (${linesB.length} lines)`, color: [0, 0, 0] });
+        reportLines.push({ text: `Similarity: ${similarity}%`, color: [0, 0, 0], bold: true });
+        reportLines.push({ text: `Differences found: ${diffs.length}`, color: isIdentical ? [0, 0.5, 0] : [0.8, 0, 0], bold: true });
+        reportLines.push({ text: "", color: [0, 0, 0] });
+
+        if (isIdentical) {
+          reportLines.push({ text: "The two documents are identical.", color: [0, 0.5, 0], bold: true });
+        } else {
+          reportLines.push({ text: "─".repeat(60), color: [0.5, 0.5, 0.5] });
+          for (const d of diffs.slice(0, 200)) {
+            if (d.type === "removed") {
+              reportLines.push({ text: `Line ${d.line} [REMOVED]:`, color: [0.8, 0, 0], bold: true });
+              reportLines.push({ text: `  A: ${(d.a ?? "").slice(0, 120)}`, color: [0.8, 0, 0] });
+            } else if (d.type === "added") {
+              reportLines.push({ text: `Line ${d.line} [ADDED]:`, color: [0, 0.5, 0], bold: true });
+              reportLines.push({ text: `  B: ${(d.b ?? "").slice(0, 120)}`, color: [0, 0.5, 0] });
+            } else {
+              reportLines.push({ text: `Line ${d.line} [CHANGED]:`, color: [0.7, 0.4, 0], bold: true });
+              reportLines.push({ text: `  A: ${(d.a ?? "").slice(0, 120)}`, color: [0.8, 0, 0] });
+              reportLines.push({ text: `  B: ${(d.b ?? "").slice(0, 120)}`, color: [0, 0.5, 0] });
+            }
+            reportLines.push({ text: "", color: [0, 0, 0] });
+          }
+          if (diffs.length > 200) {
+            reportLines.push({ text: `... and ${diffs.length - 200} more differences`, color: [0.5, 0.5, 0.5] });
+          }
+        }
+
+        let lineIdx = 0;
+        while (lineIdx < reportLines.length) {
+          const page = outDoc.addPage([PAGE_W, PAGE_H]);
+          let y = PAGE_H - MARGIN;
+          let count = 0;
+          while (lineIdx < reportLines.length && count < maxLines) {
+            const rl = reportLines[lineIdx++];
+            if (rl.text) {
+              const truncated = rl.text.length > 90 ? rl.text.slice(0, 87) + "..." : rl.text;
+              page.drawText(truncated, {
+                x: MARGIN,
+                y,
+                size: fontSize,
+                font: rl.bold ? fontBold : font,
+                color: rgb(rl.color[0], rl.color[1], rl.color[2]),
+              });
+            }
+            y -= lineH;
+            count++;
+          }
+        }
+
+        return Buffer.from(await outDoc.save());
+      })();
+
+      const pdfBuffer = await Promise.race([comparePromise, timeoutPromise]) as Buffer;
+
+      const safeFileName = encodeURIComponent("comparison_report.pdf");
+      res
+        .setHeader("Content-Type", "application/pdf")
+        .setHeader("Content-Disposition", `attachment; filename*=UTF-8''${safeFileName}`)
+        .setHeader("Content-Length", pdfBuffer.length.toString())
+        .send(pdfBuffer);
+    } catch (err: any) {
+      console.error("[/api/compare-pdf] Error:", err.message);
+      const status = err.message.includes("zaman aşımı") || err.message.includes("timed out") ? 504 : 422;
+      res.status(status).json({ error: err.message });
+    }
+  });
+
   app.post("/api/convert-text", handleMulterError, async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ error: "No file uploaded" });
