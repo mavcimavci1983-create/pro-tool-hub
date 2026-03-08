@@ -11,6 +11,7 @@ import { Link } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useLanguageStore } from "@/lib/languageStore";
+import { useCategoryStore } from "@/lib/categoryStore";
 import translationsData from "@/locales/translations.json";
 import { WatermarkTool, SignPdfTool, TranslatePdfTool, ComparePdfTool } from "@/components/home/SecurityTools";
 
@@ -195,9 +196,16 @@ function InlineToolPanel({ expandedTool }: { expandedTool: string | null }) {
   }
 }
 
-function PdfCategorizedGrid({ t, language, expandedTool, onInlineOpen }: { t: any; language: string; expandedTool: string | null; onInlineOpen: (link: string) => void }) {
+function PdfCategorizedGrid({ t, language, expandedTool, onInlineOpen, highlightSub }: { t: any; language: string; expandedTool: string | null; onInlineOpen: (link: string) => void; highlightSub?: string | null }) {
   const isEn = language === "en";
   const pdfTools = tools.filter(tool => tool.cat === "PDF");
+  const highlightRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (highlightSub && highlightRef.current) {
+      setTimeout(() => highlightRef.current?.scrollIntoView({ behavior: "smooth", block: "start", inline: "nearest" }), 200);
+    }
+  }, [highlightSub]);
 
   return (
     <div className="space-y-12">
@@ -205,9 +213,10 @@ function PdfCategorizedGrid({ t, language, expandedTool, onInlineOpen }: { t: an
         const subTools = pdfTools.filter(tool => tool.pdfSub === sub.id);
         if (subTools.length === 0) return null;
         const hasExpandedTool = expandedTool && subTools.some(t => t.link === expandedTool);
+        const isHighlighted = highlightSub === sub.id;
 
         return (
-          <div key={sub.id}>
+          <div key={sub.id} ref={isHighlighted ? highlightRef : undefined} className={isHighlighted ? "ring-2 ring-primary/20 rounded-2xl p-4 -m-4 transition-all duration-500" : ""}>
             <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full border text-sm font-bold mb-6 ${sub.bgColor} ${sub.color}`}>
               {isEn ? sub.labelEn : sub.labelTr}
               <span className="text-xs opacity-60">({subTools.length})</span>
@@ -228,11 +237,18 @@ function PdfCategorizedGrid({ t, language, expandedTool, onInlineOpen }: { t: an
 export function ToolGrid() {
   const { language } = useLanguageStore();
   const t = translations[language];
-  const [activeTab, setActiveTab] = useState("All Tools");
+  const { activeCategory, pdfSub, setCategory } = useCategoryStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [visibleCount, setVisibleCount] = useState(24);
   const [expandedTool, setExpandedTool] = useState<string | null>(null);
   const panelRef = useRef<HTMLDivElement>(null);
+
+  const activeTab = activeCategory;
+
+  const handleTabClick = (tabId: string) => {
+    setCategory(tabId);
+    setVisibleCount(24);
+  };
 
   const handleInlineOpen = (link: string) => {
     setExpandedTool(prev => prev === link ? null : link);
@@ -280,7 +296,7 @@ export function ToolGrid() {
   const showPdfCategorized = activeTab === "PDF" && !searchQuery;
 
   return (
-    <div className="w-full">
+    <div className="w-full" id="tool-grid-section">
       <div className="mb-12 max-w-2xl mx-auto relative group">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary transition-colors" />
         <Input 
@@ -298,10 +314,7 @@ export function ToolGrid() {
             <button
               key={tab.id}
               data-testid={`tab-${tab.id.toLowerCase().replace(/\s+/g, '-')}`}
-              onClick={() => {
-                setActiveTab(tab.id);
-                setVisibleCount(24);
-              }}
+              onClick={() => handleTabClick(tab.id)}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold transition-all duration-300 ring-1 ${
                 activeTab === tab.id 
                   ? "bg-primary text-white shadow-lg shadow-primary/30 ring-primary" 
@@ -319,7 +332,7 @@ export function ToolGrid() {
 
       <div ref={panelRef}>
         {showPdfCategorized ? (
-          <PdfCategorizedGrid t={t} language={language} expandedTool={expandedTool} onInlineOpen={handleInlineOpen} />
+          <PdfCategorizedGrid t={t} language={language} expandedTool={expandedTool} onInlineOpen={handleInlineOpen} highlightSub={pdfSub} />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {filteredTools.slice(0, visibleCount).map((tool, index) => (
