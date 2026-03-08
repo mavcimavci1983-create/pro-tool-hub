@@ -5,6 +5,7 @@ import { useLanguageStore } from "@/lib/languageStore";
 import translationsData from "@/locales/translations.json";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { FileCode } from "lucide-react";
+import { LeaderboardAd, StickySkyscraper, BillboardAd } from "@/components/ads/AdUnit";
 
 const translations = translationsData as Record<string, any>;
 
@@ -27,15 +28,13 @@ export default function GenericConverterTool({ title = "Converter Tool", desc = 
           <meta name="description" content={desc} />
         </Helmet>
         <Header />
-        <main className="flex-grow flex flex-col items-center pt-10 pb-32 px-4">
-          <div className="w-full h-[90px] bg-slate-50 mb-10 border-b flex items-center justify-center overflow-hidden">
-            <div className="w-[728px] h-[60px] bg-white border border-slate-200 flex items-center justify-center text-[10px] text-slate-400 uppercase tracking-widest font-bold rounded">
-              Leaderboard Ad (728x90)
-            </div>
-          </div>
+        <main className="flex-grow flex flex-col items-center pt-10 pb-20">
+          <LeaderboardAd />
 
-          <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div className="lg:col-span-9">
+          <div className="w-full max-w-[1400px] mx-auto flex mt-10 px-4">
+            <StickySkyscraper side="left" />
+
+            <div className="flex-1 min-w-0 max-w-4xl mx-auto">
               <div className="mb-12 text-center lg:text-left">
                 <h1 className="text-3xl md:text-5xl font-bold mb-4 text-slate-900 tracking-tight leading-none">
                   {title}
@@ -48,7 +47,9 @@ export default function GenericConverterTool({ title = "Converter Tool", desc = 
                 acceptedFileTypes={getAcceptedTypes()} 
               />
 
-              <article className="prose prose-lg max-w-none border-t border-slate-100 pt-16 mt-20 text-slate-600 leading-relaxed">
+              <BillboardAd />
+
+              <article className="prose prose-lg max-w-none border-t border-slate-100 pt-16 mt-8 text-slate-600 leading-relaxed">
                 <div className="grid md:grid-cols-2 gap-12 text-left">
                   <section>
                     <h2 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">Professional File Conversion</h2>
@@ -62,14 +63,9 @@ export default function GenericConverterTool({ title = "Converter Tool", desc = 
               </article>
             </div>
 
-            <aside className="lg:col-span-3">
-              <div className="sticky top-24 h-[600px] bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-[10px] text-slate-400 font-bold uppercase tracking-tighter p-2 text-center">
-                Skyscraper Ad<br/>(160x600)
-              </div>
-            </aside>
+            <StickySkyscraper side="right" />
           </div>
         </main>
-
         <Footer />
       </div>
     </HelmetProvider>

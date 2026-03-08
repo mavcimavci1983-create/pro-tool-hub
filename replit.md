@@ -128,6 +128,16 @@ These packages are NEVER bundled — they use runtime `require()`:
 - Components: WatermarkTool, SignPdfTool, TranslatePdfTool, ComparePdfTool (all standalone, no onClose prop)
 - SecurityTools.tsx contains all 4 inline tool components
 
+## Ad Layout
+- `client/src/components/ads/AdUnit.tsx` — Standardized ad placeholder components
+  - `LeaderboardAd` — 728x90 top banner (full width, slate background)
+  - `StickySkyscraper` — 160x600 sticky sidebar (left/right prop, hidden below lg breakpoint)
+  - `BillboardAd` — 970x250 mid-content ad (between tool and SEO content)
+  - `MobileAnchorAd` — 320x50 fixed bottom bar (visible below lg breakpoint only)
+- All pages use consistent 3-column flex layout: `StickySkyscraper left | content | StickySkyscraper right`
+- Sidebars hidden on mobile/tablet (below lg: 1024px), leaderboard/billboard scale down via maxWidth:100%
+- Max container width: 1400px
+
 ## Important Patterns
 - `pdf-parse@1.1.1` MUST be imported via `createRequire` + safe path: `_require("pdf-parse/lib/pdf-parse.js")`. Never use `import from "pdf-parse"` or `require("pdf-parse")`.
 - `pdf-lib` imported via `_require("pdf-lib")` — provides PDFDocument, rgb, StandardFonts, degrees

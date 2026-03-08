@@ -7,6 +7,7 @@ import { Helmet, HelmetProvider } from "react-helmet-async";
 import { Sparkles, PenTool } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { LeaderboardAd, StickySkyscraper, BillboardAd } from "@/components/ads/AdUnit";
 
 const translations = translationsData as Record<string, any>;
 
@@ -22,15 +23,13 @@ export default function GenericAiTool({ title = "AI Writer", desc = "Professiona
           <meta name="description" content={desc} />
         </Helmet>
         <Header />
-        <main className="flex-grow flex flex-col items-center pt-10 pb-32 px-4">
-          <div className="w-full h-[90px] bg-slate-50 mb-10 border-b flex items-center justify-center overflow-hidden">
-            <div className="w-[728px] h-[60px] bg-white border border-slate-200 flex items-center justify-center text-[10px] text-slate-400 uppercase tracking-widest font-bold rounded">
-              Leaderboard Ad (728x90)
-            </div>
-          </div>
+        <main className="flex-grow flex flex-col items-center pt-10 pb-20">
+          <LeaderboardAd />
 
-          <div className="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8">
-            <div className="lg:col-span-9">
+          <div className="w-full max-w-[1400px] mx-auto flex mt-10 px-4">
+            <StickySkyscraper side="left" />
+
+            <div className="flex-1 min-w-0 max-w-4xl mx-auto">
               <div className="mb-12 text-center lg:text-left">
                 <div className="flex items-center gap-3 mb-4 justify-center lg:justify-start">
                   <div className="p-2 bg-slate-900 rounded-lg text-white">
@@ -48,6 +47,7 @@ export default function GenericAiTool({ title = "AI Writer", desc = "Professiona
                   variant={inputType === "text" ? "default" : "outline"} 
                   onClick={() => setInputType("text")}
                   className="rounded-full font-bold"
+                  data-testid="button-input-text"
                 >
                   Write Text
                 </Button>
@@ -55,6 +55,7 @@ export default function GenericAiTool({ title = "AI Writer", desc = "Professiona
                   variant={inputType === "file" ? "default" : "outline"} 
                   onClick={() => setInputType("file")}
                   className="rounded-full font-bold"
+                  data-testid="button-input-file"
                 >
                   Upload Document
                 </Button>
@@ -70,9 +71,10 @@ export default function GenericAiTool({ title = "AI Writer", desc = "Professiona
                   <textarea 
                     className="w-full h-64 p-6 rounded-3xl border-2 border-slate-100 focus:border-primary/30 focus:ring-0 transition-all text-lg font-medium resize-none placeholder:text-slate-300"
                     placeholder="Enter your topic or starting text here..."
+                    data-testid="textarea-ai-input"
                   />
                   <div className="flex justify-center">
-                    <Button size="lg" className="rounded-full px-16 font-bold h-16 shadow-2xl bg-slate-900 text-white text-lg">
+                    <Button size="lg" className="rounded-full px-16 font-bold h-16 shadow-2xl bg-slate-900 text-white text-lg" data-testid="button-generate-ai">
                       <PenTool className="w-5 h-5 mr-3" />
                       Generate with AI
                     </Button>
@@ -83,7 +85,9 @@ export default function GenericAiTool({ title = "AI Writer", desc = "Professiona
                 </div>
               )}
 
-              <article className="prose prose-lg max-w-none border-t border-slate-100 pt-16 mt-20 text-slate-600 leading-relaxed">
+              <BillboardAd />
+
+              <article className="prose prose-lg max-w-none border-t border-slate-100 pt-16 mt-8 text-slate-600 leading-relaxed">
                 <div className="grid md:grid-cols-2 gap-12 text-left">
                   <section>
                     <h2 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">AI-Powered Content Generation</h2>
@@ -97,14 +101,9 @@ export default function GenericAiTool({ title = "AI Writer", desc = "Professiona
               </article>
             </div>
 
-            <aside className="lg:col-span-3">
-              <div className="sticky top-24 h-[600px] bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-[10px] text-slate-400 font-bold uppercase tracking-tighter p-2 text-center">
-                Skyscraper Ad<br/>(160x600)
-              </div>
-            </aside>
+            <StickySkyscraper side="right" />
           </div>
         </main>
-
         <Footer />
       </div>
     </HelmetProvider>
