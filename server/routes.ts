@@ -446,8 +446,26 @@ export async function registerRoutes(
           const translated = await translateChunks(chunks, targetLang);
           const fullText   = translated.join("\n");
 
+          const fontkit = _require("@pdf-lib/fontkit");
+          const fs = _require("fs");
           const outDoc = await PDFDocument.create();
-          const font   = await outDoc.embedFont(StandardFonts.Helvetica);
+          outDoc.registerFontkit(fontkit);
+
+          const FONT_PATHS = [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+            "/usr/share/fonts/TTF/DejaVuSans.ttf",
+            "/usr/share/fonts/dejavu/DejaVuSans.ttf",
+          ];
+          let fontBytes: Buffer | null = null;
+          for (const fp of FONT_PATHS) {
+            try { fontBytes = fs.readFileSync(fp); break; } catch {}
+          }
+          let font: any;
+          if (fontBytes) {
+            font = await outDoc.embedFont(fontBytes, { subset: true });
+          } else {
+            font = await outDoc.embedFont(StandardFonts.Helvetica);
+          }
           const fontSize = 11;
           const lineH    = fontSize * 1.4;
           const MARGIN   = 50;
@@ -749,7 +767,24 @@ export async function registerRoutes(
           const wmColorB   = Math.max(0, Math.min(1, Number(req.body?.colorB ?? 0.75)));
 
           const pdfDoc = await PDFDocument.load(files[0].buffer);
-          const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+          const fontkit = _require("@pdf-lib/fontkit");
+          const fs = _require("fs");
+          pdfDoc.registerFontkit(fontkit);
+          const WM_FONT_PATHS = [
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+            "/usr/share/fonts/TTF/DejaVuSans-Bold.ttf",
+            "/usr/share/fonts/dejavu/DejaVuSans-Bold.ttf",
+          ];
+          let wmFontBytes: Buffer | null = null;
+          for (const fp of WM_FONT_PATHS) {
+            try { wmFontBytes = fs.readFileSync(fp); break; } catch {}
+          }
+          let font: any;
+          if (wmFontBytes) {
+            font = await pdfDoc.embedFont(wmFontBytes, { subset: true });
+          } else {
+            font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+          }
           const pages = pdfDoc.getPages();
           pages.forEach((page: any) => {
             const { width, height } = page.getSize();

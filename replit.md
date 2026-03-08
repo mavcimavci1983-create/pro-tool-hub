@@ -60,8 +60,9 @@ When PDF tab is active, tools are organized under:
 - 10MB per file, 55s timeout
 - Download report as .txt
 
-### /api/translate-pdf (Google Translate)
+### /api/translate-pdf (Google Translate + fontkit)
 - **Translate PDF**: Extract text via pdf-parse, chunk (max 500 chars), translate via `@vitalets/google-translate-api`, rebuild PDF via pdf-lib
+- Uses `@pdf-lib/fontkit` + DejaVuSans.ttf for full Unicode/Turkish character support (fixes WinAnsi encoding error)
 - 15 supported languages: tr, en, de, fr, es, it, pt, ru, ja, zh, ar, ko, nl, pl, sv
 - 10MB file limit, 55s timeout, rate-limit retry (429 → 2s wait)
 
@@ -114,6 +115,7 @@ These packages are NEVER bundled — they use runtime `require()`:
 - `html-to-docx`
 - `node-fetch`
 - `@vitalets/google-translate-api`
+- `@pdf-lib/fontkit`
 
 ## Frontend Dependencies
 - `react-signature-canvas` — Client-side signature drawing for Sign PDF tool
