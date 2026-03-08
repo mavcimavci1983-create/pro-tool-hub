@@ -1111,7 +1111,7 @@ export function RemoveBackgroundTool() {
     return res.blob();
   };
 
-  /** Yerel: solid-color arka plan kaldırma (köşe rengi referans) */
+  /** Yerel: solid-color arka plan kaldırma (kenar örnekleme + hassas eşik) */
   const localRemove = async (f: File): Promise<Blob> => {
     const img = await loadImageSafe(f);
     const [safeW, safeH] = (() => {
@@ -1127,24 +1127,48 @@ export function RemoveBackgroundTool() {
     ctx.drawImage(img, 0, 0, safeW, safeH);
     const data = ctx.getImageData(0, 0, cv.width, cv.height);
     const d    = data.data;
+    const W = cv.width, H = cv.height;
 
-    // 4 köşe pikselinin ortalaması = arka plan rengi
-    const corners = [
-      [d[0],d[1],d[2]],
-      [d[(cv.width-1)*4], d[(cv.width-1)*4+1], d[(cv.width-1)*4+2]],
-      [d[(cv.height-1)*cv.width*4], d[(cv.height-1)*cv.width*4+1], d[(cv.height-1)*cv.width*4+2]],
-      [d[(cv.height*cv.width-1)*4], d[(cv.height*cv.width-1)*4+1], d[(cv.height*cv.width-1)*4+2]],
-    ];
-    const bgR = Math.round(corners.reduce((s,c)=>s+c[0],0)/4);
-    const bgG = Math.round(corners.reduce((s,c)=>s+c[1],0)/4);
-    const bgB = Math.round(corners.reduce((s,c)=>s+c[2],0)/4);
-    const THR = 40;
+    const px = (x: number, y: number) => {
+      const i = (y * W + x) * 4;
+      return [d[i], d[i+1], d[i+2]];
+    };
 
+    const samples: number[][] = [];
+    const EDGE_SAMPLES = 5;
+    for (let i = 0; i < EDGE_SAMPLES; i++) {
+      const fx = Math.round((i / (EDGE_SAMPLES - 1)) * (W - 1));
+      const fy = Math.round((i / (EDGE_SAMPLES - 1)) * (H - 1));
+      samples.push(px(fx, 0));
+      samples.push(px(fx, H - 1));
+      samples.push(px(0, fy));
+      samples.push(px(W - 1, fy));
+    }
+
+    const bgR = Math.round(samples.reduce((s, c) => s + c[0], 0) / samples.length);
+    const bgG = Math.round(samples.reduce((s, c) => s + c[1], 0) / samples.length);
+    const bgB = Math.round(samples.reduce((s, c) => s + c[2], 0) / samples.length);
+    const THR = 30;
+
+    let removed = 0;
+    const totalPx = W * H;
     for (let i = 0; i < d.length; i += 4) {
-      if (Math.abs(d[i]-bgR)+Math.abs(d[i+1]-bgG)+Math.abs(d[i+2]-bgB) < THR*3)
+      if (Math.abs(d[i] - bgR) + Math.abs(d[i+1] - bgG) + Math.abs(d[i+2] - bgB) < THR * 3) {
         d[i+3] = 0;
+        removed++;
+      }
     }
     ctx.putImageData(data, 0, 0);
+
+    const removedPct = Math.round((removed / totalPx) * 100);
+    if (removedPct < 3) {
+      throw new Error(
+        isEn
+          ? "Background not detected — please try an image with a solid-color background."
+          : "Arka plan algılanamadı — lütfen düz renkli bir arka plana sahip görsel deneyin."
+      );
+    }
+
     return cvToBlob(cv, "image/png", 1.0);
   };
 
@@ -1158,9 +1182,9 @@ export function RemoveBackgroundTool() {
     startAnim(isApi ? 10000 : 3000);
     try {
       const blob = isApi ? await callRemoveBg(f) : await localRemove(f);
-      if (!blob || blob.size === 0) throw new Error(isEn?"Empty output":"Boş çıktı");
+      if (!blob || blob.size === 0) throw new Error(isEn ? "Empty output" : "Boş çıktı");
       finish(blob);
-      trackEvent("BgRemoved", { method: isApi?"api":"local" });
+      trackEvent("BgRemoved", { method: isApi ? "api" : "local" });
     } catch (e: any) { fail(e.message); }
   };
 
