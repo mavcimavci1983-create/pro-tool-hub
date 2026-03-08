@@ -1,23 +1,41 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { ToolWorkflow } from "@/components/tool/ToolWorkflow";
 import { useLanguageStore } from "@/lib/languageStore";
 import translationsData from "@/locales/translations.json";
 import { Helmet, HelmetProvider } from "react-helmet-async";
-import { ImageIcon } from "lucide-react";
 import { LeaderboardAd, StickySkyscraper, BillboardAd } from "@/components/ads/AdUnit";
+import {
+  CompressImageTool,
+  ResizeImageTool,
+  CropImageTool,
+  ConvertFormatTool,
+  WebPToJpgTool,
+  WebPToPngTool,
+  ImageToWebpTool,
+  HeicToJpgTool,
+  RemoveBackgroundTool,
+  AddTextToImageTool,
+} from "@/components/home/ImageTools";
 
 const translations = translationsData as Record<string, any>;
 
+function getInlineTool(title: string) {
+  const t = title.toLowerCase();
+  if (t.includes("compress"))          return <CompressImageTool />;
+  if (t.includes("resize"))            return <ResizeImageTool />;
+  if (t.includes("crop"))              return <CropImageTool />;
+  if (t.includes("webp to jpg"))       return <WebPToJpgTool />;
+  if (t.includes("webp to png"))       return <WebPToPngTool />;
+  if (t.includes("to webp") || t.includes("image to webp")) return <ImageToWebpTool />;
+  if (t.includes("heic"))              return <HeicToJpgTool />;
+  if (t.includes("remove") || t.includes("background")) return <RemoveBackgroundTool />;
+  if (t.includes("add text") || t.includes("text"))      return <AddTextToImageTool />;
+  if (t.includes("convert"))           return <ConvertFormatTool />;
+  return <CompressImageTool />;
+}
+
 export default function ImageTool({ title = "Image Tool", desc = "Professional image processing tool." }) {
   const { language } = useLanguageStore();
-
-  const getAcceptedTypes = () => {
-    const t = title.toLowerCase();
-    if (t.includes("heic")) return ".heic";
-    if (t.includes("webp")) return ".webp";
-    return ".jpg,.jpeg,.png,.webp,.heic";
-  };
 
   return (
     <HelmetProvider>
@@ -35,16 +53,13 @@ export default function ImageTool({ title = "Image Tool", desc = "Professional i
 
             <div className="flex-1 min-w-0 max-w-4xl mx-auto">
               <div className="mb-12 text-center lg:text-left">
-                <h1 className="text-3xl md:text-5xl font-bold mb-4 text-slate-900 tracking-tight leading-none">
+                <h1 className="text-3xl md:text-5xl font-bold mb-4 text-slate-900 tracking-tight leading-none" data-testid="text-tool-title">
                   {title}
                 </h1>
                 <p className="text-xl text-slate-600 font-medium opacity-80">{desc}</p>
               </div>
 
-              <ToolWorkflow 
-                toolName={title} 
-                acceptedFileTypes={getAcceptedTypes()} 
-              />
+              {getInlineTool(title)}
 
               <BillboardAd />
 
@@ -52,11 +67,11 @@ export default function ImageTool({ title = "Image Tool", desc = "Professional i
                 <div className="grid md:grid-cols-2 gap-12 text-left">
                   <section>
                     <h2 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">Professional Image Processing</h2>
-                    <p className="text-md font-medium leading-relaxed">High-performance image suite with 100% privacy and zero watermarks. All files are processed securely and deleted within 60 minutes.</p>
+                    <p className="text-md font-medium leading-relaxed">High-performance image suite with 100% privacy and zero watermarks. All files are processed entirely in your browser — nothing is uploaded.</p>
                   </section>
                   <section className="bg-slate-50 p-8 rounded-2xl border border-slate-100">
-                    <h3 className="text-lg font-bold text-slate-900 mb-3 tracking-tight">Secure & Private</h3>
-                    <p className="text-sm font-medium text-slate-500 leading-relaxed italic">"Your images are processed in real-time and automatically purged from our servers within 60 minutes. We never store, share, or look at your data."</p>
+                    <h3 className="text-lg font-bold text-slate-900 mb-3 tracking-tight">100% Client-Side</h3>
+                    <p className="text-sm font-medium text-slate-500 leading-relaxed italic">"Your images never leave your device. All processing happens locally in your browser using Canvas API — zero server uploads."</p>
                   </section>
                 </div>
               </article>
