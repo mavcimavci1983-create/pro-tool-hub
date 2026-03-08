@@ -12,7 +12,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useLanguageStore } from "@/lib/languageStore";
 import translationsData from "@/locales/translations.json";
-import { WatermarkTool, SignPdfTool, TranslatePdfTool } from "@/components/home/SecurityTools";
+import { WatermarkTool, SignPdfTool, TranslatePdfTool, ComparePdfTool } from "@/components/home/SecurityTools";
 
 const translations = translationsData as Record<string, any>;
 
@@ -143,7 +143,7 @@ const PDF_SUB_CATEGORIES: { id: PdfSubCategory; labelEn: string; labelTr: string
   { id: "security",     labelEn: "Security & Optimize", labelTr: "Güvenlik & Optimizasyon", color: "text-purple-600", bgColor: "bg-purple-50 border-purple-200" },
 ];
 
-const INLINE_TOOL_LINKS = new Set(["/tools/add-watermark", "/tools/sign-pdf", "/tools/translate-pdf"]);
+const INLINE_TOOL_LINKS = new Set(["/tools/add-watermark", "/tools/sign-pdf", "/tools/translate-pdf", "/tools/compare-pdf"]);
 
 function ToolCard({ tool, t, language, onInlineOpen }: { tool: ToolItem; t: any; language: string; onInlineOpen?: (link: string) => void }) {
   const title = language === "tr" && tool.titleTr ? tool.titleTr : tool.title;
@@ -184,17 +184,18 @@ function ToolCard({ tool, t, language, onInlineOpen }: { tool: ToolItem; t: any;
   return <Link href={tool.link}>{cardContent}</Link>;
 }
 
-function InlineToolPanel({ expandedTool, onClose }: { expandedTool: string | null; onClose: () => void }) {
+function InlineToolPanel({ expandedTool }: { expandedTool: string | null }) {
   if (!expandedTool) return null;
   switch (expandedTool) {
-    case "/tools/add-watermark": return <WatermarkTool onClose={onClose} />;
-    case "/tools/sign-pdf":      return <SignPdfTool onClose={onClose} />;
-    case "/tools/translate-pdf": return <TranslatePdfTool onClose={onClose} />;
+    case "/tools/add-watermark": return <WatermarkTool />;
+    case "/tools/sign-pdf":      return <SignPdfTool />;
+    case "/tools/translate-pdf": return <TranslatePdfTool />;
+    case "/tools/compare-pdf":   return <ComparePdfTool />;
     default: return null;
   }
 }
 
-function PdfCategorizedGrid({ t, language, expandedTool, onInlineOpen, onClose }: { t: any; language: string; expandedTool: string | null; onInlineOpen: (link: string) => void; onClose: () => void }) {
+function PdfCategorizedGrid({ t, language, expandedTool, onInlineOpen }: { t: any; language: string; expandedTool: string | null; onInlineOpen: (link: string) => void }) {
   const isEn = language === "en";
   const pdfTools = tools.filter(tool => tool.cat === "PDF");
 
@@ -215,7 +216,7 @@ function PdfCategorizedGrid({ t, language, expandedTool, onInlineOpen, onClose }
               {subTools.map((tool, index) => (
                 <ToolCard key={`${tool.title}-${index}`} tool={tool} t={t} language={language} onInlineOpen={onInlineOpen} />
               ))}
-              {hasExpandedTool && <InlineToolPanel expandedTool={expandedTool} onClose={onClose} />}
+              {hasExpandedTool && <InlineToolPanel expandedTool={expandedTool} />}
             </div>
           </div>
         );
@@ -237,8 +238,6 @@ export function ToolGrid() {
     setExpandedTool(prev => prev === link ? null : link);
     setTimeout(() => panelRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 100);
   };
-  const handleInlineClose = () => setExpandedTool(null);
-
   const filteredTools = useMemo(() => {
     try {
       const filtered = tools.filter(tool => {
@@ -320,13 +319,13 @@ export function ToolGrid() {
 
       <div ref={panelRef}>
         {showPdfCategorized ? (
-          <PdfCategorizedGrid t={t} language={language} expandedTool={expandedTool} onInlineOpen={handleInlineOpen} onClose={handleInlineClose} />
+          <PdfCategorizedGrid t={t} language={language} expandedTool={expandedTool} onInlineOpen={handleInlineOpen} />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
             {filteredTools.slice(0, visibleCount).map((tool, index) => (
               <ToolCard key={`${tool.title}-${index}`} tool={tool} t={t} language={language} onInlineOpen={handleInlineOpen} />
             ))}
-            {expandedTool && <InlineToolPanel expandedTool={expandedTool} onClose={handleInlineClose} />}
+            {expandedTool && <InlineToolPanel expandedTool={expandedTool} />}
           </div>
         )}
       </div>

@@ -54,16 +54,16 @@ When PDF tab is active, tools are organized under:
 - **PDF → Image**: Client-first pdfjs-dist CDN; fallback POST /api/convert-image (pdfjs-dist/legacy + canvas). Multi-page PDFs throw "MULTI_PAGE" → server returns ZIP.
 - **PDF → Text**: POST /api/convert-text (pdf-parse)
 
-### /api/compare-pdf (Two-file comparison)
-- **Compare PDF**: Accepts two PDFs, extracts text via pdf-parse, line-by-line diff, generates color-coded PDF comparison report via pdf-lib
-- Outputs: similarity %, diff count, removed/added/changed lines (red/green/amber)
-- 20MB per file, 55s timeout, max 200 diffs shown in report
+### /api/compare-pdf (Two-file JSON diff)
+- **Compare PDF**: Accepts `fileA` + `fileB` multer fields, extracts text via pdf-parse, returns JSON `{textA, textB}`
+- Client-side LCS diff algorithm (ComparePdfTool) displays added/removed/same lines with color-coded diff view
+- 10MB per file, 55s timeout
+- Download report as .txt
 
-### /api/translate-pdf (LibreTranslate)
-- **Translate PDF**: Extract text via pdf-parse, chunk (max 500 chars), translate via LibreTranslate public API, rebuild PDF via pdf-lib
+### /api/translate-pdf (Google Translate)
+- **Translate PDF**: Extract text via pdf-parse, chunk (max 500 chars), translate via `@vitalets/google-translate-api`, rebuild PDF via pdf-lib
 - 15 supported languages: tr, en, de, fr, es, it, pt, ru, ja, zh, ar, ko, nl, pl, sv
-- 10MB file limit, 55s timeout, rate-limit retry (429 → 1.5s wait)
-- apiUrl hardcoded server-side (no SSRF), apiKey optional
+- 10MB file limit, 55s timeout, rate-limit retry (429 → 2s wait)
 
 ### /api/convert-to-pdf (LibreOffice)
 - **Word → PDF**: .doc/.docx via libreoffice-convert
@@ -113,6 +113,16 @@ These packages are NEVER bundled — they use runtime `require()`:
 - `libreoffice-convert`
 - `html-to-docx`
 - `node-fetch`
+- `@vitalets/google-translate-api`
+
+## Frontend Dependencies
+- `react-signature-canvas` — Client-side signature drawing for Sign PDF tool
+- `pdf-lib` — Client-side PDF manipulation (Sign PDF embeds signature via pdf-lib in browser)
+
+## Inline Tool Expansion (ToolGrid)
+- INLINE_TOOL_LINKS: `/tools/add-watermark`, `/tools/sign-pdf`, `/tools/translate-pdf`, `/tools/compare-pdf`
+- Components: WatermarkTool, SignPdfTool, TranslatePdfTool, ComparePdfTool (all standalone, no onClose prop)
+- SecurityTools.tsx contains all 4 inline tool components
 
 ## Important Patterns
 - `pdf-parse@1.1.1` MUST be imported via `createRequire` + safe path: `_require("pdf-parse/lib/pdf-parse.js")`. Never use `import from "pdf-parse"` or `require("pdf-parse")`.

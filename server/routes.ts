@@ -356,39 +356,29 @@ export async function registerRoutes(
   async function translateChunks(
     chunks: string[],
     targetLang: string,
-    apiUrl: string,
-    apiKey: string
   ): Promise<string[]> {
-    const nodeFetch = _require("node-fetch");
+    const { translate } = _require("@vitalets/google-translate-api");
     const results: string[] = [];
 
     for (const chunk of chunks) {
       if (!chunk.trim()) { results.push(chunk); continue; }
 
-      const response = await nodeFetch(apiUrl + "/translate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          q:       chunk,
-          source:  "auto",
-          target:  targetLang,
-          format:  "text",
-          api_key: apiKey || "",
-        }),
-      });
-
-      if (!response.ok) {
-        const errBody = await response.text().catch(() => "");
-        if (response.status === 429) {
-          await new Promise(r => setTimeout(r, 1500));
-          results.push(chunk);
-          continue;
+      try {
+        const resp = await translate(chunk, { to: targetLang });
+        results.push(resp.text ?? chunk);
+      } catch (e: any) {
+        if (e.message?.includes("429") || e.message?.includes("Too Many")) {
+          await new Promise(r => setTimeout(r, 2000));
+          try {
+            const retry = await translate(chunk, { to: targetLang });
+            results.push(retry.text ?? chunk);
+          } catch {
+            results.push(chunk);
+          }
+        } else {
+          throw new Error(`Translation API error: ${e.message?.slice(0,100)}`);
         }
-        throw new Error(`Çeviri API hatası (${response.status}): ${errBody.slice(0,100)}`);
       }
-
-      const data: any = await response.json();
-      results.push(data.translatedText ?? chunk);
     }
 
     return results;
@@ -411,8 +401,7 @@ export async function registerRoutes(
         res.status(400).json({ error: "PDF dosyası bulunamadı" }); return;
       }
 
-      const { targetLang = "en", apiKey = "" } = req.body as Record<string,string>;
-      const apiUrl = "https://libretranslate.com";
+      const { targetLang = "en" } = req.body as Record<string,string>;
 
       if (!SUPPORTED_LANGS.has(targetLang)) {
         res.status(400).json({
@@ -454,7 +443,7 @@ export async function registerRoutes(
           }
           if (current) chunks.push(current);
 
-          const translated = await translateChunks(chunks, targetLang, apiUrl, apiKey);
+          const translated = await translateChunks(chunks, targetLang);
           const fullText   = translated.join("\n");
 
           const outDoc = await PDFDocument.create();
@@ -530,141 +519,65 @@ export async function registerRoutes(
   // ═══════════════════════════════════════════════════════════════════════
   // POST /api/compare-pdf — Compare two PDF documents
   // ═══════════════════════════════════════════════════════════════════════
-  app.post("/api/compare-pdf", handleMultiMulterError, async (req: any, res: any) => {
-    const files = (req as any).files as Express.Multer.File[] | undefined;
+  const uploadCompareFields = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 10 * 1024 * 1024, files: 2 },
+    fileFilter: (_req: any, file: any, cb: any) =>
+      file.mimetype === "application/pdf"
+        ? cb(null, true)
+        : cb(new Error("Only PDF files are accepted")),
+  });
 
-    if (!files || files.length < 2) {
-      res.status(400).json({ error: "İki PDF dosyası gerekli (fileA ve fileB)." });
+  function handleCompareMulterError(req: any, res: any, next: any) {
+    uploadCompareFields.fields([
+      { name: "fileA", maxCount: 1 },
+      { name: "fileB", maxCount: 1 },
+    ])(req, res, (err: any) => {
+      if (err instanceof multer.MulterError) return res.status(400).json({ error: `Upload error: ${err.message}` });
+      if (err) return res.status(400).json({ error: err.message });
+      next();
+    });
+  }
+
+  app.post("/api/compare-pdf", handleCompareMulterError, async (req: any, res: any) => {
+    const filesMap = req.files as Record<string, Express.Multer.File[]> | undefined;
+    const fileAArr = filesMap?.["fileA"];
+    const fileBArr = filesMap?.["fileB"];
+
+    if (!fileAArr?.[0] || !fileBArr?.[0]) {
+      res.status(400).json({ error: "Two PDF files required (fileA and fileB)." });
       return;
     }
 
     try {
       const TIMEOUT = 55_000;
       const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("Karşılaştırma zaman aşımına uğradı (55s)")), TIMEOUT)
+        setTimeout(() => reject(new Error("Compare timed out (55s)")), TIMEOUT)
       );
 
       const comparePromise = (async () => {
         let textA: string, textB: string;
         try {
-          const dataA = await pdfParse(files[0].buffer);
+          const dataA = await pdfParse(fileAArr[0].buffer);
           textA = (dataA.text ?? "").trim();
         } catch (e: any) {
-          throw new Error(`PDF A okunamadı: ${e.message}`);
+          throw new Error(`PDF A could not be read: ${e.message}`);
         }
         try {
-          const dataB = await pdfParse(files[1].buffer);
+          const dataB = await pdfParse(fileBArr[0].buffer);
           textB = (dataB.text ?? "").trim();
         } catch (e: any) {
-          throw new Error(`PDF B okunamadı: ${e.message}`);
+          throw new Error(`PDF B could not be read: ${e.message}`);
         }
 
-        const linesA = textA.split("\n");
-        const linesB = textB.split("\n");
-        const maxLen = Math.max(linesA.length, linesB.length);
-
-        const diffs: { line: number; type: "removed" | "added" | "changed"; a?: string; b?: string }[] = [];
-        let identical = 0;
-
-        for (let i = 0; i < maxLen; i++) {
-          const a = linesA[i] ?? null;
-          const b = linesB[i] ?? null;
-          if (a === b) { identical++; continue; }
-          if (a !== null && b === null) {
-            diffs.push({ line: i + 1, type: "removed", a });
-          } else if (a === null && b !== null) {
-            diffs.push({ line: i + 1, type: "added", b });
-          } else {
-            diffs.push({ line: i + 1, type: "changed", a: a!, b: b! });
-          }
-        }
-
-        const isIdentical = diffs.length === 0;
-        const similarity = maxLen > 0 ? Math.round((identical / maxLen) * 100) : 100;
-
-        const outDoc = await PDFDocument.create();
-        const font = await outDoc.embedFont(StandardFonts.Helvetica);
-        const fontBold = await outDoc.embedFont(StandardFonts.HelveticaBold);
-        const fontSize = 10;
-        const lineH = fontSize * 1.5;
-        const MARGIN = 40;
-        const PAGE_W = 595.28;
-        const PAGE_H = 841.89;
-        const maxW = PAGE_W - MARGIN * 2;
-        const maxLines = Math.floor((PAGE_H - MARGIN * 2) / lineH);
-
-        const reportLines: { text: string; color: [number, number, number]; bold?: boolean }[] = [];
-
-        const nameA = files[0].originalname || "Document A";
-        const nameB = files[1].originalname || "Document B";
-
-        reportLines.push({ text: "PDF COMPARISON REPORT", color: [0, 0, 0], bold: true });
-        reportLines.push({ text: "", color: [0, 0, 0] });
-        reportLines.push({ text: `File A: ${nameA}  (${linesA.length} lines)`, color: [0, 0, 0] });
-        reportLines.push({ text: `File B: ${nameB}  (${linesB.length} lines)`, color: [0, 0, 0] });
-        reportLines.push({ text: `Similarity: ${similarity}%`, color: [0, 0, 0], bold: true });
-        reportLines.push({ text: `Differences found: ${diffs.length}`, color: isIdentical ? [0, 0.5, 0] : [0.8, 0, 0], bold: true });
-        reportLines.push({ text: "", color: [0, 0, 0] });
-
-        if (isIdentical) {
-          reportLines.push({ text: "The two documents are identical.", color: [0, 0.5, 0], bold: true });
-        } else {
-          reportLines.push({ text: "─".repeat(60), color: [0.5, 0.5, 0.5] });
-          for (const d of diffs.slice(0, 200)) {
-            if (d.type === "removed") {
-              reportLines.push({ text: `Line ${d.line} [REMOVED]:`, color: [0.8, 0, 0], bold: true });
-              reportLines.push({ text: `  A: ${(d.a ?? "").slice(0, 120)}`, color: [0.8, 0, 0] });
-            } else if (d.type === "added") {
-              reportLines.push({ text: `Line ${d.line} [ADDED]:`, color: [0, 0.5, 0], bold: true });
-              reportLines.push({ text: `  B: ${(d.b ?? "").slice(0, 120)}`, color: [0, 0.5, 0] });
-            } else {
-              reportLines.push({ text: `Line ${d.line} [CHANGED]:`, color: [0.7, 0.4, 0], bold: true });
-              reportLines.push({ text: `  A: ${(d.a ?? "").slice(0, 120)}`, color: [0.8, 0, 0] });
-              reportLines.push({ text: `  B: ${(d.b ?? "").slice(0, 120)}`, color: [0, 0.5, 0] });
-            }
-            reportLines.push({ text: "", color: [0, 0, 0] });
-          }
-          if (diffs.length > 200) {
-            reportLines.push({ text: `... and ${diffs.length - 200} more differences`, color: [0.5, 0.5, 0.5] });
-          }
-        }
-
-        let lineIdx = 0;
-        while (lineIdx < reportLines.length) {
-          const page = outDoc.addPage([PAGE_W, PAGE_H]);
-          let y = PAGE_H - MARGIN;
-          let count = 0;
-          while (lineIdx < reportLines.length && count < maxLines) {
-            const rl = reportLines[lineIdx++];
-            if (rl.text) {
-              const truncated = rl.text.length > 90 ? rl.text.slice(0, 87) + "..." : rl.text;
-              page.drawText(truncated, {
-                x: MARGIN,
-                y,
-                size: fontSize,
-                font: rl.bold ? fontBold : font,
-                color: rgb(rl.color[0], rl.color[1], rl.color[2]),
-              });
-            }
-            y -= lineH;
-            count++;
-          }
-        }
-
-        return Buffer.from(await outDoc.save());
+        return { textA, textB };
       })();
 
-      const pdfBuffer = await Promise.race([comparePromise, timeoutPromise]) as Buffer;
-
-      const safeFileName = encodeURIComponent("comparison_report.pdf");
-      res
-        .setHeader("Content-Type", "application/pdf")
-        .setHeader("Content-Disposition", `attachment; filename*=UTF-8''${safeFileName}`)
-        .setHeader("Content-Length", pdfBuffer.length.toString())
-        .send(pdfBuffer);
+      const result = await Promise.race([comparePromise, timeoutPromise]);
+      res.json(result);
     } catch (err: any) {
       console.error("[/api/compare-pdf] Error:", err.message);
-      const status = err.message.includes("zaman aşımı") || err.message.includes("timed out") ? 504 : 422;
+      const status = err.message.includes("timed out") ? 504 : 422;
       res.status(status).json({ error: err.message });
     }
   });
