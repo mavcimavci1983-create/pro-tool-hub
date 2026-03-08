@@ -708,7 +708,7 @@ export function CropImageTool() {
 
   const startDrag = (e: React.MouseEvent, type: "move"|"nw"|"ne"|"sw"|"se") => {
     e.preventDefault(); e.stopPropagation();
-    dragRef.current = { type, mx0:e.clientX, my0:e.clientY, ...crop };
+    dragRef.current = { type, mx0:e.clientX, my0:e.clientY, x0:crop.x, y0:crop.y, w0:crop.w, h0:crop.h };
   };
 
   useEffect(() => {
@@ -756,8 +756,8 @@ export function CropImageTool() {
     try {
       const sx = Math.round(imgEl.naturalWidth  * crop.x / 100);
       const sy = Math.round(imgEl.naturalHeight * crop.y / 100);
-      const sw = Math.round(imgEl.naturalWidth  * crop.w / 100);
-      const sh = Math.round(imgEl.naturalHeight * crop.h / 100);
+      const sw = Math.max(1, Math.round(imgEl.naturalWidth  * crop.w / 100));
+      const sh = Math.max(1, Math.round(imgEl.naturalHeight * crop.h / 100));
       const cv = document.createElement("canvas");
       cv.width = sw; cv.height = sh;
       const ctx = cv.getContext("2d")!;
@@ -1114,10 +1114,17 @@ export function RemoveBackgroundTool() {
   /** Yerel: solid-color arka plan kaldırma (köşe rengi referans) */
   const localRemove = async (f: File): Promise<Blob> => {
     const img = await loadImageSafe(f);
+    const [safeW, safeH] = (() => {
+      const total = img.naturalWidth * img.naturalHeight;
+      const BG_SAFE = 32_000_000;
+      if (total <= BG_SAFE) return [img.naturalWidth, img.naturalHeight];
+      const factor = Math.sqrt(BG_SAFE / total);
+      return [Math.round(img.naturalWidth * factor), Math.round(img.naturalHeight * factor)];
+    })();
     const cv  = document.createElement("canvas");
-    cv.width  = img.naturalWidth; cv.height = img.naturalHeight;
+    cv.width  = safeW; cv.height = safeH;
     const ctx = cv.getContext("2d")!;
-    ctx.drawImage(img, 0, 0);
+    ctx.drawImage(img, 0, 0, safeW, safeH);
     const data = ctx.getImageData(0, 0, cv.width, cv.height);
     const d    = data.data;
 
