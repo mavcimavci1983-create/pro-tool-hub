@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { 
   Scissors, VolumeX, Minimize, Music, Play, Download, ImageIcon, Video, Youtube,
   FileText, Type, Presentation, RefreshCw, Zap, Lock, Globe, FileCode, FileJson,
@@ -12,6 +12,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useLanguageStore } from "@/lib/languageStore";
 import translationsData from "@/locales/translations.json";
+import { WatermarkTool, SignPdfTool, TranslatePdfTool } from "@/components/home/SecurityTools";
 
 const translations = translationsData as Record<string, any>;
 
@@ -142,37 +143,58 @@ const PDF_SUB_CATEGORIES: { id: PdfSubCategory; labelEn: string; labelTr: string
   { id: "security",     labelEn: "Security & Optimize", labelTr: "Güvenlik & Optimizasyon", color: "text-purple-600", bgColor: "bg-purple-50 border-purple-200" },
 ];
 
-function ToolCard({ tool, t, language }: { tool: ToolItem; t: any; language: string }) {
+const INLINE_TOOL_LINKS = new Set(["/tools/add-watermark", "/tools/sign-pdf", "/tools/translate-pdf"]);
+
+function ToolCard({ tool, t, language, onInlineOpen }: { tool: ToolItem; t: any; language: string; onInlineOpen?: (link: string) => void }) {
   const title = language === "tr" && tool.titleTr ? tool.titleTr : tool.title;
   const desc = language === "tr" && tool.descTr ? tool.descTr : tool.desc;
+  const isInline = INLINE_TOOL_LINKS.has(tool.link);
 
-  return (
-    <Link href={tool.link}>
-      <Card
-        data-testid={`card-tool-${tool.link.split("/").pop()}`}
-        className="p-5 h-full flex flex-col transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-primary/20 cursor-pointer border shadow-sm group relative overflow-hidden bg-white"
-      >
-        <div className="mb-4 p-2.5 rounded-lg bg-slate-50 border border-slate-100 group-hover:bg-primary/5 transition-colors w-fit">
-          {tool.icon}
-        </div>
-        <h3 className="font-bold text-sm mb-1 text-slate-900 group-hover:text-primary transition-colors tracking-tight">
-          {title}
-        </h3>
-        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 opacity-60">
-          {tool.cat}
-        </p>
-        <p className="text-[11px] text-slate-500 mb-4 flex-grow font-medium leading-relaxed">
-          {desc}
-        </p>
-        <div className="flex items-center text-primary font-bold text-[10px] group-hover:translate-x-1 transition-transform uppercase tracking-wider">
-          {t.common.start_now} <ArrowRight className="ml-1.5 w-3 h-3" />
-        </div>
-      </Card>
-    </Link>
+  const cardContent = (
+    <Card
+      data-testid={`card-tool-${tool.link.split("/").pop()}`}
+      className="p-5 h-full flex flex-col transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-primary/20 cursor-pointer border shadow-sm group relative overflow-hidden bg-white"
+    >
+      <div className="mb-4 p-2.5 rounded-lg bg-slate-50 border border-slate-100 group-hover:bg-primary/5 transition-colors w-fit">
+        {tool.icon}
+      </div>
+      <h3 className="font-bold text-sm mb-1 text-slate-900 group-hover:text-primary transition-colors tracking-tight">
+        {title}
+      </h3>
+      <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 opacity-60">
+        {tool.cat}
+      </p>
+      <p className="text-[11px] text-slate-500 mb-4 flex-grow font-medium leading-relaxed">
+        {desc}
+      </p>
+      <div className="flex items-center text-primary font-bold text-[10px] group-hover:translate-x-1 transition-transform uppercase tracking-wider">
+        {t.common.start_now} <ArrowRight className="ml-1.5 w-3 h-3" />
+      </div>
+    </Card>
   );
+
+  if (isInline && onInlineOpen) {
+    return (
+      <div onClick={() => onInlineOpen(tool.link)} role="button" tabIndex={0} onKeyDown={e => e.key === "Enter" && onInlineOpen(tool.link)}>
+        {cardContent}
+      </div>
+    );
+  }
+
+  return <Link href={tool.link}>{cardContent}</Link>;
 }
 
-function PdfCategorizedGrid({ t, language }: { t: any; language: string }) {
+function InlineToolPanel({ expandedTool, onClose }: { expandedTool: string | null; onClose: () => void }) {
+  if (!expandedTool) return null;
+  switch (expandedTool) {
+    case "/tools/add-watermark": return <WatermarkTool onClose={onClose} />;
+    case "/tools/sign-pdf":      return <SignPdfTool onClose={onClose} />;
+    case "/tools/translate-pdf": return <TranslatePdfTool onClose={onClose} />;
+    default: return null;
+  }
+}
+
+function PdfCategorizedGrid({ t, language, expandedTool, onInlineOpen, onClose }: { t: any; language: string; expandedTool: string | null; onInlineOpen: (link: string) => void; onClose: () => void }) {
   const isEn = language === "en";
   const pdfTools = tools.filter(tool => tool.cat === "PDF");
 
@@ -181,6 +203,7 @@ function PdfCategorizedGrid({ t, language }: { t: any; language: string }) {
       {PDF_SUB_CATEGORIES.map(sub => {
         const subTools = pdfTools.filter(tool => tool.pdfSub === sub.id);
         if (subTools.length === 0) return null;
+        const hasExpandedTool = expandedTool && subTools.some(t => t.link === expandedTool);
 
         return (
           <div key={sub.id}>
@@ -190,8 +213,9 @@ function PdfCategorizedGrid({ t, language }: { t: any; language: string }) {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-4">
               {subTools.map((tool, index) => (
-                <ToolCard key={`${tool.title}-${index}`} tool={tool} t={t} language={language} />
+                <ToolCard key={`${tool.title}-${index}`} tool={tool} t={t} language={language} onInlineOpen={onInlineOpen} />
               ))}
+              {hasExpandedTool && <InlineToolPanel expandedTool={expandedTool} onClose={onClose} />}
             </div>
           </div>
         );
@@ -206,6 +230,14 @@ export function ToolGrid() {
   const [activeTab, setActiveTab] = useState("All Tools");
   const [searchQuery, setSearchQuery] = useState("");
   const [visibleCount, setVisibleCount] = useState(24);
+  const [expandedTool, setExpandedTool] = useState<string | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  const handleInlineOpen = (link: string) => {
+    setExpandedTool(prev => prev === link ? null : link);
+    setTimeout(() => panelRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), 100);
+  };
+  const handleInlineClose = () => setExpandedTool(null);
 
   const filteredTools = useMemo(() => {
     try {
@@ -286,15 +318,18 @@ export function ToolGrid() {
         </div>
       </div>
 
-      {showPdfCategorized ? (
-        <PdfCategorizedGrid t={t} language={language} />
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {filteredTools.slice(0, visibleCount).map((tool, index) => (
-            <ToolCard key={`${tool.title}-${index}`} tool={tool} t={t} language={language} />
-          ))}
-        </div>
-      )}
+      <div ref={panelRef}>
+        {showPdfCategorized ? (
+          <PdfCategorizedGrid t={t} language={language} expandedTool={expandedTool} onInlineOpen={handleInlineOpen} onClose={handleInlineClose} />
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {filteredTools.slice(0, visibleCount).map((tool, index) => (
+              <ToolCard key={`${tool.title}-${index}`} tool={tool} t={t} language={language} onInlineOpen={handleInlineOpen} />
+            ))}
+            {expandedTool && <InlineToolPanel expandedTool={expandedTool} onClose={handleInlineClose} />}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
