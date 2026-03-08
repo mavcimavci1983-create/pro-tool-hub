@@ -336,6 +336,197 @@ export async function registerRoutes(
     }
   });
 
+  // ═══════════════════════════════════════════════════════════════════════
+  // POST /api/translate-pdf
+  // ═══════════════════════════════════════════════════════════════════════
+
+  const uploadTranslate = multer({
+    storage: multer.memoryStorage(),
+    limits:  { fileSize: 10 * 1024 * 1024 },
+    fileFilter: (_req: any, file: any, cb: any) =>
+      file.mimetype === "application/pdf"
+        ? cb(null, true)
+        : cb(new Error("Yalnızca PDF kabul edilir")),
+  });
+
+  const SUPPORTED_LANGS = new Set([
+    "tr","en","de","fr","es","it","pt","ru","ja","zh","ar","ko","nl","pl","sv",
+  ]);
+
+  async function translateChunks(
+    chunks: string[],
+    targetLang: string,
+    apiUrl: string,
+    apiKey: string
+  ): Promise<string[]> {
+    const nodeFetch = _require("node-fetch");
+    const results: string[] = [];
+
+    for (const chunk of chunks) {
+      if (!chunk.trim()) { results.push(chunk); continue; }
+
+      const response = await nodeFetch(apiUrl + "/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          q:       chunk,
+          source:  "auto",
+          target:  targetLang,
+          format:  "text",
+          api_key: apiKey || "",
+        }),
+      });
+
+      if (!response.ok) {
+        const errBody = await response.text().catch(() => "");
+        if (response.status === 429) {
+          await new Promise(r => setTimeout(r, 1500));
+          results.push(chunk);
+          continue;
+        }
+        throw new Error(`Çeviri API hatası (${response.status}): ${errBody.slice(0,100)}`);
+      }
+
+      const data: any = await response.json();
+      results.push(data.translatedText ?? chunk);
+    }
+
+    return results;
+  }
+
+  const handleTranslateMulterError = (err: any, _req: any, res: any, next: any) => {
+    if (err instanceof multer.MulterError) {
+      return res.status(400).json({ error: `Upload error: ${err.message}` });
+    }
+    if (err) return res.status(400).json({ error: err.message });
+    next();
+  };
+
+  app.post(
+    "/api/translate-pdf",
+    uploadTranslate.single("file"),
+    handleTranslateMulterError,
+    async (req: any, res: any): Promise<void> => {
+      if (!req.file) {
+        res.status(400).json({ error: "PDF dosyası bulunamadı" }); return;
+      }
+
+      const { targetLang = "en", apiKey = "" } = req.body as Record<string,string>;
+      const apiUrl = "https://libretranslate.com";
+
+      if (!SUPPORTED_LANGS.has(targetLang)) {
+        res.status(400).json({
+          error: `Desteklenmeyen dil: "${targetLang}"`,
+          supported: [...SUPPORTED_LANGS],
+        });
+        return;
+      }
+
+      try {
+        const TIMEOUT = 55_000;
+        const timeoutPromise = new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("Çeviri zaman aşımına uğradı (55s)")), TIMEOUT)
+        );
+
+        const translatePromise = (async () => {
+          let data: any;
+          try {
+            data = await pdfParse(req.file!.buffer);
+          } catch (e: any) {
+            throw new Error(`PDF okunamadı: ${e.message}`);
+          }
+
+          const rawText = data.text ?? "";
+          if (!rawText.trim()) throw new Error("PDF'den metin çıkarılamadı.");
+
+          const lines  = rawText.replace(/\r\n?/g, "\n").split("\n");
+          const chunks: string[] = [];
+          let   current = "";
+
+          for (const line of lines) {
+            const candidate = current ? `${current}\n${line}` : line;
+            if (candidate.length > 500 && current) {
+              chunks.push(current);
+              current = line;
+            } else {
+              current = candidate;
+            }
+          }
+          if (current) chunks.push(current);
+
+          const translated = await translateChunks(chunks, targetLang, apiUrl, apiKey);
+          const fullText   = translated.join("\n");
+
+          const outDoc = await PDFDocument.create();
+          const font   = await outDoc.embedFont(StandardFonts.Helvetica);
+          const fontSize = 11;
+          const lineH    = fontSize * 1.4;
+          const MARGIN   = 50;
+          const PAGE_W   = 595.28;
+          const PAGE_H   = 841.89;
+          const maxW     = PAGE_W - MARGIN * 2;
+          const maxLines = Math.floor((PAGE_H - MARGIN * 2) / lineH);
+
+          const allLines: string[] = [];
+          for (const paragraph of fullText.split("\n")) {
+            if (!paragraph.trim()) { allLines.push(""); continue; }
+            const words = paragraph.split(" ");
+            let   buf   = "";
+            for (const word of words) {
+              const test = buf ? `${buf} ${word}` : word;
+              const testW = font.widthOfTextAtSize(test, fontSize);
+              if (testW > maxW && buf) {
+                allLines.push(buf);
+                buf = word;
+              } else {
+                buf = test;
+              }
+            }
+            if (buf) allLines.push(buf);
+          }
+
+          let lineIdx = 0;
+          while (lineIdx < allLines.length) {
+            const page  = outDoc.addPage([PAGE_W, PAGE_H]);
+            let   y     = PAGE_H - MARGIN;
+            let   count = 0;
+            while (lineIdx < allLines.length && count < maxLines) {
+              const line = allLines[lineIdx++];
+              if (line) {
+                page.drawText(line, {
+                  x: MARGIN, y,
+                  size: fontSize,
+                  font,
+                  color: rgb(0, 0, 0),
+                });
+              }
+              y -= lineH;
+              count++;
+            }
+          }
+
+          return Buffer.from(await outDoc.save());
+        })();
+
+        const pdfBuffer = await Promise.race([translatePromise, timeoutPromise]) as Buffer;
+
+        const baseName     = req.file.originalname.replace(/\.pdf$/i, "");
+        const safeFileName = encodeURIComponent(`${baseName}_${targetLang}.pdf`);
+
+        res
+          .setHeader("Content-Type",        "application/pdf")
+          .setHeader("Content-Disposition", `attachment; filename*=UTF-8''${safeFileName}`)
+          .setHeader("Content-Length",      pdfBuffer.length.toString())
+          .send(pdfBuffer);
+
+      } catch (err: any) {
+        console.error("[/api/translate-pdf] Error:", err.message);
+        const status = err.message.includes("zaman aşımı") || err.message.includes("timed out") ? 504 : 422;
+        res.status(status).json({ error: err.message });
+      }
+    }
+  );
+
   app.post("/api/convert-text", handleMulterError, async (req, res) => {
     if (!req.file) {
       return res.status(400).json({ error: "No file uploaded" });
@@ -494,21 +685,29 @@ export async function registerRoutes(
 
         case "watermark": {
           const watermarkText = req.body?.watermark ?? "ProToolHub";
+          const rawFontSize = Number(req.body?.fontSize ?? 0);
+          const wmFontSize = rawFontSize > 0 ? Math.max(8, Math.min(200, rawFontSize)) : 0;
+          const wmAngle    = Number(req.body?.angle ?? 45);
+          const wmOpacity  = Math.max(0.01, Math.min(1, Number(req.body?.opacity ?? 0.3)));
+          const wmColorR   = Math.max(0, Math.min(1, Number(req.body?.colorR ?? 0.75)));
+          const wmColorG   = Math.max(0, Math.min(1, Number(req.body?.colorG ?? 0.75)));
+          const wmColorB   = Math.max(0, Math.min(1, Number(req.body?.colorB ?? 0.75)));
+
           const pdfDoc = await PDFDocument.load(files[0].buffer);
           const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
           const pages = pdfDoc.getPages();
           pages.forEach((page: any) => {
             const { width, height } = page.getSize();
-            const fontSize = Math.min(width, height) * 0.1;
-            const textWidth = font.widthOfTextAtSize(watermarkText, fontSize);
+            const size = wmFontSize || Math.min(width, height) * 0.1;
+            const textWidth = font.widthOfTextAtSize(watermarkText, size);
             page.drawText(watermarkText, {
               x: (width - textWidth) / 2,
               y: height / 2,
-              size: fontSize,
+              size,
               font,
-              color: rgb(0.75, 0.75, 0.75),
-              opacity: 0.3,
-              rotate: degrees(45),
+              color: rgb(wmColorR, wmColorG, wmColorB),
+              opacity: wmOpacity,
+              rotate: degrees(wmAngle),
             });
           });
           return Buffer.from(await pdfDoc.save());

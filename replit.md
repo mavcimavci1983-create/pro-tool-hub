@@ -40,7 +40,7 @@ When PDF tab is active, tools are organized under:
 3. **Convert TO PDF** (6 tools): Word to PDF, PPT to PDF, Excel to PDF, JPG to PDF, HTML to PDF, Scan to PDF
 4. **Security & Optimize** (7 tools): Compress, Protect, Unlock, Watermark, Sign PDF, Compare PDF, Translate PDF
 
-## Conversion Logic (ToolWorkflow v7.1)
+## Conversion Logic (ToolWorkflow v7.2)
 
 ### Client-side (no server)
 - **Image → PDF**: jsPDF + Canvas 2x supersampling
@@ -53,6 +53,12 @@ When PDF tab is active, tools are organized under:
 - **PDF → Excel**: POST /api/convert-excel (pdf-parse + xlsx)
 - **PDF → Image**: Client-first pdfjs-dist CDN; fallback POST /api/convert-image (pdfjs-dist/legacy + canvas). Multi-page PDFs throw "MULTI_PAGE" → server returns ZIP.
 - **PDF → Text**: POST /api/convert-text (pdf-parse)
+
+### /api/translate-pdf (LibreTranslate)
+- **Translate PDF**: Extract text via pdf-parse, chunk (max 500 chars), translate via LibreTranslate public API, rebuild PDF via pdf-lib
+- 15 supported languages: tr, en, de, fr, es, it, pt, ru, ja, zh, ar, ko, nl, pl, sv
+- 10MB file limit, 55s timeout, rate-limit retry (429 → 1.5s wait)
+- apiUrl hardcoded server-side (no SSRF), apiKey optional
 
 ### /api/convert-to-pdf (LibreOffice)
 - **Word → PDF**: .doc/.docx via libreoffice-convert
@@ -101,6 +107,7 @@ These packages are NEVER bundled — they use runtime `require()`:
 - `pdf-lib`
 - `libreoffice-convert`
 - `html-to-docx`
+- `node-fetch`
 
 ## Important Patterns
 - `pdf-parse@1.1.1` MUST be imported via `createRequire` + safe path: `_require("pdf-parse/lib/pdf-parse.js")`. Never use `import from "pdf-parse"` or `require("pdf-parse")`.

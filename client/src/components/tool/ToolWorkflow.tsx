@@ -46,6 +46,7 @@ const SERVER_TOOLS = new Set<ToolType>([
   "compress", "protect", "unlock", "watermark",
   "pdf-to-word", "pdf-to-excel", "pdf-to-image", "pdf-to-text",
   "word-to-pdf", "excel-to-pdf", "ppt-to-pdf", "html-to-pdf",
+  "translate-pdf",
 ]);
 
 export interface ToolDefinition {
@@ -101,7 +102,7 @@ export const TOOL_CATALOG: ToolDefinition[] = [
   { type: "watermark",      category: "security",   label: "Add Watermark",    labelTr: "Filigran Ekle",    accepts: ".pdf", actionType: "watermark" },
   { type: "sign-pdf",       category: "security",   label: "Sign PDF",         labelTr: "PDF İmzala",       accepts: ".pdf" },
   { type: "compare-pdf",    category: "security",   label: "Compare PDF",      labelTr: "PDF Karşılaştır",  accepts: ".pdf" },
-  { type: "translate-pdf",  category: "security",   label: "Translate PDF",    labelTr: "PDF Çevir",        accepts: ".pdf" },
+  { type: "translate-pdf",  category: "security",   label: "Translate PDF",    labelTr: "PDF Çevir",        accepts: ".pdf",  endpoint: "/api/translate-pdf" },
 
   // ── Data ──────────────────────────────────────────────────────────────────
   { type: "csv-to-json",  category: "convert-to",   label: "CSV to JSON",      labelTr: "CSV → JSON",       accepts: ".csv" },

@@ -84,7 +84,7 @@ async function buildAll() {
       },
     ],
     minify: true,
-    external: [...externals, "pdf-parse", "pdf-parse/lib/pdf-parse.js", "pdfjs-dist/legacy/build/pdf.js", "canvas", "jszip", "pdf-lib", "libreoffice-convert", "html-to-docx"],
+    external: [...externals, "pdf-parse", "pdf-parse/lib/pdf-parse.js", "pdfjs-dist/legacy/build/pdf.js", "canvas", "jszip", "pdf-lib", "libreoffice-convert", "html-to-docx", "node-fetch"],
     logLevel: "info",
   });
 }

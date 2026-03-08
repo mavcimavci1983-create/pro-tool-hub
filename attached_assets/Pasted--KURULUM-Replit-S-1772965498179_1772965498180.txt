@@ -1,0 +1,196 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// KURULUM (Replit Shell):
+//   npm install libre-translate@2.0.0 node-fetch@2.7.0
+//   npm install --save-dev @types/node-fetch@2.6.11
+//
+// NOT: LibreTranslate kendi sunucusunu gerektirir.
+// Ücretsiz public endpoint: https://libretranslate.com (rate-limit var)
+// Kendi Replit'inizde çalıştırmak için:
+//   docker run -ti --rm -p 5000:5000 libretranslate/libretranslate
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── Translate için multer (PDF only, 10MB) ─────────────────────────────────
+const uploadTranslate = multer({
+  storage: multer.memoryStorage(),
+  limits:  { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) =>
+    file.mimetype === "application/pdf"
+      ? cb(null, true)
+      : cb(new Error("Yalnızca PDF kabul edilir")),
+});
+
+// ── Desteklenen dil listesi ────────────────────────────────────────────────
+const SUPPORTED_LANGS = new Set([
+  "tr","en","de","fr","es","it","pt","ru","ja","zh","ar","ko","nl","pl","sv",
+]);
+
+// ── LibreTranslate çevirisi (chunk tabanlı — rate-limit koruması) ─────────
+async function translateChunks(
+  chunks: string[],
+  targetLang: string,
+  apiUrl: string,
+  apiKey: string
+): Promise<string[]> {
+  const results: string[] = [];
+
+  for (const chunk of chunks) {
+    if (!chunk.trim()) { results.push(chunk); continue; }
+
+    const response = await fetch(apiUrl + "/translate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        q:       chunk,
+        source:  "auto",
+        target:  targetLang,
+        format:  "text",
+        api_key: apiKey || "",
+      }),
+    });
+
+    if (!response.ok) {
+      const errBody = await response.text().catch(() => "");
+      // Rate-limit → kısa bekleme + retry (1 kez)
+      if (response.status === 429) {
+        await new Promise(r => setTimeout(r, 1500));
+        results.push(chunk); // çevrilmeden geç — timeout'u önle
+        continue;
+      }
+      throw new Error(`Çeviri API hatası (${response.status}): ${errBody.slice(0,100)}`);
+    }
+
+    const data: any = await response.json();
+    results.push(data.translatedText ?? chunk);
+  }
+
+  return results;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// POST /api/translate-pdf
+//
+// FormData:
+//   file       : PDF dosyası
+//   targetLang : "tr" | "en" | "de" | "fr" | "es" | ...
+//   apiUrl     : LibreTranslate API adresi (opsiyonel, default: public)
+//   apiKey     : API anahtarı (opsiyonel)
+//
+// Yanıt: application/pdf (çevrilmiş metin + sayfa yapısı korunur)
+// ═══════════════════════════════════════════════════════════════════════════
+app.post(
+  "/api/translate-pdf",
+  uploadTranslate.single("file"),
+  async (req: Request, res: Response): Promise<void> => {
+    if (!req.file) {
+      res.status(400).json({ error: "PDF dosyası bulunamadı" }); return;
+    }
+
+    const { targetLang = "en", apiUrl = "https://libretranslate.com", apiKey = "" } = req.body as Record<string,string>;
+
+    if (!SUPPORTED_LANGS.has(targetLang)) {
+      res.status(400).json({
+        error: `Desteklenmeyen dil: "${targetLang}"`,
+        supported: [...SUPPORTED_LANGS],
+      });
+      return;
+    }
+
+    try {
+      const pdfBuffer = await withTimeout((async () => {
+
+        // 1. PDF'den metin çıkar
+        const rawText = await extractText(req.file!.buffer);
+
+        // 2. Metni satırlara böl, boş olmayanları chunk'a grupla
+        //    Max 500 karakter/chunk — LibreTranslate limit
+        const lines  = rawText.replace(/\r\n?/g, "\n").split("\n");
+        const chunks: string[] = [];
+        let   current = "";
+
+        for (const line of lines) {
+          const candidate = current ? `${current}\n${line}` : line;
+          if (candidate.length > 500 && current) {
+            chunks.push(current);
+            current = line;
+          } else {
+            current = candidate;
+          }
+        }
+        if (current) chunks.push(current);
+
+        // 3. Çevir
+        const translated = await translateChunks(chunks, targetLang, apiUrl, apiKey);
+        const fullText   = translated.join("\n");
+
+        // 4. Çevrilmiş metni PDF'e yaz (sayfa yapısı + Calibri 11pt)
+        const { PDFDocument: PDFDoc, StandardFonts: SF, rgb: c } = await import("pdf-lib");
+
+        const outDoc = await PDFDoc.create();
+        const font   = await outDoc.embedFont(SF.Helvetica);
+        const fontSize = 11;
+        const lineH    = fontSize * 1.4;
+        const MARGIN   = 50;
+        const PAGE_W   = 595.28;
+        const PAGE_H   = 841.89;
+        const maxW     = PAGE_W - MARGIN * 2;
+        const maxLines = Math.floor((PAGE_H - MARGIN * 2) / lineH);
+
+        // Metni sayfa genişliğine göre sar
+        const allLines: string[] = [];
+        for (const paragraph of fullText.split("\n")) {
+          if (!paragraph.trim()) { allLines.push(""); continue; }
+          // Kelime bazlı satır kırma
+          const words = paragraph.split(" ");
+          let   buf   = "";
+          for (const word of words) {
+            const test = buf ? `${buf} ${word}` : word;
+            const testW = font.widthOfTextAtSize(test, fontSize);
+            if (testW > maxW && buf) {
+              allLines.push(buf);
+              buf = word;
+            } else {
+              buf = test;
+            }
+          }
+          if (buf) allLines.push(buf);
+        }
+
+        // Sayfalara dağıt
+        let lineIdx = 0;
+        while (lineIdx < allLines.length) {
+          const page  = outDoc.addPage([PAGE_W, PAGE_H]);
+          let   y     = PAGE_H - MARGIN;
+          let   count = 0;
+          while (lineIdx < allLines.length && count < maxLines) {
+            const line = allLines[lineIdx++];
+            if (line) {
+              page.drawText(line, {
+                x: MARGIN, y,
+                size: fontSize,
+                font,
+                color: c(0, 0, 0),
+              });
+            }
+            y -= lineH;
+            count++;
+          }
+        }
+
+        return Buffer.from(await outDoc.save());
+
+      })(), 55_000);
+
+      const baseName     = req.file.originalname.replace(/\.pdf$/i, "");
+      const safeFileName = encodeURIComponent(`${baseName}_${targetLang}.pdf`);
+
+      res
+        .setHeader("Content-Type",        "application/pdf")
+        .setHeader("Content-Disposition", `attachment; filename*=UTF-8''${safeFileName}`)
+        .setHeader("Content-Length",      pdfBuffer.length.toString())
+        .send(pdfBuffer);
+
+    } catch (e: any) {
+      sendError(res, e, "translate-pdf");
+    }
+  }
+);
