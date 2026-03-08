@@ -13,9 +13,12 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
   // Logic to determine accepted file types based on title/context
   const getAcceptedTypes = () => {
     const t = title.toLowerCase();
-    if (t.includes("jpg to pdf")) return ".jpg,.jpeg,.png";
+    if (t.includes("jpg to pdf") || t.includes("image to pdf")) return ".jpg,.jpeg,.png,.webp,.gif,.bmp";
     if (t.includes("word to pdf")) return ".doc,.docx";
     if (t.includes("excel to pdf")) return ".xls,.xlsx";
+    if (t.includes("ppt to pdf") || t.includes("powerpoint")) return ".ppt,.pptx";
+    if (t.includes("html to pdf")) return ".html,.htm";
+    if (t.includes("scan to pdf")) return ".jpg,.jpeg,.png,.pdf,.tiff";
     return ".pdf";
   };
 

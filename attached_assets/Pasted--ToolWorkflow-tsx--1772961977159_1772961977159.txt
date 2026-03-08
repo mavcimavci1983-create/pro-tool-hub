@@ -1,0 +1,174 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// ToolWorkflow.tsx — TOOL_CATALOG ve convertFile GÜNCELLEMESİ
+//
+// Mevcut TOOL_CATALOG'unuza bu araçları ekleyin / endpoint değerlerini güncelleyin.
+// convertFile fonksiyonunun güncellenen switch bloğu da aşağıda verilmiştir.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── 1. detectToolType() fonksiyonuna yeni tip ekle ────────────────────────
+// Mevcut ToolType union'ına "office-to-pdf" ekleyin:
+type ToolType =
+  | "image-to-pdf"
+  | "office-to-pdf"   // ← YENİ: word/excel/ppt/html → pdf
+  | "pdf-to-word"
+  | "pdf-to-image"
+  | "text-to-pdf"
+  | "pdf-compress"
+  | "pdf-merge"
+  | "pdf-split"
+  | "image-resize"
+  | "image-compress"
+  | "image-convert"
+  | "csv-to-json"
+  | "json-to-csv"
+  | "identity";
+
+// ── 2. detectToolType() — yeni kural bloğunu ÜSTE ekle ───────────────────
+function detectToolType(toolName: string): ToolType {
+  const isImage  = kw(toolName, "image","img","jpg","jpeg","png","webp","gif","bmp","tiff");
+  const isPdf    = kw(toolName, "pdf");
+  const isText   = kw(toolName, "txt","text","plain");
+  const isOffice = kw(toolName, "word","excel","ppt","powerpoint","html","doc","xls");
+
+  // ── YENİ: Office/HTML → PDF ─────────────────────────────────────────
+  // "Word to PDF", "Excel to PDF", "PPT to PDF", "HTML to PDF" vb.
+  if (isOffice && isPdf && kw(toolName, "to","convert","topdf"))   return "office-to-pdf";
+  if (isOffice && isPdf)                                            return "office-to-pdf";
+  // ────────────────────────────────────────────────────────────────────
+
+  if (isPdf && kw(toolName, "word","docx","doc"))                   return "pdf-to-word";
+  if (isImage && isPdf)                                             return "image-to-pdf";
+  if (isPdf   && isImage)                                           return "pdf-to-image";
+  if (isText  && isPdf)                                             return "text-to-pdf";
+  if (isPdf   && kw(toolName, "compress","shrink","reduce"))        return "pdf-compress";
+  if (isPdf   && kw(toolName, "merge","combine","join"))            return "pdf-merge";
+  if (isPdf   && kw(toolName, "split","extract","separate"))        return "pdf-split";
+  if (isImage && kw(toolName, "resize","scale","dimension"))        return "image-resize";
+  if (isImage && kw(toolName, "compress","shrink","reduce"))        return "image-compress";
+  if (isImage && kw(toolName, "convert","to"))                      return "image-convert";
+  if (kw(toolName, "csv") && kw(toolName, "json"))                  return "csv-to-json";
+  if (kw(toolName, "json") && kw(toolName, "csv"))                  return "json-to-csv";
+  return "identity";
+}
+
+// ── 3. getOutputExtension() — office-to-pdf case ekle ────────────────────
+// Mevcut map objesine şu satırı ekleyin:
+//   "office-to-pdf": "pdf",
+
+// ── 4. uploadToServer() — genel sunucu yükleme yardımcısı ────────────────
+// Mevcut uploadPdfForConversion() fonksiyonunu GENELLEŞTIR:
+
+async function uploadToServer(
+  file: File,
+  endpoint: string,
+  extraFields?: Record<string, string>,
+  onUploadProgress?: (pct: number) => void
+): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    const formData = new FormData();
+    formData.append("file", file, file.name);
+    if (extraFields) {
+      Object.entries(extraFields).forEach(([k, v]) => formData.append(k, v));
+    }
+
+    const xhr = new XMLHttpRequest();
+
+    xhr.upload.addEventListener("progress", (e) => {
+      if (e.lengthComputable && onUploadProgress) {
+        onUploadProgress(Math.round((e.loaded / e.total) * 40));
+      }
+    });
+
+    xhr.addEventListener("load", () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve(xhr.response as Blob);
+      } else {
+        let msg = `Sunucu hatası (${xhr.status})`;
+        try {
+          const j = JSON.parse(xhr.responseText);
+          if (j.error) msg = j.error;
+        } catch { /* ignore */ }
+        reject(new Error(msg));
+      }
+    });
+
+    xhr.addEventListener("error",   () => reject(new Error("Ağ bağlantı hatası")));
+    xhr.addEventListener("timeout", () => reject(new Error("İstek zaman aşımına uğradı")));
+
+    xhr.open("POST", endpoint);
+    xhr.responseType = "blob";
+    xhr.timeout      = 58_000;
+    xhr.send(formData);
+  });
+}
+
+// ── 5. convertFile() — office-to-pdf case'i switch'e ekle ────────────────
+// Mevcut convertFile() fonksiyonunun switch bloğunu şu şekilde genişletin:
+
+async function convertFile(
+  file: File,
+  toolName: string,
+  onUploadProgress?: (pct: number) => void
+): Promise<Blob> {
+  const toolType = detectToolType(toolName);
+
+  switch (toolType) {
+    // ── Client-side dönüşümler ──────────────────────────────────────────
+    case "image-to-pdf": return imageFileToPdf(file);
+    case "text-to-pdf":  return textFileToPdf(file);
+    case "csv-to-json":  return csvToJson(file);
+    case "json-to-csv":  return jsonToCsv(file);
+
+    // ── Sunucu: PDF'den dönüşüm (mevcut) ───────────────────────────────
+    case "pdf-to-word":
+      return uploadToServer(file, "/api/convert", {}, onUploadProgress);
+
+    // ── Sunucu: PDF'e dönüşüm (YENİ) ───────────────────────────────────
+    case "office-to-pdf":
+      return uploadToServer(file, "/api/convert-to-pdf", {}, onUploadProgress);
+
+    default: {
+      const buf = await file.arrayBuffer();
+      return new Blob([buf], { type: file.type || "application/octet-stream" });
+    }
+  }
+}
+
+// ── 6. Hazır kullanım bileşenleri ─────────────────────────────────────────
+// Sayfalarınıza doğrudan eklenebilir:
+
+export function WordToPdfTool() {
+  return (
+    <ToolWorkflow
+      toolName="Word to PDF"
+      acceptedFileTypes=".doc,.docx"
+    />
+  );
+}
+
+export function ExcelToPdfTool() {
+  return (
+    <ToolWorkflow
+      toolName="Excel to PDF"
+      acceptedFileTypes=".xls,.xlsx"
+    />
+  );
+}
+
+export function PptToPdfTool() {
+  return (
+    <ToolWorkflow
+      toolName="PPT to PDF"
+      acceptedFileTypes=".ppt,.pptx"
+    />
+  );
+}
+
+export function HtmlToPdfTool() {
+  return (
+    <ToolWorkflow
+      toolName="HTML to PDF"
+      acceptedFileTypes=".html,.htm"
+    />
+  );
+}

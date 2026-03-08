@@ -30,6 +30,8 @@ TinyWow-inspired multi-utility platform with 67+ tools across PDF, Image, Video,
 - `pdfjs-dist@3.11.174` — PDF rendering (server-side with node-canvas for PDF→Image)
 - `canvas` — Server-side canvas for PDF rendering (requires libuuid system dep)
 - `jspdf` — Client-side PDF generation
+- `libreoffice-convert@1.4.0` — Word/Excel/PPT → PDF via LibreOffice (requires libreoffice system dep)
+- `html-to-docx@1.8.0` — HTML → DOCX conversion (pure JS, no native deps). Used with libreoffice-convert for HTML → PDF pipeline.
 
 ## PDF Sub-Categories (ToolGrid)
 When PDF tab is active, tools are organized under:
@@ -38,7 +40,7 @@ When PDF tab is active, tools are organized under:
 3. **Convert TO PDF** (6 tools): Word to PDF, PPT to PDF, Excel to PDF, JPG to PDF, HTML to PDF, Scan to PDF
 4. **Security & Optimize** (7 tools): Compress, Protect, Unlock, Watermark, Sign PDF, Compare PDF, Translate PDF
 
-## Conversion Logic (ToolWorkflow v7)
+## Conversion Logic (ToolWorkflow v7.1)
 
 ### Client-side (no server)
 - **Image → PDF**: jsPDF + Canvas 2x supersampling
@@ -51,6 +53,13 @@ When PDF tab is active, tools are organized under:
 - **PDF → Excel**: POST /api/convert-excel (pdf-parse + xlsx)
 - **PDF → Image**: Client-first pdfjs-dist CDN; fallback POST /api/convert-image (pdfjs-dist/legacy + canvas). Multi-page PDFs throw "MULTI_PAGE" → server returns ZIP.
 - **PDF → Text**: POST /api/convert-text (pdf-parse)
+
+### /api/convert-to-pdf (LibreOffice)
+- **Word → PDF**: .doc/.docx via libreoffice-convert
+- **Excel → PDF**: .xls/.xlsx via libreoffice-convert
+- **PPT → PDF**: .ppt/.pptx via libreoffice-convert
+- **HTML → PDF**: .html/.htm via html-to-docx → libreoffice-convert (two-step: HTML→DOCX→PDF)
+- 30MB file limit, 55s timeout, lazy-loaded libs
 
 ### /api/pdf-action (actionType parameter)
 - **merge**: Multi-file upload (2+), pdf-lib copyPages
@@ -90,6 +99,8 @@ These packages are NEVER bundled — they use runtime `require()`:
 - `canvas`
 - `jszip`
 - `pdf-lib`
+- `libreoffice-convert`
+- `html-to-docx`
 
 ## Important Patterns
 - `pdf-parse@1.1.1` MUST be imported via `createRequire` + safe path: `_require("pdf-parse/lib/pdf-parse.js")`. Never use `import from "pdf-parse"` or `require("pdf-parse")`.

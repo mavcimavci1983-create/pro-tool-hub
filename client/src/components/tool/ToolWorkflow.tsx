@@ -45,6 +45,7 @@ const SERVER_TOOLS = new Set<ToolType>([
   "merge", "split", "rotate", "delete-pages", "reorder", "page-numbers",
   "compress", "protect", "unlock", "watermark",
   "pdf-to-word", "pdf-to-excel", "pdf-to-image", "pdf-to-text",
+  "word-to-pdf", "excel-to-pdf", "ppt-to-pdf", "html-to-pdf",
 ]);
 
 export interface ToolDefinition {
@@ -85,11 +86,11 @@ export const TOOL_CATALOG: ToolDefinition[] = [
   { type: "image-to-pdf", category: "convert-to",   label: "Image to PDF",     labelTr: "Görüntü → PDF",    accepts: ".jpg,.jpeg,.png,.webp,.gif,.bmp" },
   { type: "image-to-pdf", category: "convert-to",   label: "JPG to PDF",       labelTr: "JPG → PDF",        accepts: ".jpg,.jpeg,.png" },
   { type: "text-to-pdf",  category: "convert-to",   label: "Text to PDF",      labelTr: "Metin → PDF",      accepts: ".txt" },
-  { type: "word-to-pdf",  category: "convert-to",   label: "Word to PDF",      labelTr: "Word → PDF",       accepts: ".docx,.doc" },
-  { type: "excel-to-pdf", category: "convert-to",   label: "Excel to PDF",     labelTr: "Excel → PDF",      accepts: ".xlsx,.xls,.csv" },
-  { type: "html-to-pdf",  category: "convert-to",   label: "HTML to PDF",      labelTr: "HTML → PDF",       accepts: ".html,.htm" },
-  { type: "ppt-to-pdf",   category: "convert-to",   label: "PowerPoint to PDF",labelTr: "PPT → PDF",        accepts: ".pptx,.ppt" },
-  { type: "ppt-to-pdf",   category: "convert-to",   label: "PPT to PDF",       labelTr: "PPT → PDF",        accepts: ".pptx,.ppt" },
+  { type: "word-to-pdf",  category: "convert-to",   label: "Word to PDF",      labelTr: "Word → PDF",       accepts: ".docx,.doc",   endpoint: "/api/convert-to-pdf" },
+  { type: "excel-to-pdf", category: "convert-to",   label: "Excel to PDF",     labelTr: "Excel → PDF",      accepts: ".xlsx,.xls",   endpoint: "/api/convert-to-pdf" },
+  { type: "html-to-pdf",  category: "convert-to",   label: "HTML to PDF",      labelTr: "HTML → PDF",       accepts: ".html,.htm",   endpoint: "/api/convert-to-pdf" },
+  { type: "ppt-to-pdf",   category: "convert-to",   label: "PowerPoint to PDF",labelTr: "PPT → PDF",        accepts: ".pptx,.ppt",   endpoint: "/api/convert-to-pdf" },
+  { type: "ppt-to-pdf",   category: "convert-to",   label: "PPT to PDF",       labelTr: "PPT → PDF",        accepts: ".pptx,.ppt",   endpoint: "/api/convert-to-pdf" },
   { type: "scan-to-pdf",  category: "convert-to",   label: "Scan to PDF",      labelTr: "PDF'e Tara",       accepts: ".jpg,.jpeg,.png,.pdf,.tiff" },
 
   // ── Security & Optimization ───────────────────────────────────────────────
@@ -388,9 +389,7 @@ async function convertFile(
     case "excel-to-pdf":
     case "ppt-to-pdf":
     case "html-to-pdf":
-      throw new Error(
-        `"${toolType}" conversion requires server-side processing. Backend support coming soon.`
-      );
+      return uploadFiles([file], "/api/convert-to-pdf", extraParams, onProgress);
     default: {
       const buf = await file.arrayBuffer();
       return new Blob([buf], { type: file.type || "application/octet-stream" });

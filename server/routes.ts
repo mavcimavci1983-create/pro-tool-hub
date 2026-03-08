@@ -546,5 +546,120 @@ export async function registerRoutes(
     }
   });
 
+  // ═══════════════════════════════════════════════════════════════════════
+  // POST /api/convert-to-pdf — Word/Excel/PPT/HTML → PDF via LibreOffice
+  // ═══════════════════════════════════════════════════════════════════════
+
+  let libreConvert: any = null;
+  let htmlToDocx: any = null;
+
+  async function loadConvertLibs(): Promise<void> {
+    if (!libreConvert) {
+      try {
+        libreConvert = _require("libreoffice-convert");
+        const { promisify } = _require("util");
+        libreConvert.convertAsync = promisify(libreConvert.convert);
+      } catch {
+        throw new Error("libreoffice-convert yüklenemedi.");
+      }
+    }
+    if (!htmlToDocx) {
+      try {
+        htmlToDocx = _require("html-to-docx");
+      } catch {
+        throw new Error("html-to-docx yüklenemedi.");
+      }
+    }
+  }
+
+  const CONVERT_TO_PDF_EXTS = new Set([
+    ".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".html", ".htm",
+  ]);
+
+  const uploadToPdf = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 30 * 1024 * 1024 },
+    fileFilter: (_req: any, file: any, cb: any) => {
+      const ext = "." + (file.originalname.split(".").pop() ?? "").toLowerCase();
+      if (CONVERT_TO_PDF_EXTS.has(ext)) {
+        cb(null, true);
+      } else {
+        cb(new Error(`Desteklenmeyen dosya türü: ${ext}`));
+      }
+    },
+  });
+
+  function detectConvertInputType(filename: string, mime: string): "office" | "html" {
+    const ext = "." + (filename.split(".").pop() ?? "").toLowerCase();
+    if ([".html", ".htm"].includes(ext) || mime.includes("html")) return "html";
+    return "office";
+  }
+
+  async function htmlToPdfBuffer(htmlBuffer: Buffer): Promise<Buffer> {
+    const htmlString = htmlBuffer.toString("utf-8");
+    const docxBuffer: Buffer = await htmlToDocx(htmlString, null, {
+      table: { row: { cantSplit: true } },
+      footer: false,
+      pageNumber: false,
+    }) as Buffer;
+    const pdfBuffer: Buffer = await libreConvert.convertAsync(docxBuffer, ".pdf", undefined);
+    return pdfBuffer;
+  }
+
+  async function officeToPdfBuffer(fileBuffer: Buffer): Promise<Buffer> {
+    const pdfBuffer: Buffer = await libreConvert.convertAsync(fileBuffer, ".pdf", undefined);
+    return pdfBuffer;
+  }
+
+  app.post("/api/convert-to-pdf", uploadToPdf.single("file"), async (req: any, res: any) => {
+    if (!req.file) {
+      res.status(400).json({ error: "Dosya bulunamadı. FormData field adı 'file' olmalı." });
+      return;
+    }
+
+    try {
+      await loadConvertLibs();
+    } catch (e: any) {
+      res.status(503).json({ error: e.message });
+      return;
+    }
+
+    try {
+      const inputType = detectConvertInputType(req.file.originalname, req.file.mimetype);
+
+      const TIMEOUT = 55_000;
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("Dönüşüm zaman aşımına uğradı (55s)")), TIMEOUT)
+      );
+
+      const convertPromise = (async () => {
+        if (inputType === "html") {
+          return htmlToPdfBuffer(req.file!.buffer);
+        } else {
+          return officeToPdfBuffer(req.file!.buffer);
+        }
+      })();
+
+      const pdfBuffer = await Promise.race([convertPromise, timeoutPromise]);
+
+      if (!pdfBuffer || pdfBuffer.length < 100) {
+        throw new Error("PDF çıktısı boş — LibreOffice dönüşümü başarısız");
+      }
+
+      const baseName = req.file.originalname.replace(/\.[^.]+$/, "");
+      const safeFileName = encodeURIComponent(`${baseName}.pdf`);
+
+      res
+        .setHeader("Content-Type", "application/pdf")
+        .setHeader("Content-Disposition", `attachment; filename*=UTF-8''${safeFileName}`)
+        .setHeader("Content-Length", pdfBuffer.length.toString())
+        .send(pdfBuffer);
+    } catch (err: any) {
+      console.error("[/api/convert-to-pdf] Error:", err.message);
+      const status = err.message.includes("zaman aşımı") || err.message.includes("timed out") ? 504 : 422;
+      res.status(status).json({ error: err.message });
+    }
+  });
+
   return httpServer;
 }

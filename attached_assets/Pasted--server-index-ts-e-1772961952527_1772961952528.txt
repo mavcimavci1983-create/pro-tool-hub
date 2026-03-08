@@ -1,0 +1,178 @@
+// ═══════════════════════════════════════════════════════════════════════════
+// server/index.ts'e EKLENECEK BLOK — mevcut dosyanın sonundaki
+// "Global hata middleware" bölümünden ÖNCE yapıştırın (~satır 549)
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// Kurulum (Replit Shell — tek komut):
+//   npm install libreoffice-convert@1.4.0 html-to-docx@1.8.0
+//   npm install --save-dev @types/libreoffice-convert
+//
+// Replit'te LibreOffice zaten kurulu gelir.
+// html-to-docx → saf JS, native dep yok, Replit'te derleme hatası olmaz.
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── Lazy-load: sadece /api/convert-to-pdf çağrıldığında yüklenir ──────────
+let libreConvert: any = null;
+let htmlToDocx:   any = null;
+
+async function loadConvertLibs(): Promise<void> {
+  if (!libreConvert) {
+    try {
+      libreConvert = require("libreoffice-convert");
+      // Promisify — callback tabanlı API'yi async'e çevir
+      const { promisify } = require("util");
+      libreConvert.convertAsync = promisify(libreConvert.convert);
+    } catch {
+      throw new Error(
+        "libreoffice-convert yüklenemedi. Çalıştırın: npm install libreoffice-convert@1.4.0"
+      );
+    }
+  }
+  if (!htmlToDocx) {
+    try {
+      htmlToDocx = require("html-to-docx");
+    } catch {
+      throw new Error(
+        "html-to-docx yüklenemedi. Çalıştırın: npm install html-to-docx@1.8.0"
+      );
+    }
+  }
+}
+
+// ── Multer: Word/Excel/PPT/HTML dosyaları kabul eder ─────────────────────
+const ACCEPTED_INPUT_MIMES = new Set([
+  // Word
+  "application/msword",
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  // Excel
+  "application/vnd.ms-excel",
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  // PowerPoint
+  "application/vnd.ms-powerpoint",
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  // HTML
+  "text/html",
+  "application/xhtml+xml",
+]);
+
+const ACCEPTED_INPUT_EXTS = new Set([
+  ".doc",".docx",".xls",".xlsx",".ppt",".pptx",".html",".htm",
+]);
+
+const uploadToPdf = multer({
+  storage: multer.memoryStorage(),
+  limits:  { fileSize: 30 * 1024 * 1024 }, // 30 MB
+  fileFilter: (_req, file, cb) => {
+    const ext = "." + (file.originalname.split(".").pop() ?? "").toLowerCase();
+    if (ACCEPTED_INPUT_MIMES.has(file.mimetype) || ACCEPTED_INPUT_EXTS.has(ext)) {
+      cb(null, true);
+    } else {
+      cb(new Error(`Desteklenmeyen dosya türü: ${file.mimetype} (${ext})`));
+    }
+  },
+});
+
+// ── Dosya türü algılama ───────────────────────────────────────────────────
+function detectInputType(filename: string, mime: string): "office" | "html" {
+  const ext = "." + (filename.split(".").pop() ?? "").toLowerCase();
+  if ([".html", ".htm"].includes(ext) || mime.includes("html")) return "html";
+  return "office"; // doc/docx/xls/xlsx/ppt/pptx
+}
+
+// ── HTML → PDF dönüşümü (saf JS, puppeteer gerekmez) ─────────────────────
+// Strateji: HTML → DOCX (html-to-docx) → PDF (libreoffice-convert)
+// Bu yaklaşım: native dep yok, Replit'te stabil, 55s timeout içinde biter.
+async function htmlToPdfBuffer(htmlBuffer: Buffer): Promise<Buffer> {
+  const htmlString = htmlBuffer.toString("utf-8");
+
+  // Önce HTML → DOCX'e dönüştür
+  const docxBuffer: Buffer = await htmlToDocx(htmlString, null, {
+    table:    { row: { cantSplit: true } },
+    footer:   false,
+    pageNumber: false,
+  }) as Buffer;
+
+  // Sonra DOCX → PDF (LibreOffice)
+  const pdfBuffer: Buffer = await libreConvert.convertAsync(
+    docxBuffer,
+    ".pdf",
+    undefined // ek parametreler gerekmez
+  );
+
+  return pdfBuffer;
+}
+
+// ── Office (Word/Excel/PPT) → PDF dönüşümü ───────────────────────────────
+async function officeToPdfBuffer(fileBuffer: Buffer): Promise<Buffer> {
+  const pdfBuffer: Buffer = await libreConvert.convertAsync(
+    fileBuffer,
+    ".pdf",
+    undefined
+  );
+  return pdfBuffer;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// POST /api/convert-to-pdf
+//
+// FormData alanları:
+//   file        : Word / Excel / PPT / HTML dosyası
+//   (opsiyonel) : gelecekte ek parametreler için yer bırakıldı
+//
+// Yanıt: application/pdf
+// ═══════════════════════════════════════════════════════════════════════════
+app.post(
+  "/api/convert-to-pdf",
+  uploadToPdf.single("file"),
+  async (req: Request, res: Response): Promise<void> => {
+
+    if (!req.file) {
+      res.status(400).json({
+        error: "Dosya bulunamadı. FormData field adı 'file' olmalı.",
+      });
+      return;
+    }
+
+    // LibreOffice + html-to-docx'i lazy-load et
+    try {
+      await loadConvertLibs();
+    } catch (e: any) {
+      res.status(503).json({
+        error: e.message,
+        hint:  "npm install libreoffice-convert@1.4.0 html-to-docx@1.8.0",
+      });
+      return;
+    }
+
+    try {
+      const inputType = detectInputType(req.file.originalname, req.file.mimetype);
+
+      const pdfBuffer = await withTimeout(
+        (async () => {
+          if (inputType === "html") {
+            return htmlToPdfBuffer(req.file!.buffer);
+          } else {
+            return officeToPdfBuffer(req.file!.buffer);
+          }
+        })(),
+        55_000 // Replit 60s hard limit'in altında
+      );
+
+      if (!pdfBuffer || pdfBuffer.length < 100) {
+        throw new Error("PDF çıktısı boş — LibreOffice dönüşümü başarısız");
+      }
+
+      const baseName    = req.file.originalname.replace(/\.[^.]+$/, "");
+      const safeFileName = encodeURIComponent(`${baseName}.pdf`);
+
+      res
+        .setHeader("Content-Type",        "application/pdf")
+        .setHeader("Content-Disposition", `attachment; filename*=UTF-8''${safeFileName}`)
+        .setHeader("Content-Length",      pdfBuffer.length.toString())
+        .send(pdfBuffer);
+
+    } catch (e: any) {
+      sendError(res, e, "convert-to-pdf");
+    }
+  }
+);
