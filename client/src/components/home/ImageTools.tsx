@@ -34,10 +34,10 @@ import React, {
   useState, useRef, useEffect, useCallback,
 } from "react";
 import {
-  Upload, Download, RefreshCw, AlertCircle, CheckCircle2,
+  Upload, Download, RefreshCw, AlertCircle, AlertTriangle, CheckCircle2,
   Loader2, ShieldCheck, Clock, Crop, Type,
   Layers, ArrowLeftRight, Maximize2, Minimize2,
-  Lock, Unlock, Zap, ImageIcon,
+  Lock, Unlock, Zap, ImageIcon, Settings, ChevronDown,
 } from "lucide-react";
 import { Button }   from "@/components/ui/button";
 import { Card }     from "@/components/ui/card";
@@ -1089,18 +1089,18 @@ export function HeicToJpgTool() {
 
 export function RemoveBackgroundTool() {
   const { t, isEn, file, setFile, status, setStatus, pct, label, setLabel, error, result, startAnim, finish, fail, reset } = useImageTool();
-  const [apiKey,   setApiKey  ] = useState("");
-  const [showKey,  setShowKey ] = useState(false);
-  const [method,   setMethod  ] = useState<"api"|"local">("local");
+  const [apiKey,    setApiKey   ] = useState("");
+  const [showKey,   setShowKey  ] = useState(false);
+  const [showAdv,   setShowAdv  ] = useState(false);
+  const [localFail, setLocalFail] = useState(false);
 
-  /** remove.bg API */
   const callRemoveBg = async (f: File): Promise<Blob> => {
     const fd = new FormData();
     fd.append("image_file", f);
     fd.append("size", "auto");
     const res = await fetch("https://api.remove.bg/v1.0/removebg", {
-      method:"POST",
-      headers:{ "X-Api-Key": apiKey.trim() },
+      method: "POST",
+      headers: { "X-Api-Key": apiKey.trim() },
       body: fd,
     });
     if (!res.ok) {
@@ -1111,7 +1111,6 @@ export function RemoveBackgroundTool() {
     return res.blob();
   };
 
-  /** Yerel: solid-color arka plan kaldırma (kenar örnekleme + hassas eşik) */
   const localRemove = async (f: File): Promise<Blob> => {
     const img = await loadImageSafe(f);
     const [safeW, safeH] = (() => {
@@ -1172,28 +1171,49 @@ export function RemoveBackgroundTool() {
     return cvToBlob(cv, "image/png", 1.0);
   };
 
-  const process = async (f: File) => {
+  const processLocal = async (f: File) => {
     setFile(f);
+    setLocalFail(false);
     setStatus("processing");
-    const isApi = method === "api" && apiKey.trim();
-    setLabel(isApi
-      ? (isEn ? "Removing background via remove.bg API…" : "remove.bg API ile arka plan kaldırılıyor…")
-      : (isEn ? "Detecting background locally…" : "Yerel arka plan algılama…"));
-    startAnim(isApi ? 10000 : 3000);
+    setLabel(isEn ? "Removing background…" : "Arka plan kaldırılıyor…");
+    startAnim(3000);
     try {
-      const blob = isApi ? await callRemoveBg(f) : await localRemove(f);
+      const blob = await localRemove(f);
       if (!blob || blob.size === 0) throw new Error(isEn ? "Empty output" : "Boş çıktı");
       finish(blob);
-      trackEvent("BgRemoved", { method: isApi ? "api" : "local" });
+      trackEvent("BgRemoved", { method: "local" });
+    } catch (e: any) {
+      setLocalFail(true);
+      fail(e.message);
+    }
+  };
+
+  const retryWithApi = async () => {
+    if (!file || !apiKey.trim()) return;
+    setLocalFail(false);
+    setStatus("processing");
+    setLabel(isEn ? "Removing background via remove.bg API…" : "remove.bg API ile arka plan kaldırılıyor…");
+    startAnim(10000);
+    try {
+      const blob = await callRemoveBg(file);
+      if (!blob || blob.size === 0) throw new Error(isEn ? "Empty output" : "Boş çıktı");
+      finish(blob);
+      trackEvent("BgRemoved", { method: "api" });
     } catch (e: any) { fail(e.message); }
   };
 
+  const handleReset = () => {
+    setLocalFail(false);
+    reset();
+  };
+
   if (status === "processing") return <div className="w-full max-w-4xl mx-auto"><ProcessingCard pct={pct} label={label} isEn={isEn}/></div>;
+
   if (status === "done" && result) return (
     <div className="w-full max-w-4xl mx-auto">
-      <DoneCard blob={result} filename={swapExt(file!.name,"png")} origSize={file!.size} isEn={isEn} onReset={reset}>
-        <div className="mb-4 p-3 bg-blue-50 rounded-xl text-blue-700 text-xs font-medium">
-          ✅ {isEn?"Saved as PNG — transparency preserved":"PNG olarak kaydedildi — şeffaflık korundu"}
+      <DoneCard blob={result} filename={swapExt(file!.name,"png")} origSize={file!.size} isEn={isEn} onReset={handleReset}>
+        <div className="mb-4 p-3 bg-blue-50 rounded-xl text-blue-700 text-xs font-medium" data-testid="text-bg-removed-info">
+          ✅ {isEn ? "Saved as PNG — transparency preserved" : "PNG olarak kaydedildi — şeffaflık korundu"}
         </div>
       </DoneCard>
     </div>
@@ -1201,62 +1221,113 @@ export function RemoveBackgroundTool() {
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
-      <Card className="p-8 rounded-3xl border border-slate-100 bg-white shadow-sm">
-        <div className="flex items-center gap-3 mb-6">
-          <div className="p-3 bg-pink-50 rounded-2xl"><Layers className="w-5 h-5 text-pink-600"/></div>
-          <h3 className="text-base font-bold text-slate-800">{isEn?"Background Removal":"Arka Plan Kaldırma"}</h3>
-        </div>
+      {status === "error" && localFail && (
+        <Card className="p-6 rounded-3xl border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-white shadow-sm">
+          <div className="flex items-start gap-3 mb-4">
+            <div className="p-2 bg-amber-100 rounded-xl flex-shrink-0"><AlertTriangle className="w-5 h-5 text-amber-600"/></div>
+            <div>
+              <h4 className="text-sm font-bold text-slate-800 mb-1">
+                {isEn ? "Local processing couldn't detect the background" : "Yerel işlem arka planı algılayamadı"}
+              </h4>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                {error || (isEn
+                  ? "The background is too complex for local mode. For better results, you can use the remove.bg API."
+                  : "Arka plan yerel mod için çok karmaşık. Daha iyi sonuç için remove.bg API kullanabilirsiniz.")}
+              </p>
+            </div>
+          </div>
 
-        {/* Metot seçimi */}
-        <div className="flex gap-3 mb-5">
-          {(["local","api"] as const).map(m => (
-            <button key={m} onClick={() => setMethod(m)}
-              className={`flex-1 py-3 rounded-2xl border-2 text-sm font-bold transition-all ${
-                method===m ? "border-pink-400 bg-pink-50 text-pink-700" : "border-slate-100 text-slate-400 hover:border-pink-200"
-              }`}>
-              {m==="local"
-                ? (isEn?"🖥 Local (No API key)":"🖥 Yerel (API key yok)")
-                : (isEn?"🚀 remove.bg API (Best quality)":"🚀 remove.bg API (En iyi kalite)")}
-            </button>
-          ))}
-        </div>
-
-        {method === "api" ? (
-          <div className="space-y-3">
+          <div className="space-y-3 p-4 bg-white rounded-2xl border border-slate-100">
             <div className="flex items-center justify-between">
-              <label className="text-sm font-semibold text-slate-600">
-                {isEn?"remove.bg API Key":"remove.bg API Anahtarı"}
+              <label className="text-xs font-bold text-slate-600">
+                {isEn ? "remove.bg API Key" : "remove.bg API Anahtarı"}
               </label>
               <a href="https://www.remove.bg/api" target="_blank" rel="noopener noreferrer"
-                className="text-xs text-blue-500 hover:underline font-semibold">
-                {isEn?"Get free key (50 uses/month) →":"Ücretsiz anahtar al (50 kullanım/ay) →"}
+                className="text-[11px] text-blue-500 hover:underline font-semibold" data-testid="link-removebg-api">
+                {isEn ? "Get free key (50/month) →" : "Ücretsiz anahtar al (50/ay) →"}
               </a>
             </div>
             <div className="relative">
-              <input type={showKey?"text":"password"} value={apiKey} onChange={e=>setApiKey(e.target.value)}
-                placeholder={isEn?"Paste API key here":"API anahtarını yapıştırın"}
-                className="w-full px-4 py-3 pr-20 rounded-xl border border-slate-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-100 outline-none text-sm font-mono transition-all"/>
-              <button onClick={()=>setShowKey(s=>!s)}
+              <input type={showKey ? "text" : "password"} value={apiKey} onChange={e => setApiKey(e.target.value)}
+                placeholder={isEn ? "Paste API key here" : "API anahtarını yapıştırın"} data-testid="input-api-key"
+                className="w-full px-4 py-2.5 pr-20 rounded-xl border border-slate-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-100 outline-none text-sm font-mono transition-all"/>
+              <button onClick={() => setShowKey(s => !s)} data-testid="button-toggle-key"
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600 font-bold">
-                {showKey?(isEn?"Hide":"Gizle"):(isEn?"Show":"Göster")}
+                {showKey ? (isEn ? "Hide" : "Gizle") : (isEn ? "Show" : "Göster")}
               </button>
             </div>
+            <div className="flex gap-2">
+              <Button onClick={retryWithApi} disabled={!apiKey.trim()}
+                className="rounded-full px-6 font-bold h-10 text-sm" data-testid="button-retry-api">
+                {isEn ? "Retry with API" : "API ile tekrar dene"}
+              </Button>
+              <Button variant="outline" onClick={handleReset} className="rounded-full px-6 font-bold h-10 text-sm" data-testid="button-try-another">
+                <RefreshCw className="w-3.5 h-3.5 mr-1.5"/>
+                {isEn ? "Try another image" : "Başka görsel dene"}
+              </Button>
+            </div>
           </div>
-        ) : (
-          <div className="p-4 bg-amber-50 rounded-2xl text-amber-700 text-sm">
-            <p className="font-bold mb-1">💡 {isEn?"How local mode works:":"Yerel mod nasıl çalışır:"}</p>
-            <p className="text-xs font-medium opacity-90">
-              {isEn
-                ? "Detects the background color from image corners, then makes matching pixels transparent. Works best on solid-color backgrounds."
-                : "Görüntünün köşelerinden arka plan rengini algılar ve eşleşen pikselleri şeffaf yapar. Düz renkli arka planlarda en iyi çalışır."}
-            </p>
-          </div>
-        )}
-      </Card>
+        </Card>
+      )}
 
-      <DropZone onFiles={f=>process(f[0])} accept="image/jpeg,image/png,image/webp,.jpg,.png,.webp"
-        isEn={isEn} error={error}
-        hint={isEn?"JPG, PNG, WebP — output will be PNG with transparency":"JPG, PNG, WebP — çıktı şeffaf PNG olacak"}/>
+      {status !== "error" && (
+        <>
+          <DropZone onFiles={f => processLocal(f[0])} accept="image/jpeg,image/png,image/webp,.jpg,.png,.webp"
+            isEn={isEn} error={null}
+            hint={isEn ? "Drop an image — background will be removed instantly" : "Görsel bırakın — arka plan anında silinecek"}/>
+
+          <button onClick={() => setShowAdv(s => !s)} data-testid="button-advanced-settings"
+            className="flex items-center gap-2 text-xs text-slate-400 hover:text-slate-600 font-semibold mx-auto transition-colors">
+            <Settings className="w-3.5 h-3.5"/>
+            {isEn ? "Advanced Settings" : "Gelişmiş Ayarlar"}
+            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showAdv ? "rotate-180" : ""}`}/>
+          </button>
+
+          {showAdv && (
+            <Card className="p-5 rounded-2xl border border-slate-100 bg-slate-50/50 shadow-sm animate-in slide-in-from-top-2 duration-200">
+              <p className="text-xs text-slate-500 mb-3 font-medium">
+                {isEn
+                  ? "For complex backgrounds, you can use the remove.bg API for AI-powered removal."
+                  : "Karmaşık arka planlar için remove.bg API ile yapay zeka destekli kaldırma kullanabilirsiniz."}
+              </p>
+              <div className="flex items-center justify-between mb-2">
+                <label className="text-xs font-bold text-slate-600">
+                  {isEn ? "remove.bg API Key" : "remove.bg API Anahtarı"}
+                </label>
+                <a href="https://www.remove.bg/api" target="_blank" rel="noopener noreferrer"
+                  className="text-[11px] text-blue-500 hover:underline font-semibold">
+                  {isEn ? "Get free key (50/month) →" : "Ücretsiz anahtar al (50/ay) →"}
+                </a>
+              </div>
+              <div className="relative">
+                <input type={showKey ? "text" : "password"} value={apiKey} onChange={e => setApiKey(e.target.value)}
+                  placeholder={isEn ? "Paste API key here" : "API anahtarını yapıştırın"} data-testid="input-api-key-adv"
+                  className="w-full px-4 py-2.5 pr-20 rounded-xl border border-slate-200 focus:border-pink-400 focus:ring-2 focus:ring-pink-100 outline-none text-sm font-mono transition-all bg-white"/>
+                <button onClick={() => setShowKey(s => !s)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600 font-bold">
+                  {showKey ? (isEn ? "Hide" : "Gizle") : (isEn ? "Show" : "Göster")}
+                </button>
+              </div>
+              <p className="text-[11px] text-slate-400 mt-2 italic">
+                {isEn
+                  ? "If an API key is set and local mode fails, the system will suggest retrying with the API."
+                  : "API anahtarı ayarlanmışsa ve yerel mod başarısız olursa, sistem API ile yeniden denemeyi önerecektir."}
+              </p>
+            </Card>
+          )}
+        </>
+      )}
+
+      {status === "error" && !localFail && (
+        <div className="w-full max-w-4xl mx-auto">
+          <Card className="p-6 rounded-3xl border-2 border-red-100 bg-red-50/50 shadow-sm text-center">
+            <p className="text-sm text-red-600 font-semibold mb-3">{error}</p>
+            <Button variant="outline" onClick={handleReset} className="rounded-full px-8" data-testid="button-reset-error">
+              <RefreshCw className="w-4 h-4 mr-2"/>{isEn ? "Try again" : "Tekrar dene"}
+            </Button>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }
