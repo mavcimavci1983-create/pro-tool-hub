@@ -1,25 +1,37 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { ToolWorkflow } from "@/components/tool/ToolWorkflow";
 import { useLanguageStore } from "@/lib/languageStore";
 import translationsData from "@/locales/translations.json";
 import { Helmet, HelmetProvider } from "react-helmet-async";
-import { Video } from "lucide-react";
 import { LeaderboardAd, StickySkyscraper, BillboardAd } from "@/components/ads/AdUnit";
+import {
+  VideoConverterTool,
+  VideoToMp3Tool,
+  VideoToGifTool,
+  CompressVideoTool,
+  MuteVideoTool,
+  TrimVideoTool,
+  RotateVideoTool,
+} from "@/components/home/VideoTools";
 
 const translations = translationsData as Record<string, any>;
 
-export default function VideoTool({ title = "Video Tool", desc = "Free online video converter - No Watermark", icon: Icon = Video }) {
-  const { language } = useLanguageStore();
+function getInlineTool(title: string) {
+  const t = title.toLowerCase();
+  if (t.includes("compress"))                            return <CompressVideoTool />;
+  if (t.includes("mute"))                                return <MuteVideoTool />;
+  if (t.includes("trim"))                                return <TrimVideoTool />;
+  if (t.includes("rotate"))                              return <RotateVideoTool />;
+  if (t.includes("to gif") || t.includes("gif"))         return <VideoToGifTool />;
+  if (t.includes("to mp3") || t.includes("mp3"))         return <VideoToMp3Tool />;
+  if (t.includes("mp4 to webm") || t.includes("convert")) return <VideoConverterTool />;
+  if (t.includes("resizer"))                             return <VideoConverterTool />;
+  return null;
+}
 
-  const getAcceptedTypes = () => {
-    const t = title.toLowerCase();
-    if (t.includes("mp4")) return ".mp4";
-    if (t.includes("webm")) return ".webm";
-    if (t.includes("mov")) return ".mov";
-    if (t.includes("avi")) return ".avi";
-    return ".mp4,.webm,.mov,.avi,.mkv";
-  };
+export default function VideoTool({ title = "Video Tool", desc = "Free online video converter - No Watermark" }) {
+  const { language } = useLanguageStore();
+  const inlineTool = getInlineTool(title);
 
   return (
     <HelmetProvider>
@@ -37,16 +49,25 @@ export default function VideoTool({ title = "Video Tool", desc = "Free online vi
 
             <div className="flex-1 min-w-0 max-w-4xl mx-auto">
               <div className="mb-12 text-center lg:text-left">
-                <h1 className="text-3xl md:text-5xl font-bold mb-4 text-slate-900 tracking-tight leading-none">
+                <h1 className="text-3xl md:text-5xl font-bold mb-4 text-slate-900 tracking-tight leading-none" data-testid="text-tool-title">
                   {title}
                 </h1>
                 <p className="text-xl text-slate-600 font-medium opacity-80">{desc}</p>
               </div>
 
-              <ToolWorkflow 
-                toolName={title} 
-                acceptedFileTypes={getAcceptedTypes()} 
-              />
+              {inlineTool ? (
+                inlineTool
+              ) : (
+                <div className="w-full max-w-4xl mx-auto">
+                  <div className="p-12 rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50/50 text-center">
+                    <p className="text-slate-400 font-medium">
+                      {language === "en"
+                        ? "This tool requires an external service and is coming soon."
+                        : "Bu araç harici bir hizmet gerektirir ve yakında eklenecektir."}
+                    </p>
+                  </div>
+                </div>
+              )}
 
               <BillboardAd />
 
@@ -54,11 +75,11 @@ export default function VideoTool({ title = "Video Tool", desc = "Free online vi
                 <div className="grid md:grid-cols-2 gap-12 text-left">
                   <section>
                     <h2 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">Professional Video Processing</h2>
-                    <p className="text-md font-medium leading-relaxed">Professional video suite with 100% privacy and zero watermarks. All files are processed securely and deleted within 60 minutes.</p>
+                    <p className="text-md font-medium leading-relaxed">All video processing runs entirely in your browser using FFmpeg WebAssembly — nothing is uploaded to any server. Zero watermarks, 100% privacy.</p>
                   </section>
                   <section className="bg-slate-50 p-8 rounded-2xl border border-slate-100">
-                    <h3 className="text-lg font-bold text-slate-900 mb-3 tracking-tight">Secure & Private</h3>
-                    <p className="text-sm font-medium text-slate-500 leading-relaxed italic">"Your files are processed in real-time and automatically purged from our servers within 60 minutes. We never store, share, or look at your data."</p>
+                    <h3 className="text-lg font-bold text-slate-900 mb-3 tracking-tight">100% Client-Side</h3>
+                    <p className="text-sm font-medium text-slate-500 leading-relaxed italic">"Your videos never leave your device. FFmpeg runs locally in your browser — no uploads, no servers, no data collection."</p>
                   </section>
                 </div>
               </article>

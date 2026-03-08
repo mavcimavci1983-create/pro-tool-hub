@@ -122,6 +122,21 @@ These packages are NEVER bundled — they use runtime `require()`:
 ## Frontend Dependencies
 - `react-signature-canvas` — Client-side signature drawing for Sign PDF tool
 - `pdf-lib` — Client-side PDF manipulation (Sign PDF embeds signature via pdf-lib in browser)
+- `@ffmpeg/ffmpeg@0.11.6` — FFmpeg.wasm client-side video processing (v0.11.6 — no SharedArrayBuffer required, max Replit compat)
+- `@ffmpeg/core@0.11.0` — FFmpeg WASM core binary (loaded via CDN lazy-load, singleton instance)
+
+## Video Suite (VideoTools.tsx)
+- `client/src/components/home/VideoTools.tsx` — 7 client-side video tools using FFmpeg.wasm
+  - VideoConverterTool: MP4/MKV/MOV/AVI/WebM/GIF conversion (libx264/VP9/palette GIF)
+  - VideoToMp3Tool: Audio extraction (MP3/AAC/WAV, 4 quality bands)
+  - VideoToGifTool: 2-pass palette GIF generation (FPS/width/duration controls)
+  - CompressVideoTool: CRF-based compression (Light/Medium/Heavy/Custom + resolution scale)
+  - MuteVideoTool: Audio strip via stream copy (-c:v copy -an, no re-encode)
+  - TrimVideoTool: Start/end trimming with fast/precise mode
+  - RotateVideoTool: 6 transforms (90°CW, 90°CCW, 180°, H/V flip)
+- Singleton FFmpeg instance shared across all tools (first load ~20MB, subsequent instant)
+- CDN lazy-load from unpkg.com, falls back to installed packages
+- 500MB max file size, memory cleanup after each operation
 
 ## Inline Tool Expansion (ToolGrid)
 - INLINE_TOOL_LINKS: `/tools/add-watermark`, `/tools/sign-pdf`, `/tools/translate-pdf`, `/tools/compare-pdf`
