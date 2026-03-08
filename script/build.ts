@@ -1,6 +1,8 @@
 import { build as esbuild } from "esbuild";
 import { build as viteBuild } from "vite";
-import { rm, readFile } from "fs/promises";
+import { rm, readFile, mkdir, copyFile } from "fs/promises";
+import { existsSync } from "fs";
+import path from "path";
 
 const allowlist = [
   "@google/generative-ai",
@@ -89,7 +91,22 @@ async function buildAll() {
   });
 }
 
-buildAll().catch((err) => {
+async function copyFonts() {
+  const srcDir = path.resolve("server/fonts");
+  const destDir = path.resolve("dist/fonts");
+  if (!existsSync(srcDir)) return;
+  await mkdir(destDir, { recursive: true });
+  const files = ["DejaVuSans.ttf", "DejaVuSans-Bold.ttf"];
+  for (const f of files) {
+    const src = path.join(srcDir, f);
+    if (existsSync(src)) {
+      await copyFile(src, path.join(destDir, f));
+      console.log(`  copied font: ${f}`);
+    }
+  }
+}
+
+buildAll().then(() => copyFonts()).catch((err) => {
   console.error(err);
   process.exit(1);
 });

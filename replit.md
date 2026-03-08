@@ -62,7 +62,9 @@ When PDF tab is active, tools are organized under:
 
 ### /api/translate-pdf (Google Translate + fontkit)
 - **Translate PDF**: Extract text via pdf-parse, chunk (max 500 chars), translate via `@vitalets/google-translate-api`, rebuild PDF via pdf-lib
-- Uses `@pdf-lib/fontkit` + DejaVuSans.ttf for full Unicode/Turkish character support (fixes WinAnsi encoding error)
+- Uses `@pdf-lib/fontkit` + bundled DejaVuSans.ttf for full Unicode/Turkish character support (fixes WinAnsi encoding error)
+- Fonts bundled at `server/fonts/` → copied to `dist/fonts/` during build; `resolveFontPath()` checks __dirname/fonts, cwd/dist/fonts, cwd/server/fonts, then system paths
+- Throws explicit error if no Unicode font found (never silently falls back to Helvetica)
 - 15 supported languages: tr, en, de, fr, es, it, pt, ru, ja, zh, ar, ko, nl, pl, sv
 - 10MB file limit, 55s timeout, rate-limit retry (429 → 2s wait)
 

@@ -4,9 +4,31 @@ import multer from "multer";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from "docx";
 import * as XLSX from "xlsx";
 import { createRequire } from "module";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 const _require = createRequire(import.meta.url);
 const pdfParse = _require("pdf-parse/lib/pdf-parse.js");
 const { PDFDocument, rgb, StandardFonts, degrees } = _require("pdf-lib");
+
+const __routes_filename = fileURLToPath(import.meta.url);
+const __routes_dirname = dirname(__routes_filename);
+
+function resolveFontPath(fileName: string): string | null {
+  const fs = _require("fs");
+  const candidates = [
+    join(__routes_dirname, "fonts", fileName),
+    join(__routes_dirname, "..", "server", "fonts", fileName),
+    join(process.cwd(), "dist", "fonts", fileName),
+    join(process.cwd(), "server", "fonts", fileName),
+    `/usr/share/fonts/truetype/dejavu/${fileName}`,
+    `/usr/share/fonts/TTF/${fileName}`,
+    `/usr/share/fonts/dejavu/${fileName}`,
+  ];
+  for (const p of candidates) {
+    try { if (fs.existsSync(p)) return p; } catch {}
+  }
+  return null;
+}
 
 let pdfjsLib: any = null;
 let canvasModule: any = null;
@@ -451,21 +473,12 @@ export async function registerRoutes(
           const outDoc = await PDFDocument.create();
           outDoc.registerFontkit(fontkit);
 
-          const FONT_PATHS = [
-            "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-            "/usr/share/fonts/TTF/DejaVuSans.ttf",
-            "/usr/share/fonts/dejavu/DejaVuSans.ttf",
-          ];
-          let fontBytes: Buffer | null = null;
-          for (const fp of FONT_PATHS) {
-            try { fontBytes = fs.readFileSync(fp); break; } catch {}
+          const resolvedFont = resolveFontPath("DejaVuSans.ttf");
+          if (!resolvedFont) {
+            throw new Error("Unicode font not found — cannot render translated text");
           }
-          let font: any;
-          if (fontBytes) {
-            font = await outDoc.embedFont(fontBytes, { subset: true });
-          } else {
-            font = await outDoc.embedFont(StandardFonts.Helvetica);
-          }
+          const fontBytes = fs.readFileSync(resolvedFont);
+          const font = await outDoc.embedFont(fontBytes, { subset: true });
           const fontSize = 11;
           const lineH    = fontSize * 1.4;
           const MARGIN   = 50;
@@ -770,18 +783,11 @@ export async function registerRoutes(
           const fontkit = _require("@pdf-lib/fontkit");
           const fs = _require("fs");
           pdfDoc.registerFontkit(fontkit);
-          const WM_FONT_PATHS = [
-            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-            "/usr/share/fonts/TTF/DejaVuSans-Bold.ttf",
-            "/usr/share/fonts/dejavu/DejaVuSans-Bold.ttf",
-          ];
-          let wmFontBytes: Buffer | null = null;
-          for (const fp of WM_FONT_PATHS) {
-            try { wmFontBytes = fs.readFileSync(fp); break; } catch {}
-          }
+          const resolvedBoldFont = resolveFontPath("DejaVuSans-Bold.ttf");
           let font: any;
-          if (wmFontBytes) {
-            font = await pdfDoc.embedFont(wmFontBytes, { subset: true });
+          if (resolvedBoldFont) {
+            const boldBytes = fs.readFileSync(resolvedBoldFont);
+            font = await pdfDoc.embedFont(boldBytes, { subset: true });
           } else {
             font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
           }
