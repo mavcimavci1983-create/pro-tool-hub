@@ -5,7 +5,7 @@ import { ToolGrid } from "@/components/home/ToolGrid";
 import { useLanguageStore } from "@/lib/languageStore";
 import translationsData from "@/locales/translations.json";
 import { Helmet, HelmetProvider } from "react-helmet-async";
-import { LeaderboardAd, StickySkyscraper, BillboardAd } from "@/components/ads/AdUnit";
+import { LeaderboardAd, StickySkyscraper, BillboardAd, SidebarAd } from "@/components/ads/AdUnit";
 
 const translations = translationsData as Record<string, any>;
 
@@ -25,7 +25,10 @@ export default function Home() {
           <LeaderboardAd />
 
           <div className="w-full max-w-[1400px] mx-auto flex">
-            <StickySkyscraper side="left" />
+            <aside className="hidden lg:flex flex-col w-[300px] flex-shrink-0 gap-4">
+              <StickySkyscraper side="left" />
+              <SidebarAd variant="medium-rectangle" />
+            </aside>
 
             <div className="flex-1 min-w-0 px-4 py-16">
               <div className="text-center mb-16">

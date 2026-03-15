@@ -36,6 +36,15 @@ export async function setupVite(server: Server, app: Express) {
 
   app.use(vite.middlewares);
 
+  // Never serve HTML for /api — prevents "Unexpected token <" when client expects JSON
+  app.use((req, res, next) => {
+    if (req.path.startsWith("/api")) {
+      res.status(404).set("Content-Type", "application/json").json({ error: "Not found" });
+      return;
+    }
+    next();
+  });
+
   app.use("/{*path}", async (req, res, next) => {
     const url = req.originalUrl;
 

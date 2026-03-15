@@ -1,4 +1,4 @@
-import { Link } from "wouter";
+﻿import { Link } from "wouter";
 import { 
   Github, 
   Twitter, 
@@ -21,16 +21,16 @@ export function Footer() {
       privacy: "Privacy Policy",
       terms: "Terms of Service",
       contact: "Contact Us",
-      copyright: "© 2026 ProToolHub. All rights reserved."
+      copyright: "Â© 2026 ProToolHub. All rights reserved."
     },
     tr: {
-      about: "PDF, Video, Resim ve Yazım için profesyonel düzeyde çevrimiçi araçlar. Güvenli, hızlı ve %100 ücretsiz.",
-      links: "Hızlı Bağlantılar",
+      about: "PDF, Video, Resim ve YazÄ±m iÃ§in profesyonel dÃ¼zeyde Ã§evrimiÃ§i araÃ§lar. GÃ¼venli, hÄ±zlÄ± ve %100 Ã¼cretsiz.",
+      links: "HÄ±zlÄ± BaÄŸlantÄ±lar",
       legal: "Yasal",
-      privacy: "Gizlilik Politikası",
-      terms: "Kullanım Şartları",
-      contact: "Bize Ulaşın",
-      copyright: "© 2026 ProToolHub. Tüm hakları saklıdır."
+      privacy: "Gizlilik PolitikasÄ±",
+      terms: "KullanÄ±m ÅartlarÄ±",
+      contact: "Bize UlaÅŸÄ±n",
+      copyright: "Â© 2026 ProToolHub. TÃ¼m haklarÄ± saklÄ±dÄ±r."
     }
   };
 
@@ -68,9 +68,9 @@ export function Footer() {
           <div>
             <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">{t.legal}</h4>
             <ul className="space-y-4 text-sm font-medium">
-              <li><Link href="#" className="hover:text-white transition-colors">{t.privacy}</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">{t.terms}</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">Cookie Policy</Link></li>
+              <li><Link href="/privacy-policy" className="hover:text-white transition-colors">{t.privacy}</Link></li>
+              <li><Link href="/terms" className="hover:text-white transition-colors">{t.terms}</Link></li>
+              <li><Link href="/cookie-policy" className="hover:text-white transition-colors">Cookie Policy</Link></li><li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li><li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
             </ul>
           </div>
 
@@ -93,3 +93,4 @@ export function Footer() {
     </footer>
   );
 }
+

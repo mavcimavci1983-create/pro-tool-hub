@@ -787,17 +787,18 @@ export function TranslatePdfTool() {
         <h3 className="text-lg font-bold text-slate-800 mb-6" data-testid="text-translate-target">
           {isEn ? "Target Language" : "Hedef Dil"}
         </h3>
-        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 sm:gap-3">
           {LANGUAGE_LIST.map(lang => (
             <button key={lang.code} onClick={()=>setTargetLang(lang.code)}
               data-testid={`button-lang-${lang.code}`}
-              className={`flex flex-col items-center gap-1 p-3 rounded-2xl border-2 text-sm font-semibold transition-all ${
+              type="button"
+              className={`flex flex-col items-center justify-center gap-1 min-h-[52px] p-2 sm:p-3 rounded-2xl border-2 text-sm font-semibold transition-all shrink-0 ${
                 targetLang===lang.code
-                  ? "border-primary bg-primary/5 text-primary shadow-sm scale-105"
+                  ? "border-primary bg-primary/5 text-primary shadow-sm scale-[1.02]"
                   : "border-slate-100 hover:border-primary/30 text-slate-600"
               }`}>
-              <span className="text-xs font-bold">{lang.flag}</span>
-              <span className="text-xs">{lang.label}</span>
+              <span className="text-xs font-bold leading-none">{lang.flag}</span>
+              <span className="text-xs truncate max-w-full">{lang.label}</span>
             </button>
           ))}
         </div>
@@ -1143,13 +1144,13 @@ export function ComparePdfTool() {
           />
         </div>
 
-        <div className="mt-8 flex justify-center">
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
           <Button size="lg" onClick={startCompare}
             disabled={!fileA || !fileB}
-            className="rounded-full px-14 font-bold h-14 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg"
+            className="rounded-full px-6 sm:px-14 font-bold h-12 sm:h-14 disabled:opacity-40 disabled:cursor-not-allowed shadow-lg min-w-0"
             data-testid="button-compare-start">
-            <GitCompare className="w-5 h-5 mr-3"/>
-            {isEn ? "Compare PDFs" : "PDF'leri Karsilastir"}
+            <GitCompare className="w-5 h-5 mr-2 sm:mr-3 shrink-0"/>
+            <span className="truncate">{isEn ? "Compare PDFs" : "PDF'leri Karsilastir"}</span>
           </Button>
         </div>
       </Card>

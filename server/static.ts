@@ -1,4 +1,4 @@
-import express, { type Express } from "express";
+﻿import express, { type Express } from "express";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -17,7 +17,10 @@ export function serveStatic(app: Express) {
 
   app.use(express.static(distPath));
 
-  app.use("/{*path}", (_req, res) => {
+  app.get("/{*path}", (_req, res) => {
+    if (_req.path === "/admin") {
+      return res.status(404).type("text/plain").send("Not found");
+    }
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }

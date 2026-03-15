@@ -1,4 +1,4 @@
-import { Header } from "@/components/layout/Header";
+﻿import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { useLanguageStore } from "@/lib/languageStore";
 import translationsData from "@/locales/translations.json";
@@ -15,6 +15,7 @@ import {
   HeicToJpgTool,
   RemoveBackgroundTool,
   AddTextToImageTool,
+  WatermarkRemoverTool,
 } from "@/components/home/ImageTools";
 
 const translations = translationsData as Record<string, any>;
@@ -29,7 +30,8 @@ function getInlineTool(title: string) {
   if (t.includes("to webp") || t.includes("image to webp")) return <ImageToWebpTool />;
   if (t.includes("heic"))              return <HeicToJpgTool />;
   if (t.includes("remove") || t.includes("background")) return <RemoveBackgroundTool />;
-  if (t.includes("add text") || t.includes("text"))      return <AddTextToImageTool />;
+  if (t.includes("watermark") || t.includes("remove watermark")) return <WatermarkRemoverTool />;
+    if (t.includes("add text") || t.includes("text"))      return <AddTextToImageTool />;
   if (t.includes("convert"))           return <ConvertFormatTool />;
   return <CompressImageTool />;
 }
@@ -64,24 +66,47 @@ export default function ImageTool({ title = "Image Tool", desc = "Professional i
               <BillboardAd />
 
               <article className="prose prose-lg max-w-none border-t border-slate-100 pt-16 mt-8 text-slate-600 leading-relaxed">
-                <div className="grid md:grid-cols-2 gap-12 text-left">
-                  <section>
-                    <h2 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">Professional Image Processing</h2>
-                    <p className="text-md font-medium leading-relaxed">High-performance image suite with 100% privacy and zero watermarks. All files are processed entirely in your browser — nothing is uploaded.</p>
-                  </section>
-                  <section className="bg-slate-50 p-8 rounded-2xl border border-slate-100">
-                    <h3 className="text-lg font-bold text-slate-900 mb-3 tracking-tight">100% Client-Side</h3>
-                    <p className="text-sm font-medium text-slate-500 leading-relaxed italic">"Your images never leave your device. All processing happens locally in your browser using Canvas API — zero server uploads."</p>
-                  </section>
-                </div>
-              </article>
-            </div>
+                      <div className="grid md:grid-cols-2 gap-12 text-left mb-10">
+                        <section>
+                          <h2 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">How to Use {title}</h2>
+                          <p className="text-md font-medium leading-relaxed mb-3">Using our <strong>{title}</strong> tool is effortless. Simply drag and drop your image into the upload area or click to select a file from your device. The tool processes your image instantly — no account, no installation, no waiting.</p>
+                          <p className="text-md font-medium leading-relaxed">Results are available for download immediately after processing. Most image operations complete in under 5 seconds. Use this tool as many times as you need with no daily limits and no watermarks on output files.</p>
+                        </section>
+                        <section>
+                          <h2 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">Why Choose ProToolHub for Images?</h2>
+                          <p className="text-md font-medium leading-relaxed mb-3">Our image tools use advanced browser-side processing via the Canvas API, meaning your images never leave your device for most operations. No server upload means instant results and complete privacy — your photos and designs stay on your computer at all times.</p>
+                          <p className="text-md font-medium leading-relaxed">From compressing photos for email to converting formats for web use, ProToolHub handles it all with professional quality and zero cost. No watermarks are ever added to your output files.</p>
+                        </section>
+                      </div>
+                      <div className="grid md:grid-cols-3 gap-6 mb-10">
+                        <div className="bg-green-50 border border-green-100 rounded-2xl p-6">
+                          <div className="text-2xl mb-2">🖥️</div>
+                          <h3 className="font-bold text-slate-900 mb-2">Processed In Your Browser</h3>
+                          <p className="text-sm text-slate-600 leading-relaxed">Most image tools on ProToolHub run entirely in your browser using the Canvas API. Your images never leave your device — there is no server upload, no data transfer, and zero privacy risk. What happens in your browser stays in your browser.</p>
+                        </div>
+                        <div className="bg-blue-50 border border-blue-100 rounded-2xl p-6">
+                          <div className="text-2xl mb-2">🎨</div>
+                          <h3 className="font-bold text-slate-900 mb-2">Professional Quality Output</h3>
+                          <p className="text-sm text-slate-600 leading-relaxed">We never add watermarks to your output. Every processed image maintains the highest possible quality. Our compression algorithms are tuned to reduce file size while preserving visual clarity — perfect for web, social media, or print use.</p>
+                        </div>
+                        <div className="bg-orange-50 border border-orange-100 rounded-2xl p-6">
+                          <div className="text-2xl mb-2">📱</div>
+                          <h3 className="font-bold text-slate-900 mb-2">Works on All Devices</h3>
+                          <p className="text-sm text-slate-600 leading-relaxed">ProToolHub image tools are fully responsive and work seamlessly on desktop, tablet, and mobile. No app download required — just open your browser and start processing images instantly from any device, anywhere in the world.</p>
+                        </div>
+                      </div>
+                      <div className="bg-slate-900 rounded-2xl p-8 text-white">
+                        <h3 className="text-xl font-bold mb-3">Your Privacy Is Our Priority</h3>
+                        <p className="text-slate-300 leading-relaxed text-sm">ProToolHub is built privacy-first. For browser-side tools, your files never leave your device. For tools requiring server processing, files are encrypted in transit using SSL/TLS and automatically deleted within 60 minutes — guaranteed. We do not analyze, store, or share your images under any circumstances. Our platform has been designed from the ground up to handle your personal photos and sensitive documents with the utmost care and security.</p>
+                      </div>
+                    </article>
+                  </div>
 
-            <StickySkyscraper side="right" />
-          </div>
-        </main>
-        <Footer />
-      </div>
-    </HelmetProvider>
-  );
-}
+                  <StickySkyscraper side="right" />
+                </div>
+              </main>
+              <Footer />
+            </div>
+          </HelmetProvider>
+        );
+      }

@@ -1,24 +1,21 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { ToolWorkflow } from "@/components/tool/ToolWorkflow";
-import { useLanguageStore } from "@/lib/languageStore";
-import translationsData from "@/locales/translations.json";
+import { CsvToJsonTool, JsonToCsvTool, XmlToJsonTool } from "@/components/home/ConverterTools";
 import { Helmet, HelmetProvider } from "react-helmet-async";
-import { FileCode } from "lucide-react";
 import { LeaderboardAd, StickySkyscraper, BillboardAd } from "@/components/ads/AdUnit";
 
-const translations = translationsData as Record<string, any>;
+function getInlineConverterTool(title: string) {
+  const t = title.toLowerCase();
+  if (t.includes("csv to json")) return <CsvToJsonTool />;
+  if (t.includes("json to csv")) return <JsonToCsvTool />;
+  if (t.includes("xml to json")) return <XmlToJsonTool />;
+  if (t.includes("excel to pdf")) return <ToolWorkflow toolName={title} acceptedFileTypes=".xls,.xlsx" />;
+  return null;
+}
 
 export default function GenericConverterTool({ title = "Converter Tool", desc = "Professional file conversion tool." }) {
-  const { language } = useLanguageStore();
-
-  const getAcceptedTypes = () => {
-    const t = title.toLowerCase();
-    if (t.includes("csv to json")) return ".csv";
-    if (t.includes("excel to pdf")) return ".xls,.xlsx";
-    if (t.includes("json to csv")) return ".json";
-    return "*";
-  };
+  const inlineTool = getInlineConverterTool(title);
 
   return (
     <HelmetProvider>
@@ -42,10 +39,7 @@ export default function GenericConverterTool({ title = "Converter Tool", desc = 
                 <p className="text-xl text-slate-600 font-medium opacity-80">{desc}</p>
               </div>
 
-              <ToolWorkflow 
-                toolName={title} 
-                acceptedFileTypes={getAcceptedTypes()} 
-              />
+              {inlineTool ?? <ToolWorkflow toolName={title} acceptedFileTypes="*" />}
 
               <BillboardAd />
 

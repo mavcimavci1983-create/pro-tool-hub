@@ -44,13 +44,14 @@ import {
   Upload, Download, RefreshCw, AlertCircle, CheckCircle2,
   Loader2, ShieldCheck, Clock, ArrowLeftRight, Scissors,
   Volume2, VolumeX, Zap, Film, Music, Repeat, RotateCw,
-  ChevronRight, Play, Pause, FastForward,
+  ChevronRight, Play, Pause, FastForward, Youtube,
 } from "lucide-react";
 import { Button }   from "@/components/ui/button";
 import { Card }     from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useLanguageStore } from "@/lib/languageStore";
+import { fetchApiJson } from "@/lib/apiGuard";
 import translationsData     from "@/locales/translations.json";
 
 const translations = translationsData as Record<string, any>;
@@ -1435,18 +1436,249 @@ export function RotateVideoTool() {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// § SERVER HEADER NOTU (Replit için)
+// § YOUTUBE VIDEO DOWNLOADER — 720p / 1080p quality selection
 // ═══════════════════════════════════════════════════════════════════════════
-/**
- * FFmpeg.wasm v0.11.6 SharedArrayBuffer GEREKTİRMEZ.
- * Eğer v0.12+ kullanmak isterseniz server/index.ts'e ekleyin:
- *
- * app.use((_req, res, next) => {
- *   res.setHeader("Cross-Origin-Opener-Policy",   "same-origin");
- *   res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
- *   next();
- * });
- */
+
+export function YouTubeDownloaderTool() {
+  const { language } = useLanguageStore();
+  const isEn = language === "en";
+  const [url, setUrl] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [title, setTitle] = useState("");
+  const [formats, setFormats] = useState<Array<{ qualityLabel: string; height?: number; url: string; formatIndex: number }>>([]);
+  const [selectedFormatIndex, setSelectedFormatIndex] = useState<number>(0);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadFormats = async () => {
+    const u = url.trim();
+    if (!u) {
+      setError(isEn ? "Please enter a YouTube URL." : "Lütfen bir YouTube URL'si girin.");
+      return;
+    }
+    setError(null);
+    setStatus("loading");
+    setFormats([]);
+    setSelectedFormatIndex(0);
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 90_000);
+    try {
+      const res = await fetch(`/api/youtube-formats?url=${encodeURIComponent(u)}`, {
+        credentials: "include",
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      const data = await res.json();
+      if (!res.ok) throw new Error((data && data.error) || data.hint || res.statusText);
+      setTitle(data.title ?? "YouTube video");
+      const list = data.formats ?? [];
+      if (list.length === 0) throw new Error(data.hint ?? (isEn ? "No formats available." : "Format bulunamadı."));
+      setFormats(list);
+      setSelectedFormatIndex(list[0].formatIndex ?? 0);
+      setStatus("done");
+    } catch (e: any) {
+      clearTimeout(timeoutId);
+      setStatus("error");
+      const msg = e?.message ?? (isEn ? "Could not load video formats." : "Video formatları yüklenemedi.");
+      setError(e?.name === "AbortError" ? (isEn ? "Request timed out (90s). Try again." : "İstek zaman aşımına uğradı (90s). Tekrar deneyin.") : msg);
+    }
+  };
+
+  const reset = () => {
+    setUrl("");
+    setStatus("idle");
+    setTitle("");
+    setFormats([]);
+    setSelectedFormatIndex(0);
+    setError(null);
+  };
+
+  const download = () => {
+    const u = url.trim();
+    if (!u || formats.length === 0) return;
+    window.open(`/api/stream-youtube?url=${encodeURIComponent(u)}&formatIndex=${selectedFormatIndex}`, "_blank");
+  };
+
+  return (
+    <div className="w-full max-w-4xl mx-auto space-y-6">
+      <Card className="p-8 rounded-3xl border border-slate-100 bg-white shadow-sm">
+        <div className="flex flex-wrap items-center gap-3 mb-6">
+          <div className="p-3 rounded-2xl bg-red-50">
+            <Youtube className="w-6 h-6 text-red-600" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-bold bg-red-100 text-red-700 mb-1">Target: YouTube</span>
+            <h3 className="text-base font-bold text-slate-800">{isEn ? "YouTube Video Downloader" : "YouTube Video İndirici"}</h3>
+            <p className="text-xs text-slate-500">{isEn ? "Paste a YouTube or Shorts URL, choose quality (720p/1080p), then download." : "YouTube veya Shorts URL'si yapıştırın, kalite seçin, indirin."}</p>
+          </div>
+        </div>
+        <input
+          type="url"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="https://www.youtube.com/watch?v=..."
+          className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-red-400 focus:ring-2 focus:ring-red-100 outline-none text-slate-800 font-medium mb-4"
+        />
+        <div className="flex flex-wrap gap-3 mb-4">
+          <Button onClick={loadFormats} disabled={status === "loading"} className="rounded-full px-6 font-bold bg-red-600 hover:bg-red-700">
+            {status === "loading" ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+            {status === "loading" ? (isEn ? "Loading formats…" : "Formatlar yükleniyor…") : (isEn ? "Get quality options" : "Kalite seçeneklerini getir")}
+          </Button>
+          {status === "loading" && (
+            <p className="text-xs text-slate-500 self-center">{isEn ? "First load may take 30–60 seconds, please wait." : "İlk yükleme 30–60 saniye sürebilir, lütfen bekleyin."}</p>
+          )}
+          {(status === "done" || status === "error") && (
+            <Button variant="outline" onClick={reset} className="rounded-full px-6 font-bold">
+              <RefreshCw className="w-4 h-4 mr-2" />
+              {isEn ? "New URL" : "Yeni URL"}
+            </Button>
+          )}
+        </div>
+        {status === "done" && formats.length > 0 && (
+          <div className="mt-6 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+            <p className="text-sm font-bold text-slate-800 mb-2 truncate">{title}</p>
+            <label className="block text-xs font-semibold text-slate-600 mb-2">{isEn ? "Quality" : "Kalite"}</label>
+            <select
+              value={selectedFormatIndex}
+              onChange={(e) => setSelectedFormatIndex(parseInt(e.target.value, 10))}
+              className="w-full max-w-xs px-3 py-2 rounded-xl border border-slate-200 bg-white text-slate-800 font-medium mb-4"
+            >
+              {formats.map((f, i) => (
+                <option key={i} value={f.formatIndex}>{f.qualityLabel}</option>
+              ))}
+            </select>
+            <Button onClick={download} className="rounded-full bg-red-600 hover:bg-red-700 text-white font-bold">
+              <Download className="w-4 h-4 mr-2" />
+              {isEn ? "Download video" : "Videoyu indir"}
+            </Button>
+          </div>
+        )}
+        {error && (
+          <Alert variant="destructive" className="mt-6 rounded-2xl">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+      </Card>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// § SOCIAL VIDEO DOWNLOADER (Instagram, TikTok, Twitter, Facebook)
+// Platform badge + icon; proxy resolve + stream
+// ═══════════════════════════════════════════════════════════════════════════
+
+const SOCIAL_PLATFORMS: Record<string, { label: string; hint: string; domain: string; badge: string; iconBg: string; iconColor: string; Icon: React.ComponentType<{ className?: string }> }> = {
+  youtube: { label: "YouTube", hint: "Paste a YouTube video or Shorts URL", domain: "youtube.com", badge: "Target: YouTube", iconBg: "bg-red-100", iconColor: "text-red-600", Icon: Youtube },
+  facebook: { label: "Facebook", hint: "Paste a Facebook video post URL", domain: "facebook.com", badge: "Target: Facebook", iconBg: "bg-blue-100", iconColor: "text-blue-600", Icon: Film },
+  instagram: { label: "Instagram", hint: "Paste an Instagram reel or post URL", domain: "instagram.com", badge: "Target: Instagram", iconBg: "bg-purple-100", iconColor: "text-purple-600", Icon: Film },
+  tiktok: { label: "TikTok", hint: "Paste a TikTok video URL", domain: "tiktok.com", badge: "Target: TikTok", iconBg: "bg-pink-100", iconColor: "text-pink-600", Icon: Film },
+  twitter: { label: "Twitter / X", hint: "Paste a Twitter/X video URL", domain: "twitter.com", badge: "Target: Twitter", iconBg: "bg-sky-100", iconColor: "text-sky-600", Icon: Film },
+};
+
+export function SocialVideoDownloaderTool({ platform = "instagram" }: { platform?: string }) {
+  const { language } = useLanguageStore();
+  const isEn = language === "en";
+  const [url, setUrl] = useState("");
+  const [status, setStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [title, setTitle] = useState("");
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const meta = SOCIAL_PLATFORMS[platform] ?? SOCIAL_PLATFORMS.instagram;
+  const hint = isEn ? meta.hint : `Bir ${meta.label} video URL'si yapıştırın`;
+
+  const resolve = async () => {
+    const u = url.trim();
+    if (!u) {
+      setError(isEn ? "Please enter a video URL." : "Lütfen bir video URL'si girin.");
+      return;
+    }
+    setError(null);
+    setStatus("loading");
+    try {
+      const data = await fetchApiJson<{ title?: string; videoUrl?: string | null; hint?: string }>(
+        `/api/resolve-video?url=${encodeURIComponent(u)}`
+      );
+      setTitle(data.title ?? "Video");
+      setVideoUrl(data.videoUrl ?? null);
+      setStatus(data.videoUrl ? "done" : "error");
+      if (!data.videoUrl) setError(data.hint ?? (isEn ? "No direct video link found for this URL. The page may require login or block embedding." : "Bu URL için doğrudan video linki bulunamadı."));
+    } catch (e: any) {
+      setStatus("error");
+      setError(e?.message ?? (isEn ? "Could not resolve video." : "Video çözümlenemedi."));
+    }
+  };
+
+  const reset = () => {
+    setUrl("");
+    setStatus("idle");
+    setTitle("");
+    setVideoUrl(null);
+    setError(null);
+  };
+
+  const downloadViaProxy = () => {
+    if (!videoUrl) return;
+    const base64 = btoa(unescape(encodeURIComponent(videoUrl)));
+    const u = base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    window.open(`/api/stream-video?u=${u}`, "_blank");
+  };
+
+  const Icon = meta.Icon;
+
+  return (
+    <div className="w-full max-w-4xl mx-auto space-y-6">
+      <Card className="p-8 rounded-3xl border border-slate-100 bg-white shadow-sm">
+        <div className="flex flex-wrap items-center gap-3 mb-6">
+          <div className={`p-3 rounded-2xl ${meta.iconBg}`}><Icon className={`w-6 h-6 ${meta.iconColor}`} /></div>
+          <div className="flex-1 min-w-0">
+            <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-bold ${meta.iconBg} ${meta.iconColor} mb-1`}>{meta.badge}</span>
+            <h3 className="text-base font-bold text-slate-800">{meta.label}</h3>
+            <p className="text-xs text-slate-500">{hint}</p>
+          </div>
+        </div>
+        <input
+          type="url"
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder={isEn ? "https://..." : "https://..."}
+          className="w-full px-4 py-3 rounded-2xl border border-slate-200 focus:border-violet-400 focus:ring-2 focus:ring-violet-100 outline-none text-slate-800 font-medium mb-4"
+        />
+        <div className="flex flex-wrap gap-3">
+          <Button onClick={resolve} disabled={status === "loading"} className="rounded-full px-6 font-bold">
+            {status === "loading" ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+            {status === "loading" ? (isEn ? "Resolving…" : "Çözümleniyor…") : (isEn ? "Get download link" : "İndirme linkini al")}
+          </Button>
+          {(status === "done" || status === "error") && (
+            <Button variant="outline" onClick={reset} className="rounded-full px-6 font-bold">
+              <RefreshCw className="w-4 h-4 mr-2" />
+              {isEn ? "New URL" : "Yeni URL"}
+            </Button>
+          )}
+        </div>
+        {status === "done" && videoUrl && (
+          <div className="mt-6 p-4 rounded-2xl bg-emerald-50 border border-emerald-100">
+            <p className="text-sm font-bold text-slate-800 mb-2 truncate">{title}</p>
+            <Button onClick={downloadViaProxy} className="rounded-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold">
+              <Download className="w-4 h-4 mr-2" />
+              {isEn ? "Download video" : "Videoyu indir"}
+            </Button>
+          </div>
+        )}
+        {error && (
+          <Alert variant="destructive" className="mt-6 rounded-2xl">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+        <p className="mt-4 text-xs text-slate-400">
+          {isEn ? "Your URL is sent to our server only to resolve the direct video link. We do not store it." : "URL'niz yalnızca doğrudan video linkini almak için sunucumuza gönderilir; saklanmaz."}
+        </p>
+      </Card>
+    </div>
+  );
+}
 
 // ═══════════════════════════════════════════════════════════════════════════
 // § EXPORTS

@@ -43,9 +43,17 @@ export default defineConfig({
   server: {
     host: "0.0.0.0",
     allowedHosts: true,
+    // Sealed: SharedArrayBuffer (FFmpeg.wasm) requires cross-origin isolation — Trim/Compress/Convert depend on this.
     headers: {
-      'Cross-Origin-Opener-Policy': 'same-origin',
-      'Cross-Origin-Embedder-Policy': 'require-corp',
+      "Cross-Origin-Opener-Policy": "same-origin",
+      "Cross-Origin-Embedder-Policy": "require-corp",
+    },
+    // Fixed: /api always proxies to backend on 5001 (must match server/index.ts PORT_FIXED)
+    proxy: {
+      "/api": {
+        target: "http://localhost:5001",
+        changeOrigin: true,
+      },
     },
     fs: {
       strict: true,

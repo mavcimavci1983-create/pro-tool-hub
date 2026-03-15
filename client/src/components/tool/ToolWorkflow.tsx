@@ -10,6 +10,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useLanguageStore }                    from "@/lib/languageStore";
 import translationsData                        from "@/locales/translations.json";
 import { jsPDF }                               from "jspdf";
+import { BelowResultAd }                       from "@/components/ads/AdUnit";
 
 const translations = translationsData as Record<string, any>;
 
@@ -370,14 +371,9 @@ async function convertFile(
 
   if (toolDef?.endpoint) {
     if (toolType === "pdf-to-image") {
-      try {
-        const blob = await pdfToImageClient(file);
-        if (blob.size >= 5_000) return blob;
-        throw new Error("Client blob too small");
-      } catch (e: any) {
-        console.warn("[PDF→Image] client failed, server fallback:", e.message);
-        return uploadFiles([file], "/api/convert-image", undefined, onProgress);
-      }
+      const blob = await pdfToImageClient(file);
+      if (blob.size >= 5_000) return blob;
+      throw new Error("Export failed or file too small. Try a single-page PDF.");
     }
     return uploadFiles(toolDef.multiFile ? files : [file], toolDef.endpoint, extraParams, onProgress);
   }
@@ -661,6 +657,7 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess, extraPara
             <ShieldCheck className="w-4 h-4" /> BANK-GRADE ENCRYPTION ACTIVE
           </div>
         </Card>
+        <BelowResultAd />
         <TrustBadges />
       </div>
     );
@@ -699,6 +696,7 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess, extraPara
           </div>
         </div>
       </Card>
+      <BelowResultAd />
       <TrustBadges />
     </div>
   );

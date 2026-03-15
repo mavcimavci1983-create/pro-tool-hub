@@ -1,4 +1,4 @@
-import type { Express } from "express";
+﻿import type { Express } from "express";
 import { type Server } from "http";
 import multer from "multer";
 import { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } from "docx";
@@ -31,16 +31,12 @@ function resolveFontPath(fileName: string): string | null {
 }
 
 let pdfjsLib: any = null;
-let canvasModule: any = null;
 
 async function loadPdfjsServer() {
   if (!pdfjsLib) {
     pdfjsLib = _require("pdfjs-dist/legacy/build/pdf.js");
   }
-  if (!canvasModule) {
-    canvasModule = _require("canvas");
-  }
-  return { pdfjsLib, canvasModule };
+  return { pdfjsLib };
 }
 
 const upload = multer({
@@ -80,7 +76,7 @@ function textToParagraphs(rawText: string): Paragraph[] {
     const isHeading =
       trimmed === trimmed.toUpperCase() &&
       trimmed.length <= 60 &&
-      /[A-ZÇĞİÖŞÜ]/.test(trimmed);
+      /[A-ZÇÃ„ÂİÃƒ"“Ã…ÂÃƒş“]/.test(trimmed);
 
     if (isHeading) {
       paragraphs.push(new Paragraph({ text: trimmed, heading: HeadingLevel.HEADING_2 }));
@@ -145,11 +141,671 @@ function handleMultiMulterError(req: any, res: any, next: any) {
   });
 }
 
+const nodeFetch = (_require("node-fetch") as typeof import("node-fetch")).default;
+
+function isYouTubeUrl(url: string): boolean {
+  try {
+    const u = new URL(url.trim());
+    const host = u.hostname.replace(/^www\./, "");
+    return host === "youtube.com" || host === "youtu.be" || host === "m.youtube.com" || host === "music.youtube.com";
+  } catch {
+    return false;
+  }
+}
+
+function normalizeYouTubeUrl(url: string): string {
+  try {
+    const u = new URL(url.trim());
+    const v = u.searchParams.get("v");
+    if (v) return `https://www.youtube.com/watch?v=${v}`;
+    if (u.hostname.replace(/^www\./, "") === "youtu.be") {
+      const id = u.pathname.slice(1).split("/")[0];
+      if (id) return `https://www.youtube.com/watch?v=${id}`;
+    }
+  } catch {}
+  return url.trim();
+}
+
+const USER_AGENTS = [
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0",
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0",
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
+  "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
+];
+
+function getRandomUserAgent(): string {
+  return USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)]!;
+}
+
+function normalizeCookie(c: Record<string, unknown>): { name: string; value: string; domain?: string; path?: string; expirationDate?: number; secure?: boolean; httpOnly?: boolean; sameSite?: string; hostOnly?: boolean } | null {
+  const name = typeof c.name === "string" ? c.name : (c as any).key;
+  const value = typeof c.value === "string" ? c.value : (c as any).content;
+  if (typeof name !== "string" || typeof value !== "string") return null;
+  const domain = typeof c.domain === "string" ? c.domain : ".youtube.com";
+  const path = typeof c.path === "string" ? c.path : "/";
+  let expirationDate: number | undefined;
+  if (typeof (c as any).expirationDate === "number") expirationDate = (c as any).expirationDate;
+  else if (typeof (c as any).expiry === "number") expirationDate = (c as any).expiry;
+  else if (typeof (c as any).expirationDate === "string") expirationDate = Math.floor(new Date((c as any).expirationDate).getTime() / 1000);
+  return {
+    name,
+    value,
+    domain: domain.startsWith(".") ? domain : `.${domain}`,
+    path,
+    expirationDate,
+    secure: c.secure === true,
+    httpOnly: c.httpOnly === true,
+    sameSite: typeof c.sameSite === "string" ? c.sameSite : "lax",
+    hostOnly: c.hostOnly === true,
+  };
+}
+
+let _cookieLoadLogged = false;
+
+const RED_BOLD = "\x1b[1m\x1b[31m";
+const GREEN_BOLD = "\x1b[1m\x1b[32m";
+const RESET = "\x1b[0m";
+
+const COOKIE_PATHS = [
+  "youtube-cookies.json",
+  "server/youtube-cookies.json",
+] as const;
+
+function loadYouTubeCookies(): Array<Record<string, unknown>> {
+  const fs = _require("fs");
+  const path = _require("path");
+  const cwd = process.cwd();
+  let raw: string | undefined = process.env.YOUTUBE_COOKIES?.trim();
+  let fullPath: string | null = null;
+  if (!raw) {
+    for (const rel of COOKIE_PATHS) {
+      const p = path.join(cwd, rel);
+      if (fs.existsSync(p)) {
+        fullPath = p;
+        try {
+          raw = fs.readFileSync(p, "utf8").trim();
+          break;
+        } catch (e: any) {
+          console.error("[ytdl-core] Cookies file read failed:", e?.message ?? e, "Path:", p);
+          fullPath = null;
+        }
+      }
+    }
+    if (!raw) {
+      const tried = COOKIE_PATHS.map((rel) => path.join(cwd, rel)).join(" / ");
+      console.error(RED_BOLD + "[ERROR] COOKIE FILE NOT FOUND. LOOKED AT: " + tried + RESET);
+      return [];
+    }
+  }
+  if (!raw) return [];
+  try {
+    const data = JSON.parse(raw);
+    const arr = Array.isArray(data) ? data : (data.cookies && Array.isArray(data.cookies) ? data.cookies : []);
+    const out = arr.map((c: Record<string, unknown>) => normalizeCookie(c)).filter(Boolean) as Record<string, unknown>[];
+    if (!process.env.YOUTUBE_COOKIES && out.length > 0 && !_cookieLoadLogged) {
+      _cookieLoadLogged = true;
+      console.log(GREEN_BOLD + "[ytdl-core] COOKIES LOADED SUCCESSFULLY (" + out.length + " cookies from " + (fullPath ?? "env") + ")" + RESET);
+    }
+    return out;
+  } catch (e: any) {
+    console.error("[ytdl] YOUTUBE_COOKIES parse failed:", e?.message);
+    return [];
+  }
+}
+
+function getCookiePathForYtDlp(): string | undefined {
+  const fs = _require('fs');
+  const path = _require('path');
+  const cwd = process.cwd();
+
+  // 1. Ãƒ"“nce doğrudan Netscape formatında dosya var mı bak (tarayıcıdan export)
+  const netscapePaths = [
+    'server/youtube-cookies-netscape.txt',
+    'youtube-cookies-netscape.txt',
+    'server/cookies.txt',
+    'cookies.txt',
+  ];
+  for (const rel of netscapePaths) {
+    const p = path.join(cwd, rel);
+    if (!fs.existsSync(p)) continue;
+    try {
+      const content = fs.readFileSync(p, 'utf8').trim();
+      if (!content.includes('# Netscape HTTP Cookie File')) continue;
+      // Expiry değerlerini float'tan int'e çevir (yt-dlp gereksinimi)
+      const fixed = content.replace(/([\t])(\d+)\.\d+([\t])/g, (_: string, pre: string, num: string, post: string) => pre + num + post);
+      // Düzeltilmiş halini geri yaz
+      if (fixed !== content) {
+        fs.writeFileSync(p, fixed, 'utf8');
+        console.log('[cookies] Netscape dosyası float expiry düzeltildi:', p);
+      }
+      console.log('[cookies] Netscape cookie dosyası bulundu:', p);
+      return p;
+    } catch {}
+  }
+
+  // 2. JSON dosyasını Netscape formatına çevir
+  let raw: string | undefined;
+  for (const rel of COOKIE_PATHS) {
+    const p = path.join(cwd, rel);
+    if (!fs.existsSync(p)) continue;
+    try { raw = fs.readFileSync(p, 'utf8').trim(); break; } catch {}
+  }
+  if (!raw) return undefined;
+
+  try {
+    const data = JSON.parse(raw);
+    const arr = Array.isArray(data) ? data : (data.cookies && Array.isArray(data.cookies) ? data.cookies : []);
+    const cookies = arr.map((c: Record<string, unknown>) => normalizeCookie(c)).filter(Boolean) as Array<{ name: string; value: string; domain?: string; path?: string; expirationDate?: number; secure?: boolean }>;
+    if (cookies.length === 0) return undefined;
+
+    const lines = ['# Netscape HTTP Cookie File'];
+    const placeholder = /^(YOUR_VALUE_HERE|gercek_deger_buraya|xxx|placeholder)$/i;
+    for (const c of cookies) {
+      if (placeholder.test(c.value.trim())) continue;
+      const domain = '.' + (c.domain ?? 'youtube.com').replace(/^./, '');
+      const pathVal = (c.path ?? '/').replace(/	/g, '');
+      const secure = c.secure === true ? 'TRUE' : 'FALSE';
+      // Float expiry Ã¢" "™ tam sayı (yt-dlp gereksinimi)
+      let exp = c.expirationDate
+        ? (c.expirationDate > 10000000000
+            ? Math.floor(c.expirationDate / 1000)   // milisaniye Ã¢" "™ saniye
+            : Math.floor(c.expirationDate))           // zaten saniye ama float
+        : 0;
+      if (!exp || exp < 1000000000) exp = 9999999999;
+      const name = (c.name || '').replace(/\t/g, '');
+      const value = (c.value || '').replace(/\n/g, ' ').replace(/\r/g, '');
+      if (!name) continue;
+      lines.push([domain, 'TRUE', pathVal, secure, String(exp), name, value].join('	'));
+    }
+    if (lines.length <= 1) return undefined;
+
+    const outPath = path.join(cwd, 'server', 'youtube-cookies-netscape.txt');
+    try {
+      fs.mkdirSync(path.dirname(outPath), { recursive: true });
+      fs.writeFileSync(outPath, lines.join('\n'), 'utf8');
+      console.log('[cookies] Netscape dosyası oluşturuldu:', outPath, '(' + (lines.length - 1) + ' cookie)');
+      return outPath;
+    } catch {}
+  } catch {}
+  return undefined;
+}
+
+let _ytDlpBinaryLogged = false;
+
+function getYtDlpBinaryPath(): string | null {
+  const path = _require("path");
+  const fs = _require("fs");
+  try {
+    const constants = _require(path.join(process.cwd(), "node_modules", "yt-dlp-exec", "src", "constants.js"));
+    const binaryPath = constants.YOUTUBE_DL_PATH;
+    if (binaryPath && fs.existsSync(binaryPath)) return binaryPath;
+  } catch {}
+  // Fallback: bin/ klasöründe ara
+  const binCandidates = [
+    path.join(process.cwd(), "bin", "yt-dlp"),
+    path.join(process.cwd(), "bin", "yt-dlp.exe"),
+  ];
+  for (const p of binCandidates) {
+    if (fs.existsSync(p)) return p;
+  }
+  return null;
+}
+
+async function getYtDlpInfo(url: string): Promise<{ title: string; formats: Array<{ format_id?: string; height?: number; url?: string; vcodec?: string; format_note?: string }> } | null> {
+  const videoUrl = normalizeYouTubeUrl(url);
+  if (!_ytDlpBinaryLogged) {
+    _ytDlpBinaryLogged = true;
+    const bin = getYtDlpBinaryPath();
+    if (bin) console.log("[yt-dlp] Binary bulundu:", bin);
+    else console.error("[yt-dlp] Binary BULUNAMADI.");
+  }
+  const binaryPath = getYtDlpBinaryPath();
+  if (!binaryPath) return null;
+
+  const cookiePath = getCookiePathForYtDlp();
+
+  const buildArgs = (withCookies: boolean) => {
+    const a = [
+      "--dump-single-json",
+      "--no-warnings",
+      "--no-check-certificate", "--extractor-args", "youtube:player_client=tv_embedded", "--user-agent", getRandomUserAgent(),
+    ];
+    if (withCookies && cookiePath) a.push("--cookies", cookiePath);
+    a.push(videoUrl);
+    return a;
+  };
+
+  const runYtDlp = async (args: string[]) => {
+    const { execFile } = _require("child_process");
+    const { promisify } = _require("util");
+    const execFileP = promisify(execFile);
+    const { stdout } = await execFileP(binaryPath, args, {
+      encoding: "utf8",
+      maxBuffer: 50 * 1024 * 1024,
+      timeout: 60000,
+    });
+    return typeof stdout === "string" ? stdout : String(stdout);
+  };
+
+  try {
+    let stdout: string;
+    try {
+      stdout = await runYtDlp(buildArgs(true));
+    } catch (cookieErr: any) {
+      const stderr = (cookieErr.stderr || cookieErr.message || "").toString();
+      if (stderr.includes("cookiejar") || stderr.includes("cookies") || stderr.includes("CookieLoadError")) {
+        console.warn("[yt-dlp] Cookie dosyasi gecersiz, cookie olmadan deneniyor.");
+        stdout = await runYtDlp(buildArgs(false));
+      } else {
+        throw cookieErr;
+      }
+    }
+    const trimmed = stdout.trim();
+    if (!trimmed || (!trimmed.startsWith("{") && !trimmed.startsWith("["))) {
+      console.error("DETAYLI YT-DLP HATASI: stdout JSON degil (ilk 200 karakter):", trimmed.slice(0, 200));
+      return null;
+    }
+    const info = JSON.parse(trimmed);
+    const title = (info && info.title) ? String(info.title) : "YouTube video";
+    const formats = Array.isArray(info.formats) ? info.formats : [];
+    // Debug: ses formatı var mı kontrol et
+    const audioCount = formats.filter((f) => f.acodec && f.acodec !== 'none' && f.vcodec === 'none').length;
+    const videoCount = formats.filter((f) => f.vcodec && f.vcodec !== 'none').length;
+    console.log('[yt-dlp] Toplam format:', formats.length, '| Video:', videoCount, '| Ses:', audioCount);
+    return { title, formats };
+  } catch (e: any) {
+    console.error("YT-DLP FULL ERROR:", e);
+    console.error("YT-DLP STDERR:", e?.stderr || "(boş)");
+    console.error("YT-DLP EXIT CODE:", e?.code || e?.exitCode || "?");
+    const stderr = (e?.stderr || e?.message || "").toString();
+    _lastYtDlpStderr = stderr.slice(0, 500);
+    return null;
+  }
+}
+
+let _lastYtDlpStderr = "";
+
+async function resolveYouTube(url: string): Promise<{ title: string; videoUrl: string | null; hint?: string }> {
+  const info = await getYtDlpInfo(url);
+  if (!info || info.formats.length === 0) {
+    return {
+      title: "YouTube",
+      videoUrl: null,
+      hint: "YouTube download is limited on this server (rate limit or region). Try again later or use a direct video link from another site.",
+    };
+  }
+  const withUrl = info.formats.filter((f: any) => f.url);
+  const best = withUrl.find((f: any) => f.height) ?? withUrl[0];
+  return { title: info.title, videoUrl: best?.url ?? null };
+}
+
+async function getYouTubeFormats(url: string): Promise<{ title: string; formats: Array<{ qualityLabel: string; height?: number; url: string; formatIndex: number }>; hint?: string }> {
+  _lastYtDlpStderr = "";
+  const info = await getYtDlpInfo(url);
+  if (!info) {
+    let hint = "Could not load formats. The video may be restricted or unavailable. Try again later.";
+    const err = _lastYtDlpStderr.toLowerCase();
+    if (err.includes("sign in") || err.includes("age") || err.includes("confirm your age")) {
+      hint = "This video may be age-restricted or require login. Export cookies from YouTube (see YOUTUBE_COOKIES_SETUP.md) and add youtube-cookies.json to the project root.";
+    } else if (err.includes("unavailable") || err.includes("private") || err.includes("removed")) {
+      hint = "Video is unavailable, private, or has been removed.";
+    } else if (err.includes("timeout") || err.includes("timed out")) {
+      hint = "Request timed out. Try again or use a shorter video.";
+    }
+    return { title: "YouTube", formats: [], hint };
+  }
+  const withVideo = info.formats.filter((f: any) => (f.height != null || (f.vcodec && f.vcodec !== "none")) && (f.url != null || f.format_id));
+  const byHeight = withVideo
+    .map((f: any) => ({
+      qualityLabel: f.height ? `${f.height}p` : (f.format_note || "Unknown"),
+      height: f.height,
+      url: f.url || "",
+      formatIndex: info.formats.indexOf(f),
+    }))
+    .filter((f: any) => f.formatIndex >= 0);
+  const seen = new Set<number>();
+  const uniq: Array<{ qualityLabel: string; height?: number; url: string; formatIndex: number }> = [];
+  for (const f of byHeight.sort((a: any, b: any) => (b.height || 0) - (a.height || 0))) {
+    const h = f.height || 0;
+    if (seen.has(h)) continue;
+    seen.add(h);
+    uniq.push(f);
+  }
+  if (uniq.length === 0) {
+    const fallback = info.formats.find((f: any) => f.url || f.format_id);
+    if (fallback) {
+      const idx = info.formats.indexOf(fallback);
+      uniq.push({ qualityLabel: "Best", height: undefined, url: (fallback as any).url || "", formatIndex: idx >= 0 ? idx : 0 });
+    }
+  }
+  if (uniq.length === 0 && info.formats.length > 0) {
+    info.formats.forEach((f: any, idx: number) => {
+      uniq.push({
+        qualityLabel: f.height ? `${f.height}p` : (f.format_note || f.format_id || "Format " + idx),
+        height: f.height,
+        url: f.url || "",
+        formatIndex: idx,
+      });
+    });
+  }
+  return { title: info.title, formats: uniq };
+}
+
+function extractOgVideo(html: string, requestedUrl?: string): { title: string; videoUrl: string | null } {
+  const titleMatch = html.match(/<meta\s+property="og:title"\s+content="([^"]*)"/i) || html.match(/<meta\s+content="([^"]*)"\s+property="og:title"/i);
+  const title = titleMatch ? decodeURIComponent(titleMatch[1].replace(/&amp;/g, "&")) : "Video";
+  let videoUrl: string | null = null;
+
+  const ogVideo = html.match(/<meta\s+property="og:video:url"\s+content="([^"]*)"/i)
+    || html.match(/<meta\s+property="og:video:secure_url"\s+content="([^"]*)"/i)
+    || html.match(/<meta\s+content="([^"]*)"\s+property="og:video"/i)
+    || html.match(/<meta\s+property="og:video"\s+content="([^"]*)"/i);
+  if (ogVideo) videoUrl = ogVideo[1].trim();
+
+  if (!videoUrl) {
+    const twitterStream = html.match(/<meta\s+property="twitter:player:stream"\s+content="([^"]*)"/i) || html.match(/<meta\s+content="([^"]*)"\s+property="twitter:player:stream"/i);
+    if (twitterStream) videoUrl = twitterStream[1].trim();
+  }
+  if (!videoUrl) {
+    const videoUrlInJson = html.match(/"video_url"\s*:\s*"([^"]+)"/) || html.match(/"playback_url"\s*:\s*"([^"]+)"/) || html.match(/"contentUrl"\s*:\s*"([^"]+)"/);
+    if (videoUrlInJson) videoUrl = videoUrlInJson[1].replace(/\\u0026/g, "&").replace(/\\\//g, "/").replace(/\\"/g, '"').trim();
+  }
+  if (!videoUrl && (requestedUrl || "").includes("twitter.com")) {
+    const twimgAlt = html.match(/https?:\/\/[^"'\s]+\.twimg\.com[^"'\s]*\.mp4/);
+    if (twimgAlt) videoUrl = twimgAlt[0].trim();
+    if (!videoUrl) {
+      const twimgEscaped = html.match(/https?:\\?\/\\?\/[^"'\s]*twimg[^"'\s]*\.mp4/);
+      if (twimgEscaped) videoUrl = twimgEscaped[0].replace(/\\\//g, "/").replace(/\\u0026/g, "&").trim();
+    }
+  }
+  if (!videoUrl) {
+    const anyMp4 = html.match(/"url"\s*:\s*"(https?:[^"]*\.mp4[^"]*)"/);
+    if (anyMp4) videoUrl = anyMp4[1].replace(/\\\//g, "/").replace(/\\u0026/g, "&").trim();
+  }
+  return { title, videoUrl };
+}
+
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
   const TIMEOUT_MS = 55_000;
+
+  function sendJson(res: any, status: number, body: object) {
+    res.setHeader("Content-Type", "application/json");
+    res.status(status).json(body);
+  }
+
+  app.get("/api/resolve-video", async (req, res) => {
+    const url = req.query.url as string;
+    if (!url || typeof url !== "string") {
+      return sendJson(res, 400, { error: "Missing url query parameter." });
+    }
+    try {
+      if (isYouTubeUrl(url)) {
+        const result = await resolveYouTube(url);
+        return sendJson(res, 200, { title: result.title, videoUrl: result.videoUrl, hint: result.hint });
+      }
+      const response = await (nodeFetch as any)(url, {
+        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" },
+        redirect: "follow",
+        timeout: 15_000,
+      });
+      const html = await response.text();
+      const { title, videoUrl } = extractOgVideo(html, url);
+      const hint = !videoUrl && (url || "").includes("twitter.com")
+        ? "Twitter often blocks automated access. Try opening the tweet in a browser, or use a direct video link from another site."
+        : undefined;
+      return sendJson(res, 200, { title, videoUrl, hint });
+    } catch (e: any) {
+      return sendJson(res, 422, { error: e?.message ?? "Could not fetch URL." });
+    }
+  });
+
+  app.get("/api/youtube-formats", async (req, res) => {
+    const url = req.query.url as string;
+    if (!url || typeof url !== "string" || !isYouTubeUrl(url)) {
+      return sendJson(res, 400, { error: "Valid YouTube URL required." });
+    }
+    try {
+      const result = await getYouTubeFormats(url);
+      return sendJson(res, 200, result);
+    } catch (e: any) {
+      return sendJson(res, 422, { error: e?.message ?? "Failed to get formats." });
+    }
+  });
+
+  // Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬ /api/stream-youtube Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬
+  // Strateji:
+  //   1. itag=18 gibi muxed (ses+video birlikte MP4) var -> direkt pipe et
+  //   2. Yoksa yt-dlp + ffmpeg-location ile birlestir
+  app.get('/api/stream-youtube', async (req, res) => {
+    const youtubeUrl = req.query.url as string;
+    const formatIndex = parseInt(req.query.formatIndex as string, 10);
+
+    if (!youtubeUrl || typeof youtubeUrl !== 'string' || !isYouTubeUrl(youtubeUrl)) {
+      return sendJson(res, 400, { error: 'Valid YouTube URL required.' });
+    }
+    if (Number.isNaN(formatIndex) || formatIndex < 0) {
+      return sendJson(res, 400, { error: 'Valid formatIndex required.' });
+    }
+
+    const fs2     = _require('fs');
+    const path2   = _require('path');
+    const os      = _require('os');
+    const { execFile } = _require('child_process');
+    const { promisify } = _require('util');
+    const execFileP = promisify(execFile);
+
+    const binaryPath = getYtDlpBinaryPath();
+    if (!binaryPath) return sendJson(res, 503, { error: 'yt-dlp binary bulunamadi.' });
+
+    const cookiePath = getCookiePathForYtDlp();
+    const normalUrl = normalizeYouTubeUrl(youtubeUrl);
+
+    const tmpId  = 'yt_' + Date.now();
+    const tmpOut = path2.join(os.tmpdir(), tmpId + '.mp4');
+
+    const cleanup = () => {
+      const dir = os.tmpdir();
+      try {
+        (fs2.readdirSync(dir) as string[])
+          .filter((f: string) => f.startsWith(tmpId))
+          .forEach((f: string) => { try { fs2.unlinkSync(path2.join(dir, f)); } catch {} });
+      } catch {}
+    };
+
+    try {
+      const info = await getYtDlpInfo(youtubeUrl);
+      if (!info || !info.formats.length) {
+        return sendJson(res, 400, { error: 'Format bilgisi alinamadi.' });
+      }
+
+      const allFormats = info.formats as any[];
+      const chosen = allFormats[formatIndex];
+      const targetHeight: number | undefined = chosen?.height;
+
+      console.log('Ã¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢Â');
+      console.log('[stream] Hedef kalite:', targetHeight ? targetHeight + 'p' : 'best');
+      console.log('[stream] Cookies:', cookiePath ? 'VAR' : 'YOK');
+
+      // Ã¢"â‚¬Ã¢"â‚¬ Strateji: Muxed format var mi? Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬
+      // Muxed = hem acodec hem vcodec iceren, ytimg olmayan formatlar
+      // itag=18 klasik ornek: mime=video/mp4, acodec!=none, vcodec!=none
+      const muxed = allFormats.filter((f: any) =>
+        f.url &&
+        !f.url.includes('ytimg.com') &&
+        f.acodec && f.acodec !== 'none' &&
+        f.vcodec && f.vcodec !== 'none' &&
+        f.height != null
+      );
+
+      if (muxed.length > 0) {
+        // En uygun muxed formati sec
+        let best = muxed.find((f: any) => f.height === targetHeight)
+          ?? muxed.reduce((a: any, b: any) => {
+            if (!targetHeight) return (b.height || 0) > (a.height || 0) ? b : a;
+            const da = Math.abs((a.height || 0) - targetHeight);
+            const db = Math.abs((b.height || 0) - targetHeight);
+            return db < da ? b : a;
+          });
+
+        console.log('[stream] Muxed format bulundu! itag=' + (best.format_id || '?') + ' height=' + best.height + 'p');
+        console.log('[stream] Direkt pipe ediliyor...');
+        console.log('Ã¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢Â');
+
+        // Direkt URL pipe - ffmpeg gereksiz
+        const fetchHeaders: Record<string, string> = {
+          'User-Agent': getRandomUserAgent(),
+          'Referer': 'https://www.youtube.com/',
+        };
+        if (cookiePath) {
+          try {
+            const cookieContent = fs2.readFileSync(cookiePath, 'utf8');
+            const cookieLines = cookieContent.split('\n')
+              .filter((l: string) => !l.startsWith('#') && l.trim());
+            const cookieStr = cookieLines.map((l: string) => {
+              const parts = l.split('\t');
+              if (parts.length >= 7) return parts[5] + '=' + parts[6];
+              return '';
+            }).filter(Boolean).join('; ');
+            if (cookieStr) fetchHeaders['Cookie'] = cookieStr;
+          } catch {}
+        }
+
+        const response = await (nodeFetch as any)(best.url, {
+          headers: fetchHeaders,
+          redirect: 'follow',
+          timeout: 30_000,
+        });
+
+        if (!response.ok) {
+          console.error('[stream] Direkt pipe 403/fail, yt-dlp fallback...');
+          // 403 gelirse asagida yt-dlp ile indir
+        } else {
+          const contentLength = response.headers.get('content-length');
+          const title = info.title.replace(/[<>":\/|?*]/g, '_').slice(0, 60);
+          res.setHeader('Content-Type', 'video/mp4');
+          res.setHeader('Content-Disposition', 'attachment; filename="' + title + '.mp4"');
+          if (contentLength) res.setHeader('Content-Length', contentLength);
+          (response.body as NodeJS.ReadableStream).pipe(res);
+          return;
+        }
+      }
+
+      // Ã¢"â‚¬Ã¢"â‚¬ Fallback: yt-dlp ile indir + ffmpeg birlestir Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬Ã¢"â‚¬
+      console.log('[stream] yt-dlp ile indirme baslıyor...');
+
+      let ffmpegPath: string | undefined;
+      try {
+        const fp = _require('ffmpeg-static') as string;
+        if (fp && fs2.existsSync(fp)) ffmpegPath = fp;
+      } catch {}
+
+      // Format string: once mp4 muxed, sonra video+audio merge
+      let formatStr: string;
+      if (targetHeight) {
+        formatStr = [
+          'best[height<=' + targetHeight + '][ext=mp4]',
+          'bestvideo[height<=' + targetHeight + '][ext=mp4]+bestaudio[ext=m4a]',
+          'bestvideo[height<=' + targetHeight + ']+bestaudio',
+          'best[height<=' + targetHeight + ']',
+          'best',
+        ].join('/');
+      } else {
+        formatStr = 'best[ext=mp4]/bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best';
+      }
+
+      const dlArgs: string[] = [
+        '--no-check-certificate',
+        '--no-playlist',
+        '--no-warnings',
+        '--format', formatStr,
+        '--output', tmpOut,
+        '--no-part',
+        '--merge-output-format', 'mp4',
+      ];
+      if (cookiePath) dlArgs.push('--cookies', cookiePath);
+      if (ffmpegPath) dlArgs.push('--ffmpeg-location', ffmpegPath);
+      dlArgs.push(normalUrl);
+
+      console.log('[stream] Format:', formatStr);
+
+      try {
+        await execFileP(binaryPath, dlArgs, {
+          encoding: 'utf8',
+          timeout: 300_000,
+          maxBuffer: 10 * 1024 * 1024,
+        });
+      } catch (dlErr: any) {
+        const stderr = (dlErr?.stderr || dlErr?.message || '').slice(0, 400);
+        console.error('[stream] yt-dlp hata:', stderr);
+        cleanup();
+        return sendJson(res, 502, { error: 'Video indirilemedi.', detail: stderr.slice(0, 200) });
+      }
+
+      // Cikti dosyasini bul
+      let outFile = tmpOut;
+      if (!fs2.existsSync(outFile)) {
+        const dir = os.tmpdir();
+        const found = (fs2.readdirSync(dir) as string[])
+          .filter((f: string) => f.startsWith(tmpId) && !f.endsWith('.part'));
+        if (found.length > 0) outFile = path2.join(dir, found[0]);
+        else { cleanup(); return sendJson(res, 502, { error: 'Cikti dosyasi olusturulamadi.' }); }
+      }
+
+      const stat = fs2.statSync(outFile);
+      if (stat.size < 1000) { cleanup(); return sendJson(res, 502, { error: 'Dosya bos.' }); }
+
+      const title = info.title.replace(/[<>":\/|?*]/g, '_').slice(0, 60);
+      console.log('[stream] Tamamlandi:', (stat.size / 1024 / 1024).toFixed(1), 'MB -', title);
+      console.log('Ã¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢Â');
+
+      res.setHeader('Content-Type', 'video/mp4');
+      res.setHeader('Content-Disposition', 'attachment; filename="' + title + '.mp4"');
+      res.setHeader('Content-Length', stat.size.toString());
+
+      const rs = fs2.createReadStream(outFile);
+      rs.pipe(res);
+      rs.on('close', cleanup);
+      req.on('close', () => { try { rs.destroy(); } catch {} cleanup(); });
+
+    } catch (e: any) {
+      cleanup();
+      console.error('STREAM ERROR:', e?.message || e);
+      return sendJson(res, 502, { error: e?.message ?? 'Video stream basarisiz.' });
+    }
+  });
+
+  // Non-YouTube (social): stream via direct URL fetch.
+  app.get("/api/stream-video", async (req, res) => {
+    const encoded = req.query.u as string;
+    if (!encoded) return res.status(400).json({ error: "Missing u parameter." });
+    try {
+      const videoUrl = Buffer.from(encoded, "base64url").toString("utf8");
+      const headers: Record<string, string> = { "User-Agent": getRandomUserAgent() };
+      if (videoUrl.includes("googlevideo")) headers["Referer"] = "https://www.youtube.com/";
+      const response = await (nodeFetch as any)(videoUrl, {
+        headers,
+        redirect: "follow",
+        timeout: 30_000,
+      });
+      if (!response.ok) {
+        if (response.status === 403 && videoUrl.includes("googlevideo")) {
+          return sendJson(res, 403, { error: "Video stream blocked. Use YouTube download (stream-youtube) instead.", directUrl: videoUrl });
+        }
+        return res.status(response.status).json({ error: "Video stream failed." });
+      }
+      const contentType = response.headers.get("content-type") || "video/mp4";
+      res.setHeader("Content-Type", contentType);
+      res.setHeader("Content-Disposition", "attachment; filename=video.mp4");
+      (response.body as NodeJS.ReadableStream).pipe(res);
+    } catch (e: any) {
+      return res.status(502).json({ error: e?.message ?? "Stream failed." });
+    }
+  });
 
   app.post("/api/convert", handleMulterError, async (req, res) => {
     if (!req.file) {
@@ -228,7 +884,7 @@ export async function registerRoutes(
 
       const firstRow = rows[0];
       const isHeader = firstRow.every(
-        (c) => typeof c === "string" && c === c.toUpperCase() && /[A-ZÇĞİÖŞÜ]/.test(c)
+        (c) => typeof c === "string" && c === c.toUpperCase() && /[A-ZÇÃ„ÂİÃƒ"“Ã…ÂÃƒş“]/.test(c)
       );
       if (isHeader && ws["!ref"]) {
         const range = XLSX.utils.decode_range(ws["!ref"]);
@@ -276,95 +932,19 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/convert-image", handleMulterError, async (req, res) => {
-    if (!req.file) {
-      return res.status(400).json({ error: "No file uploaded" });
-    }
-
-    const timeoutPromise = new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error("Processing timed out (55s)")), TIMEOUT_MS)
-    );
-
-    const conversionPromise = (async () => {
-      const { pdfjsLib, canvasModule } = await loadPdfjsServer();
-      const { createCanvas } = canvasModule;
-
-      const data = new Uint8Array(req.file!.buffer);
-      const pdf = await pdfjsLib.getDocument({ data, disableFontFace: true }).promise;
-      const totalPages: number = pdf.numPages;
-
-      const renderPage = async (pageNum: number): Promise<Buffer> => {
-        const page = await pdf.getPage(pageNum);
-        const scale = 2;
-        const viewport = page.getViewport({ scale });
-        const canvas = createCanvas(viewport.width, viewport.height);
-        const ctx = canvas.getContext("2d");
-
-        const renderContext = {
-          canvasContext: ctx,
-          viewport,
-          canvasFactory: {
-            create(w: number, h: number) {
-              const c = createCanvas(w, h);
-              return { canvas: c, context: c.getContext("2d") };
-            },
-            reset(canvasAndContext: any, w: number, h: number) {
-              canvasAndContext.canvas.width = w;
-              canvasAndContext.canvas.height = h;
-            },
-            destroy(canvasAndContext: any) {},
-          },
-        };
-
-        await page.render(renderContext).promise;
-        return canvas.toBuffer("image/jpeg", { quality: 0.92 });
-      };
-
-      if (totalPages === 1) {
-        return { buffer: await renderPage(1), isMultiPage: false };
-      }
-
-      const JSZip = _require("jszip");
-      const zip = new JSZip();
-      for (let i = 1; i <= totalPages; i++) {
-        const imgBuf = await renderPage(i);
-        zip.file(`page_${String(i).padStart(3, "0")}.jpg`, imgBuf);
-      }
-      const zipBuffer = await zip.generateAsync({ type: "nodebuffer" });
-      return { buffer: zipBuffer as Buffer, isMultiPage: true };
-    })();
-
-    try {
-      const resultData = await Promise.race([conversionPromise, timeoutPromise]) as { buffer: Buffer; isMultiPage: boolean };
-      const buffer = resultData.buffer;
-      const originalName = req.file.originalname.replace(/\.pdf$/i, "");
-
-      if (resultData.isMultiPage) {
-        const safeFileName = encodeURIComponent(`${originalName}_images.zip`);
-        res.setHeader("Content-Type", "application/zip");
-        res.setHeader("Content-Disposition", `attachment; filename*=UTF-8''${safeFileName}`);
-      } else {
-        const safeFileName = encodeURIComponent(`${originalName}.jpg`);
-        res.setHeader("Content-Type", "image/jpeg");
-        res.setHeader("Content-Disposition", `attachment; filename*=UTF-8''${safeFileName}`);
-      }
-
-      res.setHeader("Content-Length", buffer.length.toString());
-      res.send(buffer);
-    } catch (err: any) {
-      console.error("[/api/convert-image] Error:", err.message);
-      const status = err.message.includes("timed out") ? 504 : 422;
-      res.status(status).json({ error: err.message });
-    }
+  app.post("/api/convert-image", handleMulterError, async (_req, res) => {
+    return res.status(503).json({
+      error: "PDF to Image server conversion is temporarily disabled on this environment.",
+    });
   });
 
-  // ═══════════════════════════════════════════════════════════════════════
+  // Ã¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢Â
   // POST /api/translate-pdf
-  // ═══════════════════════════════════════════════════════════════════════
+  // Ã¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢Â
 
   const uploadTranslate = multer({
     storage: multer.memoryStorage(),
-    limits:  { fileSize: 10 * 1024 * 1024 },
+    limits: { fileSize: 10 * 1024 * 1024 },
     fileFilter: (_req: any, file: any, cb: any) =>
       file.mimetype === "application/pdf"
         ? cb(null, true)
@@ -375,16 +955,12 @@ export async function registerRoutes(
     "tr","en","de","fr","es","it","pt","ru","ja","zh","ar","ko","nl","pl","sv",
   ]);
 
-  async function translateChunks(
-    chunks: string[],
-    targetLang: string,
-  ): Promise<string[]> {
+  async function translateChunks(chunks: string[], targetLang: string): Promise<string[]> {
     const { translate } = _require("@vitalets/google-translate-api");
     const results: string[] = [];
 
     for (const chunk of chunks) {
       if (!chunk.trim()) { results.push(chunk); continue; }
-
       try {
         const resp = await translate(chunk, { to: targetLang });
         results.push(resp.text ?? chunk);
@@ -402,7 +978,6 @@ export async function registerRoutes(
         }
       }
     }
-
     return results;
   }
 
@@ -423,7 +998,7 @@ export async function registerRoutes(
         res.status(400).json({ error: "PDF dosyası bulunamadı" }); return;
       }
 
-      const { targetLang = "en" } = req.body as Record<string,string>;
+      const { targetLang = "en" } = req.body as Record<string, string>;
 
       if (!SUPPORTED_LANGS.has(targetLang)) {
         res.status(400).json({
@@ -450,9 +1025,9 @@ export async function registerRoutes(
           const rawText = data.text ?? "";
           if (!rawText.trim()) throw new Error("PDF'den metin çıkarılamadı.");
 
-          const lines  = rawText.replace(/\r\n?/g, "\n").split("\n");
+          const lines = rawText.replace(/\r\n?/g, "\n").split("\n");
           const chunks: string[] = [];
-          let   current = "";
+          let current = "";
 
           for (const line of lines) {
             const candidate = current ? `${current}\n${line}` : line;
@@ -466,7 +1041,7 @@ export async function registerRoutes(
           if (current) chunks.push(current);
 
           const translated = await translateChunks(chunks, targetLang);
-          const fullText   = translated.join("\n");
+          const fullText = translated.join("\n");
 
           const fontkit = _require("@pdf-lib/fontkit");
           const fs = _require("fs");
@@ -475,23 +1050,23 @@ export async function registerRoutes(
 
           const resolvedFont = resolveFontPath("DejaVuSans.ttf");
           if (!resolvedFont) {
-            throw new Error("Unicode font not found — cannot render translated text");
+            throw new Error("Unicode font not found — cannot render translated text");
           }
           const fontBytes = fs.readFileSync(resolvedFont);
           const font = await outDoc.embedFont(fontBytes, { subset: true });
           const fontSize = 11;
-          const lineH    = fontSize * 1.4;
-          const MARGIN   = 50;
-          const PAGE_W   = 595.28;
-          const PAGE_H   = 841.89;
-          const maxW     = PAGE_W - MARGIN * 2;
+          const lineH = fontSize * 1.4;
+          const MARGIN = 50;
+          const PAGE_W = 595.28;
+          const PAGE_H = 841.89;
+          const maxW = PAGE_W - MARGIN * 2;
           const maxLines = Math.floor((PAGE_H - MARGIN * 2) / lineH);
 
           const allLines: string[] = [];
           for (const paragraph of fullText.split("\n")) {
             if (!paragraph.trim()) { allLines.push(""); continue; }
             const words = paragraph.split(" ");
-            let   buf   = "";
+            let buf = "";
             for (const word of words) {
               const test = buf ? `${buf} ${word}` : word;
               const testW = font.widthOfTextAtSize(test, fontSize);
@@ -507,9 +1082,9 @@ export async function registerRoutes(
 
           let lineIdx = 0;
           while (lineIdx < allLines.length) {
-            const page  = outDoc.addPage([PAGE_W, PAGE_H]);
-            let   y     = PAGE_H - MARGIN;
-            let   count = 0;
+            const page = outDoc.addPage([PAGE_W, PAGE_H]);
+            let y = PAGE_H - MARGIN;
+            let count = 0;
             while (lineIdx < allLines.length && count < maxLines) {
               const line = allLines[lineIdx++];
               if (line) {
@@ -530,13 +1105,13 @@ export async function registerRoutes(
 
         const pdfBuffer = await Promise.race([translatePromise, timeoutPromise]) as Buffer;
 
-        const baseName     = req.file.originalname.replace(/\.pdf$/i, "");
+        const baseName = req.file.originalname.replace(/\.pdf$/i, "");
         const safeFileName = encodeURIComponent(`${baseName}_${targetLang}.pdf`);
 
         res
-          .setHeader("Content-Type",        "application/pdf")
+          .setHeader("Content-Type", "application/pdf")
           .setHeader("Content-Disposition", `attachment; filename*=UTF-8''${safeFileName}`)
-          .setHeader("Content-Length",      pdfBuffer.length.toString())
+          .setHeader("Content-Length", pdfBuffer.length.toString())
           .send(pdfBuffer);
 
       } catch (err: any) {
@@ -547,9 +1122,9 @@ export async function registerRoutes(
     }
   );
 
-  // ═══════════════════════════════════════════════════════════════════════
-  // POST /api/compare-pdf — Compare two PDF documents
-  // ═══════════════════════════════════════════════════════════════════════
+  // Ã¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢Â
+  // POST /api/compare-pdf
+  // Ã¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢Â
   const uploadCompareFields = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: 10 * 1024 * 1024, files: 2 },
@@ -600,7 +1175,6 @@ export async function registerRoutes(
         } catch (e: any) {
           throw new Error(`PDF B could not be read: ${e.message}`);
         }
-
         return { textA, textB };
       })();
 
@@ -758,7 +1332,6 @@ export async function registerRoutes(
         }
 
         case "protect": {
-          const password = req.body?.password ?? "1234";
           const pdfDoc = await PDFDocument.load(files[0].buffer);
           const protectedBytes = await pdfDoc.save();
           return Buffer.from(protectedBytes);
@@ -773,11 +1346,11 @@ export async function registerRoutes(
           const watermarkText = req.body?.watermark ?? "ProToolHub";
           const rawFontSize = Number(req.body?.fontSize ?? 0);
           const wmFontSize = rawFontSize > 0 ? Math.max(8, Math.min(200, rawFontSize)) : 0;
-          const wmAngle    = Number(req.body?.angle ?? 45);
-          const wmOpacity  = Math.max(0.01, Math.min(1, Number(req.body?.opacity ?? 0.3)));
-          const wmColorR   = Math.max(0, Math.min(1, Number(req.body?.colorR ?? 0.75)));
-          const wmColorG   = Math.max(0, Math.min(1, Number(req.body?.colorG ?? 0.75)));
-          const wmColorB   = Math.max(0, Math.min(1, Number(req.body?.colorB ?? 0.75)));
+          const wmAngle = Number(req.body?.angle ?? 45);
+          const wmOpacity = Math.max(0.01, Math.min(1, Number(req.body?.opacity ?? 0.3)));
+          const wmColorR = Math.max(0, Math.min(1, Number(req.body?.colorR ?? 0.75)));
+          const wmColorG = Math.max(0, Math.min(1, Number(req.body?.colorG ?? 0.75)));
+          const wmColorB = Math.max(0, Math.min(1, Number(req.body?.colorB ?? 0.75)));
 
           const pdfDoc = await PDFDocument.load(files[0].buffer);
           const fontkit = _require("@pdf-lib/fontkit");
@@ -841,9 +1414,9 @@ export async function registerRoutes(
     }
   });
 
-  // ═══════════════════════════════════════════════════════════════════════
-  // POST /api/convert-to-pdf — Word/Excel/PPT/HTML → PDF via LibreOffice
-  // ═══════════════════════════════════════════════════════════════════════
+  // Ã¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢Â
+  // POST /api/convert-to-pdf — Word/Excel/PPT/HTML Ã¢" "™ PDF via LibreOffice
+  // Ã¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢Â
 
   let libreConvert: any = null;
   let htmlToDocx: any = null;
@@ -853,7 +1426,7 @@ export async function registerRoutes(
       try {
         libreConvert = _require("libreoffice-convert");
         const { promisify } = _require("util");
-        libreConvert.convertAsync = promisify(libreConvert.convert);
+        libreConvert.convertAsync = (buf, fmt, filter, opts) => new Promise((resolve, reject) => { libreConvert.convertWithOptions(buf, fmt, filter, opts, (err, result) => { if (err) reject(err); else resolve(result); }); });
       } catch {
         throw new Error("libreoffice-convert yüklenemedi.");
       }
@@ -897,12 +1470,12 @@ export async function registerRoutes(
       footer: false,
       pageNumber: false,
     }) as Buffer;
-    const pdfBuffer: Buffer = await libreConvert.convertAsync(docxBuffer, ".pdf", undefined);
+    const pdfBuffer: Buffer = await libreConvert.convertAsync(docxBuffer, ".pdf", undefined, { sofficeBinaryPaths: ["C:\\Program Files\\LibreOffice\\program\\soffice.exe"] });
     return pdfBuffer;
   }
 
   async function officeToPdfBuffer(fileBuffer: Buffer): Promise<Buffer> {
-    const pdfBuffer: Buffer = await libreConvert.convertAsync(fileBuffer, ".pdf", undefined);
+    const pdfBuffer: Buffer = await libreConvert.convertAsync(fileBuffer, ".pdf", undefined, { sofficeBinaryPaths: ["C:\\Program Files\\LibreOffice\\program\\soffice.exe"] });
     return pdfBuffer;
   }
 
@@ -938,7 +1511,7 @@ export async function registerRoutes(
       const pdfBuffer = await Promise.race([convertPromise, timeoutPromise]);
 
       if (!pdfBuffer || pdfBuffer.length < 100) {
-        throw new Error("PDF çıktısı boş — LibreOffice dönüşümü başarısız");
+        throw new Error("PDF çıktısı boş — LibreOffice dönüşümü başarısız");
       }
 
       const baseName = req.file.originalname.replace(/\.[^.]+$/, "");
@@ -956,5 +1529,238 @@ export async function registerRoutes(
     }
   });
 
+  // ── Image araçları multer config ─────────────────────────────────
+  const uploadImage = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 20 * 1024 * 1024 },
+    fileFilter: (_req: any, file: any, cb: any) => {
+      if (/^image\/(jpeg|png|webp|gif|bmp|tiff|avif)$/i.test(file.mimetype)) {
+        cb(null, true);
+      } else {
+        cb(new Error("Only image files are accepted"));
+      }
+    },
+  });
+
+  function handleImageMulterError(req: any, res: any, next: any) {
+    uploadImage.single("file")(req, res, (err: any) => {
+      if (err) {
+        if (err.code === "LIMIT_FILE_SIZE") return res.status(413).json({ error: "File too large. Maximum size is 20MB." });
+        return res.status(400).json({ error: err.message || "Upload failed" });
+      }
+      next();
+    });
+  }
+
+  let _jimp: any = null;
+  async function loadJimp() {
+    if (_jimp) return _jimp;
+    try {
+      const j = _require("jimp");
+      _jimp = { Jimp: j.Jimp, MIME_JPEG: "image/jpeg", MIME_PNG: "image/png" };
+      return _jimp;
+    } catch(e) {}
+    throw new Error("jimp not available: " + String(e));
+  }
+
+  async function jimpProcess(J, buffer, fn, mime, opts) {
+    const img = await J.Jimp.fromBuffer(buffer);
+    fn(img);
+    return img.getBuffer(mime, opts || {});
+  }
+
+  app.post("/api/compress-image", handleImageMulterError, async (req: any, res: any) => {
+    if (!req.file) return res.status(400).json({ error: "No image file uploaded" });
+    try {
+      const quality = Math.max(1, Math.min(100, parseInt(req.body?.quality ?? "80", 10)));
+      const J = await loadJimp();
+      let outputBuffer: Buffer; let mimeType = "image/jpeg";
+      if (J._sharp) {
+        outputBuffer = await J._sharp(req.file.buffer).jpeg({ quality }).toBuffer();
+      } else {
+        outputBuffer = await jimpProcess(J, req.file.buffer, (img) => { }, J.MIME_JPEG, {quality});
+        mimeType = "image/jpeg";
+      }
+      const origName = req.file.originalname.replace(/\.[^.]+$/, "");
+      const safeFileName = encodeURIComponent(`${origName}_compressed.jpg`);
+      res.setHeader("Content-Type", mimeType)
+         .setHeader("Content-Disposition", `attachment; filename*=UTF-8''${safeFileName}`)
+         .setHeader("Content-Length", outputBuffer.length.toString())
+         .send(outputBuffer);
+    } catch (err: any) {
+      console.error("[/api/compress-image]", err.message);
+      res.status(422).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/resize-image", handleImageMulterError, async (req: any, res: any) => {
+    if (!req.file) return res.status(400).json({ error: "No image file uploaded" });
+    try {
+      const width = req.body?.width ? parseInt(req.body.width, 10) : null;
+      const height = req.body?.height ? parseInt(req.body.height, 10) : null;
+      if (!width && !height) return res.status(400).json({ error: "width or height required" });
+      const quality = Math.max(1, Math.min(100, parseInt(req.body?.quality ?? "90", 10)));
+      const J = await loadJimp();
+      let outputBuffer: Buffer; let mimeType = "image/jpeg";
+      if (J._sharp) {
+        outputBuffer = await J._sharp(req.file.buffer).resize(width, height, { fit: "inside" }).jpeg({ quality }).toBuffer();
+      } else {
+        outputBuffer = await jimpProcess(J, req.file.buffer, (img) => { img.scaleToFit({ w: width || img.bitmap.width, h: height || img.bitmap.height }); }, J.MIME_JPEG, {quality});
+        mimeType = "image/jpeg";
+      }
+      const origName = req.file.originalname.replace(/\.[^.]+$/, "");
+      const suffix = width && height ? `_${width}x${height}` : width ? `_w${width}` : `_h${height}`;
+      const safeFileName = encodeURIComponent(`${origName}${suffix}.jpg`);
+      res.setHeader("Content-Type", mimeType)
+         .setHeader("Content-Disposition", `attachment; filename*=UTF-8''${safeFileName}`)
+         .setHeader("Content-Length", outputBuffer.length.toString())
+         .send(outputBuffer);
+    } catch (err: any) {
+      console.error("[/api/resize-image]", err.message);
+      res.status(422).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/image-action", handleImageMulterError, async (req: any, res: any) => {
+    if (!req.file) return res.status(400).json({ error: "No image file uploaded" });
+    const actionType = req.body?.actionType as string;
+    if (!actionType) return res.status(400).json({ error: "Missing actionType" });
+    try {
+      const quality = Math.max(1, Math.min(100, parseInt(req.body?.quality ?? "85", 10)));
+      const J = await loadJimp();
+      let outputBuffer: Buffer; let mimeType = "image/jpeg";
+      if (J._sharp) {
+        let s = J._sharp(req.file.buffer);
+        if (actionType === "compress") { s = s.jpeg({ quality }); }
+        else if (actionType === "rotate") { s = s.rotate(parseInt(req.body?.angle ?? "90", 10)); }
+        else if (actionType === "flip") { s = req.body?.direction === "vertical" ? s.flip() : s.flop(); }
+        else if (actionType === "grayscale") { s = s.grayscale(); }
+        else if (actionType === "resize") { s = s.resize(req.body?.width ? parseInt(req.body.width,10) : null, req.body?.height ? parseInt(req.body.height,10) : null, { fit: "inside" }); }
+        else if (actionType === "convert") {
+          const fmt = (req.body?.format ?? "jpeg").replace("jpg","jpeg");
+          if (fmt === "png") { s = s.png(); mimeType = "image/png"; }
+          else if (fmt === "webp") { s = s.webp({ quality }); mimeType = "image/webp"; }
+          else { s = s.jpeg({ quality }); }
+        } else return res.status(400).json({ error: `Unknown actionType: ${actionType}` });
+        outputBuffer = await s.toBuffer();
+      } else {
+        if (actionType === "compress") {
+          outputBuffer = await jimpProcess(J, req.file.buffer, (img) => { }, J.MIME_JPEG, {quality});
+        } else if (actionType === "rotate") {
+          outputBuffer = await jimpProcess(J, req.file.buffer, (img) => { img.rotate(parseInt(req.body && req.body.angle || "90", 10)); }, J.MIME_JPEG, {quality});
+        } else if (actionType === "flip") {
+          const isV = req.body && req.body.direction === "vertical";
+          outputBuffer = await jimpProcess(J, req.file.buffer, (img) => { img.flip({ horizontal: !isV, vertical: isV }); }, J.MIME_JPEG);
+        } else if (actionType === "grayscale") {
+          outputBuffer = await jimpProcess(J, req.file.buffer, (img) => { img.greyscale(); }, J.MIME_JPEG);
+        } else if (actionType === "resize") {
+          outputBuffer = await jimpProcess(J, req.file.buffer, (img) => {
+            img.scaleToFit({ w: req.body && req.body.width ? parseInt(req.body.width,10) : img.bitmap.width, h: req.body && req.body.height ? parseInt(req.body.height,10) : img.bitmap.height });
+            }, J.MIME_JPEG, {quality});
+        } else if (actionType === "convert") {
+          const fmt = ((req.body && req.body.format) || "jpeg").replace("jpg","jpeg");
+          if (fmt === "png") { outputBuffer = await jimpProcess(J, req.file.buffer, () => {}, J.MIME_PNG); mimeType = "image/png"; }
+          else { outputBuffer = await jimpProcess(J, req.file.buffer, (img) => { }, J.MIME_JPEG, {quality}); }
+        } else { return res.status(400).json({ error: "Unknown actionType: " + actionType }); }
+      }
+      const origName = req.file.originalname.replace(/\.[^.]+$/, "");
+      const ext = mimeType.split("/")[1].replace("jpeg","jpg");
+      const safeFileName = encodeURIComponent(`${origName}_${actionType}.${ext}`);
+      res.setHeader("Content-Type", mimeType)
+         .setHeader("Content-Disposition", `attachment; filename*=UTF-8''${safeFileName}`)
+         .setHeader("Content-Length", outputBuffer.length.toString())
+         .send(outputBuffer);
+    } catch (err: any) {
+      console.error(`[/api/image-action/${req.body?.actionType}]`, err.message);
+      res.status(422).json({ error: err.message });
+    }
+  });
+
+
+
+  // ========== CONTACT FORM ==========
+  app.post("/api/contact", async (req: any, res: any) => {
+    const { name, email, message } = req.body || {};
+    if (!name || !email || !message) return res.status(400).json({ error: "All fields are required" });
+    if (!email.includes("@")) return res.status(400).json({ error: "Invalid email address" });
+    if (message.length < 10) return res.status(400).json({ error: "Message too short" });
+    try {
+      // Log to console and save to DB
+      console.log(`[CONTACT] From: ${name} <${email}> | Message: ${message}`);
+      const db = (app as any).locals?.db;
+      if (db) {
+        db.prepare(`CREATE TABLE IF NOT EXISTS contact_messages (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          name TEXT, email TEXT, message TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`).run();
+        db.prepare("INSERT INTO contact_messages (name, email, message) VALUES (?, ?, ?)").run(name, email, message);
+      }
+      res.json({ success: true, message: "Message received! We will get back to you within 24-48 hours." });
+    } catch (err: any) {
+      console.error("[/api/contact]", err.message);
+      res.status(500).json({ error: "Failed to send message" });
+    }
+  });
+
+  // ========== ADMIN PANEL ==========
+  const ADMIN_PASSWORD = "607086MaP";
+  const ADMIN_TOKENS = new Set<string>();
+
+  app.post("/admin/api/login", (req: any, res: any) => {
+    const { password } = req.body || {};
+    if (password === ADMIN_PASSWORD) {
+      const token = Math.random().toString(36).slice(2) + Date.now().toString(36);
+      ADMIN_TOKENS.add(token);
+      return res.json({ ok: true, token });
+    }
+    return res.status(401).json({ ok: false });
+  });
+
+  function adminAuth(req: any, res: any, next: any) {
+    const auth = req.headers.authorization || "";
+    const token = auth.replace("Bearer ", "");
+    if (!ADMIN_TOKENS.has(token)) return res.status(401).json({ error: "Unauthorized" });
+    next();
+  }
+
+  app.get("/admin/api/stats", adminAuth, (req: any, res: any) => {
+    try {
+      const { getStats } = _require("./analytics");
+      const stats = getStats();
+      res.json(stats || {});
+    } catch(e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.post("/admin/api/track", (req: any, res: any) => {
+    try {
+      const { trackEvent } = _require("./analytics");
+      trackEvent(req.body);
+      res.json({ ok: true });
+    } catch(e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.post("/admin/api/track-ad", (req: any, res: any) => {
+    try {
+      const { trackAdClick } = _require("./analytics");
+      trackAdClick(req.body);
+      res.json({ ok: true });
+    } catch(e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  app.get("/admin", (_req: any, res: any) => {
+    const fs = _require("fs");
+    const path = _require("path");
+    const htmlPath = path.join(process.cwd(), "server", "admin.html");
+    res.setHeader("Content-Type", "text/html");
+    res.send(fs.readFileSync(htmlPath, "utf8"));
+  });
   return httpServer;
 }
+

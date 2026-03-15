@@ -16,6 +16,15 @@
       "privacy_policy": "Files are processed securely and never saved permanently. ProToolHub operates with a strict 100% privacy policy.",
       "all_tools": "All Tools"
     },
+    "converter": {
+      "copy_to_clipboard": "Copy to Clipboard",
+      "copied": "Copied!",
+      "download": "Download",
+      "convert_another": "Convert another file",
+      "client_side_note": "100% client-side — file never uploaded",
+      "drop_file": "Drop file here",
+      "choose_file": "Choose File"
+    },
     "home": {
       "hero_title": "ProToolHub - 100+ Professional Online Tools",
       "hero_subtitle": "Professional-grade PDF, Video, Image, and AI writing tools. 100% Free. 100% Secure.",
@@ -44,6 +53,15 @@
       "security_note": "Güvenlik Notu:",
       "privacy_policy": "Dosyalar güvenli bir şekilde işlenir, sunucuya asla kalıcı olarak kaydedilmez. ProToolHub %100 gizlilik politikasıyla çalışır.",
       "all_tools": "Tüm Araçlar"
+    },
+    "converter": {
+      "copy_to_clipboard": "Panoya Kopyala",
+      "copied": "Kopyalandı!",
+      "download": "İndir",
+      "convert_another": "Başka dosya dönüştür",
+      "client_side_note": "Tamamen tarayıcıda — dosya yüklenmedi",
+      "drop_file": "Dosyayı buraya bırakın",
+      "choose_file": "Dosya Seç"
     },
     "home": {
       "hero_title": "ProToolHub - 100+ Profesyonel Online Araç",

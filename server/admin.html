@@ -1,0 +1,166 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0f0f14;--surface:#1a1a24;--surface2:#22222f;--border:#2e2e40;--accent:#6c63ff;--accent2:#43e8b0;--accent3:#ff6b6b;--accent4:#ffd93d;--text:#f0f0f8;--muted:#7070a0}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;min-height:100vh}
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh}
+.login-box{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:48px 40px;width:360px;text-align:center}
+.login-box h1{font-size:24px;margin-bottom:8px}
+.login-box p{color:var(--muted);font-size:14px;margin-bottom:32px}
+.login-box input{width:100%;padding:12px 16px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:15px;margin-bottom:12px;outline:none}
+.login-box input:focus{border-color:var(--accent)}
+.login-box button{width:100%;padding:12px;background:var(--accent);color:white;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer}
+.login-box button:hover{background:#5a52e0}
+.login-error{color:var(--accent3);font-size:13px;margin-top:8px;display:none}
+#dashboard{display:none}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 32px;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:10}
+.topbar h1{font-size:20px;font-weight:700}
+.refresh-btn{background:var(--accent);color:white;border:none;padding:6px 16px;border-radius:6px;cursor:pointer;font-size:13px;margin-right:8px}
+.logout{background:none;border:1px solid var(--border);color:var(--muted);padding:6px 16px;border-radius:6px;cursor:pointer;font-size:13px}
+.logout:hover{color:var(--text);border-color:var(--muted)}
+.content{padding:32px;max-width:1400px;margin:0 auto}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:32px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 24px}
+.stat-card .label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px}
+.stat-card .value{font-size:32px;font-weight:800;line-height:1}
+.stat-card .sub{font-size:12px;color:var(--muted);margin-top:4px}
+.v1 .value{color:var(--accent)}
+.v2 .value{color:var(--accent4)}
+.v3 .value{color:var(--accent2)}
+.v4 .value{color:var(--accent3)}
+.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px}
+.chart-card h3{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:20px}
+.chart-card canvas{max-height:240px}
+.chart-full{grid-column:1/-1}
+.table-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px}
+.table-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px}
+.table-card h3{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:8px 12px;color:var(--muted);font-weight:500;border-bottom:1px solid var(--border)}
+td{padding:8px 12px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--surface2)}
+.badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600}
+.badge-protoolhub{background:rgba(108,99,255,0.2);color:var(--accent)}
+.badge-vidsnap{background:rgba(67,232,176,0.2);color:var(--accent2)}
+.bar{height:6px;border-radius:3px;background:var(--accent);display:inline-block;min-width:2px}
+.empty{color:var(--muted);text-align:center;padding:20px}
+@media(max-width:900px){.charts-grid,.table-grid{grid-template-columns:1fr}.chart-full{grid-column:1}.content{padding:16px}}
+</style>
+</head>
+<body>
+<div id="login-screen">
+  <div class="login-box">
+    <h1>⚡ Admin Panel</h1>
+    <p>ProToolHub + VidSnap Analytics</p>
+    <input type="password" id="pwd" placeholder="Enter admin password" />
+    <button onclick="doLogin()">Login</button>
+    <div class="login-error" id="lerr">Invalid password</div>
+  </div>
+</div>
+<div id="dashboard">
+  <div class="topbar">
+    <h1>⚡ Analytics Dashboard</h1>
+    <div>
+      <button class="refresh-btn" onclick="loadData()">↻ Refresh</button>
+      <button class="logout" onclick="doLogout()">Logout</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="stat-grid">
+      <div class="stat-card v1"><div class="label">Total Page Views</div><div class="value" id="s1">—</div><div class="sub">All time</div></div>
+      <div class="stat-card v2"><div class="label">Total Tool Uses</div><div class="value" id="s2">—</div><div class="sub">All time</div></div>
+      <div class="stat-card v3"><div class="label">Total Downloads</div><div class="value" id="s3">—</div><div class="sub">VidSnap</div></div>
+      <div class="stat-card v4"><div class="label">Ad Clicks</div><div class="value" id="s4">—</div><div class="sub">All time</div></div>
+      <div class="stat-card v1"><div class="label">Today Views</div><div class="value" id="s5">—</div><div class="sub">Since midnight</div></div>
+      <div class="stat-card v2"><div class="label">Today Uses</div><div class="value" id="s6">—</div><div class="sub">Since midnight</div></div>
+      <div class="stat-card v3"><div class="label">Today Downloads</div><div class="value" id="s7">—</div><div class="sub">VidSnap today</div></div>
+    </div>
+    <div class="charts-grid">
+      <div class="chart-card chart-full"><h3>📈 Daily Page Views — Last 30 Days</h3><canvas id="c1"></canvas></div>
+      <div class="chart-card"><h3>🔧 Daily Tool Uses — Last 30 Days</h3><canvas id="c2"></canvas></div>
+      <div class="chart-card"><h3>🕐 Hourly — Today</h3><canvas id="c3"></canvas></div>
+      <div class="chart-card"><h3>📥 Downloads by Platform — Last 7 Days</h3><canvas id="c4"></canvas></div>
+      <div class="chart-card"><h3>📢 Ad Clicks by Slot</h3><canvas id="c5"></canvas></div>
+    </div>
+    <div class="table-grid">
+      <div class="table-card"><h3>🏆 Top Tools — Last 30 Days</h3><table><thead><tr><th>#</th><th>Tool</th><th>Uses</th><th></th></tr></thead><tbody id="t1"></tbody></table></div>
+      <div class="table-card"><h3>🌐 Site Breakdown — Last 30 Days</h3><table><thead><tr><th>Site</th><th>Event</th><th>Count</th></tr></thead><tbody id="t2"></tbody></table></div>
+    </div>
+  </div>
+</div>
+<script>
+const KEY='ptadmin';let charts={};
+function doLogin(){
+  fetch('/admin/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:document.getElementById('pwd').value})})
+  .then(r=>r.json()).then(d=>{
+    if(d.ok){sessionStorage.setItem(KEY,d.token);showDash();}
+    else document.getElementById('lerr').style.display='block';
+  }).catch(()=>document.getElementById('lerr').style.display='block');
+}
+document.getElementById('pwd').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+function doLogout(){sessionStorage.removeItem(KEY);document.getElementById('dashboard').style.display='none';document.getElementById('login-screen').style.display='flex';}
+function showDash(){document.getElementById('login-screen').style.display='none';document.getElementById('dashboard').style.display='block';loadData();}
+function tok(){return sessionStorage.getItem(KEY);}
+function fmt(n){if(n>=1000000)return(n/1000000).toFixed(1)+'M';if(n>=1000)return(n/1000).toFixed(1)+'K';return n;}
+async function loadData(){
+  const r=await fetch('/admin/api/stats',{headers:{'Authorization':'Bearer '+tok()}});
+  if(r.status===401){doLogout();return;}
+  const d=await r.json();render(d);
+}
+function dc(id){if(charts[id]){charts[id].destroy();delete charts[id];}}
+function lineChart(id,rows,label,color){
+  dc(id);const ctx=document.getElementById(id).getContext('2d');
+  charts[id]=new Chart(ctx,{type:'line',data:{labels:rows.map(r=>r.day),datasets:[{label,data:rows.map(r=>r.count),borderColor:color,backgroundColor:color+'22',fill:true,tension:0.4,pointRadius:3}]},
+  options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#7070a0',maxTicksLimit:10},grid:{color:'#2e2e40'}},y:{ticks:{color:'#7070a0'},grid:{color:'#2e2e40'},beginAtZero:true}}}});
+}
+function render(data){
+  const s=data.summary||{};
+  document.getElementById('s1').textContent=fmt(s.totalPageViews||0);
+  document.getElementById('s2').textContent=fmt(s.totalToolUses||0);
+  document.getElementById('s3').textContent=fmt(s.totalDownloads||0);
+  document.getElementById('s4').textContent=fmt(s.totalAdClicks||0);
+  document.getElementById('s5').textContent=fmt(s.todayViews||0);
+  document.getElementById('s6').textContent=fmt(s.todayUses||0);
+  document.getElementById('s7').textContent=fmt(s.todayDownloads||0);
+  lineChart('c1',data.dailyViews||[],'Page Views','#6c63ff');
+  lineChart('c2',data.dailyUses||[],'Tool Uses','#ffd93d');
+  // Hourly
+  dc('c3');
+  const hours=Array.from({length:24},(_,i)=>String(i).padStart(2,'0'));
+  const hdata=hours.map(h=>{const r=(data.hourlyToday||[]).find(x=>x.hour===h);return r?r.count:0;});
+  charts['c3']=new Chart(document.getElementById('c3').getContext('2d'),{type:'bar',data:{labels:hours.map(h=>h+':00'),datasets:[{label:'Visits',data:hdata,backgroundColor:'#6c63ff88',borderColor:'#6c63ff',borderWidth:1}]},
+  options:{responsive:true,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#7070a0',maxRotation:45},grid:{color:'#2e2e40'}},y:{ticks:{color:'#7070a0'},grid:{color:'#2e2e40'},beginAtZero:true}}}});
+  // Downloads
+  dc('c4');
+  const dl=data.weeklyDownloads||[];
+  const plats=[...new Set(dl.map(r=>r.platform||'unknown'))];
+  const days=[...new Set(dl.map(r=>r.day))].sort();
+  const clrs=['#43e8b0','#ff6b6b','#ffd93d','#6c63ff','#ff9f43'];
+  charts['c4']=new Chart(document.getElementById('c4').getContext('2d'),{type:'bar',
+  data:{labels:days,datasets:plats.map((p,i)=>({label:p,backgroundColor:clrs[i%clrs.length],data:days.map(d=>{const r=dl.find(x=>x.day===d&&x.platform===p);return r?r.count:0;})}))},
+  options:{responsive:true,scales:{x:{stacked:true,ticks:{color:'#7070a0'},grid:{color:'#2e2e40'}},y:{stacked:true,ticks:{color:'#7070a0'},grid:{color:'#2e2e40'},beginAtZero:true}},plugins:{legend:{labels:{color:'#f0f0f8'}}}}});
+  // Ads
+  dc('c5');
+  const ads=data.adStats||[];
+  charts['c5']=new Chart(document.getElementById('c5').getContext('2d'),{type:'doughnut',
+  data:{labels:ads.map(r=>r.ad_slot+' ('+r.site+')'),datasets:[{data:ads.map(r=>r.count),backgroundColor:['#6c63ff','#43e8b0','#ff6b6b','#ffd93d','#a29bfe','#fd79a8']}]},
+  options:{responsive:true,plugins:{legend:{labels:{color:'#f0f0f8',font:{size:11}}}}}});
+  // Top tools table
+  const mx=(data.topTools||[])[0]?.count||1;
+  document.getElementById('t1').innerHTML=(data.topTools||[]).map((r,i)=>`<tr><td style="color:var(--muted)">${i+1}</td><td>${r.tool}</td><td><strong>${fmt(r.count)}</strong></td><td><span class="bar" style="width:${Math.round(r.count/mx*80)+10}px"></span></td></tr>`).join('')||`<tr><td colspan="4" class="empty">No data yet</td></tr>`;
+  // Site stats table
+  document.getElementById('t2').innerHTML=(data.siteStats||[]).map(r=>`<tr><td><span class="badge badge-${r.site}">${r.site}</span></td><td style="color:var(--muted)">${r.event_type}</td><td><strong>${fmt(r.count)}</strong></td></tr>`).join('')||`<tr><td colspan="3" class="empty">No data yet</td></tr>`;
+}
+if(tok())showDash();
+setInterval(()=>{if(tok())loadData();},60000);
+</script>
+</body>
+</html>

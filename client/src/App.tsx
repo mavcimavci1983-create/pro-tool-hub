@@ -1,4 +1,9 @@
-import { Switch, Route } from "wouter";
+﻿import { Switch, Route } from "wouter";
+import PrivacyPolicy from "@/pages/PrivacyPolicy";
+import TermsOfService from "@/pages/TermsOfService";
+import CookiePolicy from "@/pages/CookiePolicy";
+import AboutUs from "@/pages/AboutUs";
+import Contact from "@/pages/Contact";
 import Home from "./pages/Home";
 import GenericPdfTool from "./pages/GenericPdfTool";
 import VideoTool from "./pages/VideoTool";
@@ -16,7 +21,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       
-      {/* PDF Tools — Organize */}
+      {/* PDF Tools â€” Organize */}
       <Route path="/tools/merge-pdf">{() => <GenericPdfTool title="Merge PDF" desc="Combine multiple PDF files into one." />}</Route>
       <Route path="/tools/split-pdf">{() => <GenericPdfTool title="Split PDF" desc="Separate pages into individual files." />}</Route>
       <Route path="/tools/rotate-pdf">{() => <GenericPdfTool title="Rotate PDF" desc="Rotate pages of your PDF document." />}</Route>
@@ -28,7 +33,7 @@ function Router() {
       <Route path="/tools/repair-pdf">{() => <GenericPdfTool title="Repair PDF" desc="Fix corrupted PDF files." />}</Route>
       <Route path="/tools/flatten-pdf">{() => <GenericPdfTool title="Flatten PDF" desc="Flatten forms and annotations." />}</Route>
 
-      {/* PDF Tools — Convert FROM PDF */}
+      {/* PDF Tools â€” Convert FROM PDF */}
       <Route path="/tools/pdf-to-word">{() => <GenericPdfTool title="PDF to Word" desc="Convert PDF to editable Word files." />}</Route>
       <Route path="/tools/pdf-to-excel">{() => <GenericPdfTool title="PDF to Excel" desc="Convert PDF tables to Excel spreadsheets." />}</Route>
       <Route path="/tools/pdf-to-powerpoint">{() => <GenericPdfTool title="PDF to PPT" desc="Convert PDF to PowerPoint presentations." />}</Route>
@@ -37,14 +42,14 @@ function Router() {
       <Route path="/tools/pdf-to-pdfa">{() => <GenericPdfTool title="PDF to PDF/A" desc="Convert to archival PDF/A format." />}</Route>
       <Route path="/tools/ocr-pdf">{() => <GenericPdfTool title="OCR PDF" desc="Make scanned PDFs searchable." />}</Route>
 
-      {/* PDF Tools — Convert TO PDF */}
+      {/* PDF Tools â€” Convert TO PDF */}
       <Route path="/tools/word-to-pdf">{() => <GenericPdfTool title="Word to PDF" desc="Convert Word documents to PDF files." />}</Route>
       <Route path="/tools/ppt-to-pdf">{() => <GenericPdfTool title="PPT to PDF" desc="Convert PowerPoint presentations to PDF." />}</Route>
       <Route path="/tools/jpg-to-pdf">{() => <GenericPdfTool title="JPG to PDF" desc="Convert images to PDF documents." />}</Route>
       <Route path="/tools/html-to-pdf">{() => <GenericPdfTool title="HTML to PDF" desc="Convert web pages to PDF." />}</Route>
       <Route path="/tools/scan-to-pdf">{() => <GenericPdfTool title="Scan to PDF" desc="Scan documents directly to PDF." />}</Route>
 
-      {/* PDF Tools — Security & Optimize */}
+      {/* PDF Tools â€” Security & Optimize */}
       <Route path="/tools/compress-pdf">{() => <GenericPdfTool title="Compress PDF" desc="Reduce the size of your PDF files." />}</Route>
       <Route path="/tools/protect-pdf">{() => <GenericPdfTool title="Protect PDF" desc="Add password protection to your PDF." />}</Route>
       <Route path="/tools/remove-password">{() => <GenericPdfTool title="Unlock PDF" desc="Remove passwords and restrictions from PDFs." />}</Route>
@@ -54,6 +59,7 @@ function Router() {
       <Route path="/tools/translate-pdf">{() => <GenericPdfTool title="Translate PDF" desc="Translate PDF content easily." />}</Route>
 
       {/* Video Tools */}
+      <Route path="/tools/youtube-downloader">{(params) => <VideoTool title="YouTube Video Downloader" desc="Download YouTube videos in 720p or 1080p. Paste URL, choose quality, download." />}</Route>
       <Route path="/tools/youtube-to-text">{(params) => <VideoTool title="YouTube to Text" desc="Extract transcription from any YouTube video." />}</Route>
       <Route path="/tools/compress-video">{(params) => <VideoTool title="Compress Video" desc="Reduce video file size without quality loss." />}</Route>
       <Route path="/tools/instagram-download">{(params) => <VideoTool title="Instagram Download" desc="Download videos and reels from Instagram." />}</Route>
@@ -80,7 +86,7 @@ function Router() {
       <Route path="/tools/crop-image">{(params) => <ImageTool title="Crop Image" desc="Crop images to specific aspect ratios." />}</Route>
       <Route path="/tools/add-text-to-image">{(params) => <ImageTool title="Add Text" desc="Add stylish text overlays to your images." />}</Route>
 
-      {/* Converter Tools */}
+      <Route path="/tools/remove-watermark">{(params) => <ImageTool title="Watermark Remover" desc="Remove watermarks from images automatically." />}</Route>`n`n            {/* Converter Tools */}
       <Route path="/tools/csv-to-json">{(params) => <GenericConverterTool title="CSV to JSON" desc="Convert CSV spreadsheets to JSON data." />}</Route>
       <Route path="/tools/json-to-csv">{(params) => <GenericConverterTool title="JSON to CSV" desc="Convert JSON data to CSV spreadsheets." />}</Route>
       <Route path="/tools/excel-to-pdf">{(params) => <GenericConverterTool title="Excel to PDF" desc="Turn Excel spreadsheets into PDF documents." />}</Route>
@@ -103,6 +109,11 @@ function Router() {
 
       {/* Generic Tool Catch-all */}
       <Route path="/tools/:id">{(params) => <GenericPdfTool title={params.id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} desc="Professional online tool for your digital needs." />}</Route>
+      <Route path="/privacy-policy"><PrivacyPolicy /></Route>
+      <Route path="/terms"><TermsOfService /></Route>
+      <Route path="/cookie-policy"><CookiePolicy /></Route>
+      <Route path="/about"><AboutUs /></Route>
+      <Route path="/contact"><Contact /></Route>
       
       <Route component={NotFound} />
     </Switch>
@@ -119,3 +130,6 @@ export default function App() {
     </QueryClientProvider>
   );
 }
+
+
+

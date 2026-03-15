@@ -1,9 +1,24 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
+import { safeJsonResponse } from "./apiGuard";
 
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
+    const ct = res.headers.get("Content-Type") ?? "";
+    if (/^application\/json/i.test(ct)) {
+      try {
+        const j = await res.json();
+        const msg = (j && typeof j === "object" && (j.error ?? j.message)) || res.statusText;
+        throw new Error(typeof msg === "string" ? msg : `${res.status}`);
+      } catch (e: any) {
+        if (e?.message && !e.message.startsWith("{")) throw e;
+        throw new Error(`${res.status}: ${res.statusText}`);
+      }
+    }
     const text = (await res.text()) || res.statusText;
-    throw new Error(`${res.status}: ${text}`);
+    if (text.trimStart().startsWith("<")) {
+      throw new Error("Server returned a page instead of data. The API may be unavailable.");
+    }
+    throw new Error(`${res.status}: ${text.slice(0, 200) || res.statusText}`);
   }
 }
 
@@ -38,7 +53,7 @@ export const getQueryFn: <T>(options: {
     }
 
     await throwIfResNotOk(res);
-    return await res.json();
+    return await safeJsonResponse<T>(res);
   };
 
 export const queryClient = new QueryClient({
