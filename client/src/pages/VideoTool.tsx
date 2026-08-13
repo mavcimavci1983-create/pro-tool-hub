@@ -4,7 +4,6 @@ import { useLanguageStore } from "@/lib/languageStore";
 import translationsData from "@/locales/translations.json";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { LeaderboardAd, StickySkyscraper, BillboardAd } from "@/components/ads/AdUnit";
-import { useEffect } from "react";
 import {
   VideoConverterTool,
   VideoToMp3Tool,
@@ -16,54 +15,6 @@ import {
 } from "@/components/home/VideoTools";
 
 const translations = translationsData as Record<string, any>;
-
-const VIDSNAP_TOOLS = new Set([
-  "youtube download",
-  "youtube downloader",
-  "youtube video downloader",
-  "instagram download",
-  "twitter download",
-  "twitter (x) download",
-  "tiktok download",
-  "tiktok downloader",
-  "facebook download",
-]);
-
-function isVidSnapTool(title: string) {
-  return VIDSNAP_TOOLS.has(title.toLowerCase());
-}
-
-function VidSnapRedirect({ title }: { title: string }) {
-  const { language } = useLanguageStore();
-  const isEn = language === "en";
-  useEffect(() => {
-    const timer = setTimeout(() => { window.location.href = "http://localhost:5002"; }, 1500);
-    return () => clearTimeout(timer);
-  }, []);
-  return (
-    <div className="w-full max-w-4xl mx-auto">
-      <div className="p-12 rounded-3xl border-2 border-violet-200 bg-gradient-to-br from-violet-50 to-white text-center shadow-sm">
-        <div className="w-16 h-16 bg-violet-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-          <svg className="w-8 h-8 text-violet-600 animate-spin" fill="none" viewBox="0 0 24 24">
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
-          </svg>
-        </div>
-        <h2 className="text-2xl font-bold text-slate-800 mb-2">
-          {isEn ? "Redirecting to VidSnap..." : "VidSnap'e yonlendiriliyor..."}
-        </h2>
-        <p className="text-slate-500 font-medium mb-6">
-          {isEn ? `${title} is powered by VidSnap — our dedicated video downloader.` : `${title} araci VidSnap tarafindan desteklenmektedir.`}
-        </p>
-        <a href="http://localhost:5002" className="inline-flex items-center gap-2 px-8 py-3 bg-violet-600 text-white font-bold rounded-full hover:bg-violet-700 transition-colors shadow-md">
-          {isEn ? "Go to VidSnap now" : "VidSnap'e git"}
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7"/></svg>
-        </a>
-        <p className="mt-4 text-xs text-slate-400">{isEn ? "You will be redirected automatically." : "Otomatik yonlendirileceksiniz."}</p>
-      </div>
-    </div>
-  );
-}
 
 function getInlineTool(title: string) {
   const t = title.toLowerCase();
@@ -80,8 +31,7 @@ function getInlineTool(title: string) {
 
 export default function VideoTool({ title = "Video Tool", desc = "Free online video converter - No Watermark" }) {
   const { language } = useLanguageStore();
-  const isVidSnap = isVidSnapTool(title);
-  const inlineTool = isVidSnap ? null : getInlineTool(title);
+  const inlineTool = getInlineTool(title);
   return (
     <HelmetProvider>
       <div className="min-h-screen flex flex-col bg-white">
@@ -99,9 +49,7 @@ export default function VideoTool({ title = "Video Tool", desc = "Free online vi
                 <h1 className="text-3xl md:text-5xl font-bold mb-4 text-slate-900 tracking-tight leading-none">{title}</h1>
                 <p className="text-xl text-slate-600 font-medium opacity-80">{desc}</p>
               </div>
-              {isVidSnap ? (
-                <VidSnapRedirect title={title} />
-              ) : inlineTool ? (
+              {inlineTool ? (
                 inlineTool
               ) : (
                 <div className="w-full max-w-4xl mx-auto">

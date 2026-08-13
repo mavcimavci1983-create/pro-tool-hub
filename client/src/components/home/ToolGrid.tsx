@@ -82,12 +82,6 @@ const tools: ToolItem[] = [
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // Video Tools (downloaders + converters/editors)
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  { title: "YouTube Download", desc: "Download YouTube videos", cat: "Video", icon: <Youtube className="w-5 h-5 text-red-500" />, link: "/tools/youtube-downloader" },
-  { title: "YouTube to Text", desc: "Extract transcription from YouTube", cat: "Video", icon: <Type className="w-5 h-5 text-red-500" />, link: "/tools/youtube-to-text" },
-  { title: "Instagram Download", desc: "Download reels and videos", cat: "Video", icon: <Download className="w-5 h-5 text-purple-500" />, link: "/tools/instagram-download" },
-  { title: "Twitter (X) Download", desc: "Download videos from Twitter/X", cat: "Video", icon: <Download className="w-5 h-5 text-sky-500" />, link: "/tools/twitter-download" },
-  { title: "TikTok Download", desc: "Download TikTok without watermark", cat: "Video", icon: <Download className="w-5 h-5 text-pink-500" />, link: "/tools/tiktok-downloader" },
-  { title: "Facebook Download", desc: "Download Facebook videos", cat: "Video", icon: <Download className="w-5 h-5 text-blue-600" />, link: "/tools/facebook-download" },
   { title: "Video to GIF", desc: "Create animated GIF", cat: "Video", icon: <Scissors className="w-5 h-5 text-purple-400" />, link: "/tools/video-to-gif" },
   { title: "Video to MP3", desc: "Extract audio from video", cat: "Video", icon: <Music className="w-5 h-5 text-pink-400" />, link: "/tools/video-to-mp3" },
   { title: "MP4 to WebM", desc: "Convert MP4 to WebM", cat: "Video", icon: <Play className="w-5 h-5 text-blue-400" />, link: "/tools/mp4-to-webm" },

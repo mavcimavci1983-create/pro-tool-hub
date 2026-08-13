@@ -59,11 +59,7 @@ function Router() {
       <Route path="/tools/translate-pdf">{() => <GenericPdfTool title="Translate PDF" desc="Translate PDF content easily." />}</Route>
 
       {/* Video Tools */}
-      <Route path="/tools/youtube-downloader">{(params) => <VideoTool title="YouTube Video Downloader" desc="Download YouTube videos in 720p or 1080p. Paste URL, choose quality, download." />}</Route>
-      <Route path="/tools/youtube-to-text">{(params) => <VideoTool title="YouTube to Text" desc="Extract transcription from any YouTube video." />}</Route>
       <Route path="/tools/compress-video">{(params) => <VideoTool title="Compress Video" desc="Reduce video file size without quality loss." />}</Route>
-      <Route path="/tools/instagram-download">{(params) => <VideoTool title="Instagram Download" desc="Download videos and reels from Instagram." />}</Route>
-      <Route path="/tools/tiktok-downloader">{(params) => <VideoTool title="TikTok Downloader" desc="Download TikTok videos without watermarks." />}</Route>
       <Route path="/tools/video-to-gif">{(params) => <VideoTool title="Video to GIF" desc="Convert video clips into animated GIFs." />}</Route>
       <Route path="/tools/video-to-mp3">{(params) => <VideoTool title="Video to MP3" desc="Extract high-quality audio from videos." />}</Route>
       <Route path="/tools/mp4-to-webm">{(params) => <VideoTool title="MP4 to WebM" desc="Convert MP4 videos to WebM format." />}</Route>
@@ -71,8 +67,6 @@ function Router() {
       <Route path="/tools/video-resizer">{(params) => <VideoTool title="Video Resizer" desc="Resize video dimensions for social media." />}</Route>
       <Route path="/tools/rotate-video">{(params) => <VideoTool title="Rotate Video" desc="Rotate your video 90, 180, or 270 degrees." />}</Route>
       <Route path="/tools/trim-video">{(params) => <VideoTool title="Trim Video" desc="Cut and trim video segments easily." />}</Route>
-      <Route path="/tools/facebook-download">{(params) => <VideoTool title="Facebook Download" desc="Download videos directly from Facebook." />}</Route>
-      <Route path="/tools/twitter-download">{(params) => <VideoTool title="Twitter Download" desc="Download videos from Twitter/X." />}</Route>
       <Route path="/tools/video-to-text">{(params) => <VideoTool title="Video to Text" desc="Transcribe your local video files to text." />}</Route>
 
       {/* Image Tools */}

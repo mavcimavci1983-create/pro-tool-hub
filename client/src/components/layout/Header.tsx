@@ -154,12 +154,6 @@ const NAV_CATEGORIES = [
     filterCategory: "Video",
     filterSub: null,
     tools: [
-      { title: "YouTube Download", icon: <Youtube className="w-4 h-4 text-red-500" />, href: "/tools/youtube-downloader" },
-      { title: "YouTube to Text", icon: <FileText className="w-4 h-4 text-red-500" />, href: "/tools/youtube-to-text" },
-      { title: "Instagram Download", icon: <ImageIcon className="w-4 h-4 text-purple-500" />, href: "/tools/instagram-download" },
-      { title: "Twitter (X) Download", icon: <Globe className="w-4 h-4 text-sky-500" />, href: "/tools/twitter-download" },
-      { title: "TikTok Download", icon: <Play className="w-4 h-4 text-pink-500" />, href: "/tools/tiktok-downloader" },
-      { title: "Facebook Download", icon: <Globe className="w-4 h-4 text-blue-600" />, href: "/tools/facebook-download" },
       { title: "Compress Video", icon: <Minimize className="w-4 h-4 text-emerald-400" />, href: "/tools/compress-video" },
       { title: "Video to GIF", icon: <Scissors className="w-4 h-4 text-purple-400" />, href: "/tools/video-to-gif" },
       { title: "Video to MP3", icon: <Music className="w-4 h-4 text-pink-400" />, href: "/tools/video-to-mp3" },
