@@ -1,2 +1,0 @@
-# Placeholder ads.txt — replace with your AdSense/SSP lines.
-# Example (Google): google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0

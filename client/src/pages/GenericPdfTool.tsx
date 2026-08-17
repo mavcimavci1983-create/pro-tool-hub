@@ -6,22 +6,23 @@ import { useLanguageStore } from "@/lib/languageStore";
 import translationsData from "@/locales/translations.json";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { LeaderboardAd, StickySkyscraper, BillboardAd } from "@/components/ads/AdUnit";
+import { TOOL_SEO_DATA } from "@/data/toolSEO";
 
 const translations = translationsData as Record<string, any>;
 
 const TRANSLATE_LANGS = [
   { code: "en", label: "English" },
-  { code: "tr", label: "TÃ¼rkÃ§e" },
+  { code: "tr", label: "Türkçe" },
   { code: "de", label: "Deutsch" },
-  { code: "fr", label: "FranÃ§ais" },
-  { code: "es", label: "EspaÃ±ol" },
+  { code: "fr", label: "Français" },
+  { code: "es", label: "Español" },
   { code: "it", label: "Italiano" },
-  { code: "pt", label: "PortuguÃªs" },
-  { code: "ru", label: "Ğ ÑƒÑÑĞºĞ¸Ğ¹" },
-  { code: "ja", label: "æ—¥æœ¬èª" },
-  { code: "zh", label: "ä¸­æ–‡" },
-  { code: "ar", label: "Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©" },
-  { code: "ko", label: "í•œêµ­ì–´" },
+  { code: "pt", label: "Português" },
+  { code: "ru", label: "Русский" },
+  { code: "ja", label: "日本語" },
+  { code: "zh", label: "中文" },
+  { code: "ar", label: "العربية" },
+  { code: "ko", label: "한국어" },
   { code: "nl", label: "Nederlands" },
   { code: "pl", label: "Polski" },
   { code: "sv", label: "Svenska" },
@@ -40,8 +41,8 @@ const WATERMARK_DEFAULTS = {
 export default function GenericPdfTool({ title = "PDF Tool", desc = "Professional PDF processing tool." }) {
   const { language } = useLanguageStore();
   const isEn = language === "en";
-  const tLower = title.toLowerCase();
-  const isTranslate = tLower.includes("translate") || tLower.includes("Ã§evir");
+  const tLower = title.toLowerCase().trim();
+  const isTranslate = tLower.includes("translate") || tLower.includes("çevir");
   const isWatermark = tLower.includes("watermark") || tLower.includes("filigran");
 
   const [targetLang, setTargetLang] = useState("en");
@@ -50,6 +51,9 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
   const [wmAngle, setWmAngle] = useState(WATERMARK_DEFAULTS.angle);
   const [wmOpacity, setWmOpacity] = useState(WATERMARK_DEFAULTS.opacity);
   const [wmColor, setWmColor] = useState("#BFBFBF");
+
+  // Dinamik SEO Verisini Yakala
+  const customSEO = TOOL_SEO_DATA[tLower];
 
   const getAcceptedTypes = () => {
     if (tLower.includes("jpg to pdf") || tLower.includes("image to pdf")) return ".jpg,.jpeg,.png,.webp,.gif,.bmp";
@@ -89,8 +93,8 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
     <HelmetProvider>
       <div className="min-h-screen flex flex-col bg-white">
         <Helmet>
-          <title>{`${title} - ProToolHub Free Online Tool`}</title>
-          <meta name="description" content={desc} />
+          <title>{`${customSEO?.title || title} - ProToolHub Free Online Tool`}</title>
+          <meta name="description" content={customSEO?.description || desc} />
         </Helmet>
         <Header />
         <main className="flex-grow flex flex-col items-center pt-10 pb-20">
@@ -101,8 +105,12 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
 
             <div className="flex-1 min-w-0 max-w-4xl mx-auto">
               <div className="mb-12 text-center lg:text-left">
-                <h1 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900 tracking-tight">{title}</h1>
-                <p className="text-lg text-slate-600 font-medium">{desc}</p>
+                <h1 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900 tracking-tight">
+                  {customSEO?.title || title}
+                </h1>
+                <p className="text-lg text-slate-600 font-medium">
+                  {customSEO?.description || desc}
+                </p>
               </div>
 
               {isTranslate && (
@@ -143,19 +151,19 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
                     <div>
                       <label className="block text-xs font-semibold text-slate-600 mb-1">
-                        {isEn ? "Font Size (0=auto)" : "YazÄ± Boyutu (0=oto)"}
+                        {isEn ? "Font Size (0=auto)" : "Yazı Boyutu (0=oto)"}
                       </label>
                       <input data-testid="input-watermark-fontsize" type="number" min="0" max="200" value={wmFontSize} onChange={e => setWmFontSize(e.target.value)} className="w-full px-2 py-1.5 border border-slate-300 rounded-lg text-sm bg-white" />
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-slate-600 mb-1">
-                        {isEn ? "Angle (Â°)" : "AÃ§Ä± (Â°)"}
+                        {isEn ? "Angle (°)" : "Açı (°)"}
                       </label>
                       <input data-testid="input-watermark-angle" type="number" min="-180" max="180" value={wmAngle} onChange={e => setWmAngle(e.target.value)} className="w-full px-2 py-1.5 border border-slate-300 rounded-lg text-sm bg-white" />
                     </div>
                     <div>
                       <label className="block text-xs font-semibold text-slate-600 mb-1">
-                        {isEn ? "Opacity" : "SaydamlÄ±k"}
+                        {isEn ? "Opacity" : "Saydamlık"}
                       </label>
                       <input data-testid="input-watermark-opacity" type="number" min="0.01" max="1" step="0.05" value={wmOpacity} onChange={e => setWmOpacity(e.target.value)} className="w-full px-2 py-1.5 border border-slate-300 rounded-lg text-sm bg-white" />
                     </div>
@@ -177,41 +185,59 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
 
               <BillboardAd />
 
-                  <article className="prose prose-slate max-w-none border-t border-slate-100 pt-16 mt-8 text-slate-600">
-                    <div className="grid md:grid-cols-2 gap-12 text-left mb-10">
-                      <section>
-                        <h2 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">How to Use {title}</h2>
-                        <p className="text-md font-medium leading-relaxed mb-3">Using our <strong>{title}</strong> tool is simple and takes just seconds. Upload your file by dragging and dropping it into the upload area, or click to browse your device. The tool will instantly process your file with no software installation or account required.</p>
-                        <p className="text-md font-medium leading-relaxed">Once complete, your file is ready to download immediately. The process typically takes under 10 seconds even for large files, and you can use it as many times as you need — completely free with no daily limits.</p>
-                      </section>
-                      <section>
-                        <h2 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">Why Use ProToolHub?</h2>
-                        <p className="text-md font-medium leading-relaxed mb-3">ProToolHub was built with one goal: to give everyone access to professional-grade tools without subscriptions or paywalls. Whether you are a student, freelancer, or enterprise professional, our tools work instantly in your browser with zero setup.</p>
-                        <p className="text-md font-medium leading-relaxed">We process hundreds of thousands of files every month for users around the world. Our infrastructure is optimized for speed and reliability, ensuring your files are handled quickly even during peak hours.</p>
-                      </section>
+              {/* DİNANİK VE ÖZGÜN SEO İÇERİK BÖLÜMÜ */}
+              <article className="prose prose-slate max-w-none border-t border-slate-100 pt-16 mt-8 text-slate-600">
+                <div className="grid md:grid-cols-2 gap-12 text-left mb-10">
+                  <section>
+                    <h2 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">
+                      How to Use {title}
+                    </h2>
+                    {customSEO?.howTo ? (
+                      <ol className="list-decimal pl-5 space-y-2 text-md font-medium text-slate-700">
+                        {customSEO.howTo.map((step, idx) => (
+                          <li key={idx} className="leading-relaxed">{step}</li>
+                        ))}
+                      </ol>
+                    ) : (
+                      <p className="text-md font-medium leading-relaxed mb-3">
+                        Using our <strong>{title}</strong> tool is simple and fast. Upload your file into the designated dropzone, customize your options if needed, and download your processed file instantly without any registration.
+                      </p>
+                    )}
+                  </section>
+
+                  <section>
+                    <h2 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">
+                      Practical Use Cases
+                    </h2>
+                    <p className="text-md font-medium leading-relaxed mb-4 text-slate-700">
+                      {customSEO?.useCases || `${title} provides an efficient browser-based solution for professionals, students, and businesses looking to handle daily document tasks seamlessly without software installation.`}
+                    </p>
+                  </section>
+                </div>
+
+                {/* SSS (FAQ) Bölümü */}
+                {customSEO?.faqs && (
+                  <div className="bg-slate-50 border border-slate-200 rounded-2xl p-8 mb-10 text-left">
+                    <h3 className="text-xl font-bold text-slate-900 mb-6">Frequently Asked Questions</h3>
+                    <div className="space-y-6">
+                      {customSEO.faqs.map((faq, idx) => (
+                        <div key={idx}>
+                          <h4 className="font-semibold text-slate-800 mb-1">Q: {faq.q}</h4>
+                          <p className="text-sm text-slate-600 leading-relaxed">{faq.a}</p>
+                        </div>
+                      ))}
                     </div>
-                    <div className="grid md:grid-cols-3 gap-6 mb-10">
-                      <div className="bg-green-50 border border-green-100 rounded-2xl p-6">
-                        <div className="text-2xl mb-2">🔒</div>
-                        <h3 className="font-bold text-slate-900 mb-2">Your Files Stay Private</h3>
-                        <p className="text-sm text-slate-600 leading-relaxed">We do not use a server for most operations — your files are processed directly in your browser. For tools that require server processing, all uploaded files are automatically and permanently deleted within 60 minutes. We never read, share, or analyze your file contents.</p>
-                      </div>
-                      <div className="bg-blue-50 border border-blue-100 rounded-2xl p-6">
-                        <div className="text-2xl mb-2">⚡</div>
-                        <h3 className="font-bold text-slate-900 mb-2">Fast and Reliable</h3>
-                        <p className="text-sm text-slate-600 leading-relaxed">Our tools are optimized for speed. Most operations complete in under 10 seconds. We use modern browser APIs and server-side processing powered by industry-standard libraries to ensure accurate, high-quality results every time.</p>
-                      </div>
-                      <div className="bg-purple-50 border border-purple-100 rounded-2xl p-6">
-                        <div className="text-2xl mb-2">🆓</div>
-                        <h3 className="font-bold text-slate-900 mb-2">100% Free, No Limits</h3>
-                        <p className="text-sm text-slate-600 leading-relaxed">Every tool on ProToolHub is completely free to use with no hidden fees, no account registration, and no daily usage limits. Professional tools should be accessible to everyone, regardless of budget or technical expertise.</p>
-                      </div>
-                    </div>
-                    <div className="bg-slate-900 rounded-2xl p-8 text-white">
-                      <h3 className="text-xl font-bold mb-3">Bank-Grade Security on Every File</h3>
-                      <p className="text-slate-300 leading-relaxed text-sm">All file transfers between your device and our servers are encrypted using SSL/TLS technology — the same standard used by banks and financial institutions. Files queued for server-side processing are stored in isolated, encrypted temporary storage and wiped automatically after 60 minutes with no manual intervention required. ProToolHub has never experienced a data breach and we are committed to maintaining the highest security standards.</p>
-                    </div>
-                  </article>
+                  </div>
+                )}
+
+                {/* Güvenlik Kutusu */}
+                <div className="bg-slate-900 rounded-2xl p-8 text-white text-left">
+                  <h3 className="text-xl font-bold mb-3">Bank-Grade Security on Every File</h3>
+                  <p className="text-slate-300 leading-relaxed text-sm">
+                    All file transfers are protected with end-to-end SSL/TLS encryption. Files processed on our infrastructure are kept in isolated temporary storage and automatically deleted within 60 minutes.
+                  </p>
+                </div>
+              </article>
             </div>
 
             <StickySkyscraper side="right" />
@@ -222,4 +248,3 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
     </HelmetProvider>
   );
 }
-

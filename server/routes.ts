@@ -1704,12 +1704,18 @@ export async function registerRoutes(
   });
 
   // ========== ADMIN PANEL ==========
-  const ADMIN_PASSWORD = "607086MaP";
   const ADMIN_TOKENS = new Set<string>();
 
   app.post("/admin/api/login", (req: any, res: any) => {
     const { password } = req.body || {};
-    if (password === ADMIN_PASSWORD) {
+    const adminPassword = process.env.ADMIN_PASSWORD;
+
+    if (!adminPassword) {
+      console.error("ADMIN_PASSWORD environment variable is not defined!");
+      return res.status(500).json({ ok: false, message: "Server security configuration missing" });
+    }
+
+    if (password === adminPassword) {
       const token = Math.random().toString(36).slice(2) + Date.now().toString(36);
       ADMIN_TOKENS.add(token);
       return res.json({ ok: true, token });

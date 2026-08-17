@@ -1,6 +1,4 @@
 User-agent: *
 Allow: /
-Disallow: /api/
-Disallow: /admin/
 
-Sitemap: https://microwow.replit.app/sitemap.xml
+Sitemap: https://protoolhub.net/sitemap.xml
