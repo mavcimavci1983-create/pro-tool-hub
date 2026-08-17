@@ -1461,6 +1461,135 @@ export async function registerRoutes(
     }
   });
 
+
+  // ========== AI WRITING TOOLS ==========
+  // Anthropic Messages API uzerinden metin uretimi.
+  // Yeni bagimlilik eklenmedi: Node 20+ global fetch kullaniliyor.
+
+  const AI_MODEL = "claude-sonnet-4-6";
+  const AI_MAX_TOKENS = 1400;
+  const AI_INPUT_MAX = 4000;
+
+  // Arac basina sistem talimati. Anahtar = title.toLowerCase().trim()
+  const AI_PROMPTS: Record<string, string> = {
+    "paragraph writer":
+      "You are a precise writing assistant. Write a single, well-structured paragraph (90-150 words) on the topic the user provides. Use clear, natural prose. No headings, no bullet points, no preamble.",
+    "essay writer":
+      "You are an academic writing assistant. Write a structured essay (450-650 words) on the user's topic: a short introduction, two or three body paragraphs each making one argument with a concrete example, and a brief conclusion. Neutral, informative register. No headings unless the topic clearly needs them.",
+    "story generator":
+      "You are a fiction writer. Write a short story (400-600 words) from the user's premise. Establish a character with a want, introduce a complication, and end on a resolution or a deliberate open note. Concrete sensory detail over abstraction. No title, no preamble.",
+    "content improver":
+      "You are a line editor. Rewrite the user's text to be clearer and tighter while preserving their meaning, facts, and voice. Fix grammar and awkward phrasing. Do not add new claims, do not pad the length. Return only the improved text with no commentary.",
+    "blog post idea":
+      "You are a content strategist. From the user's topic or niche, produce 8 blog post ideas. For each: a specific working title, one sentence on the angle, and the reader it serves. Number them. Avoid generic listicle titles.",
+    "instagram caption":
+      "You are a social media copywriter. From the user's description, write 5 Instagram caption options of varying length and tone (one short and punchy, one story-led, one question-led, one value-led, one playful). Number them. Add 5-8 relevant hashtags on a separate line after each caption.",
+    "linkedin post":
+      "You are a LinkedIn ghostwriter. From the user's topic, write a post of 120-220 words: a hook line that earns the click, a short body with a concrete specific or a number, and a closing line that invites replies. Short paragraphs, no hashtag spam (max 3), no emoji walls.",
+  };
+
+  // Basit IP bazli hiz siniri: 10 istek / 10 dakika.
+  const aiHits = new Map<string, number[]>();
+  const AI_WINDOW_MS = 10 * 60 * 1000;
+  const AI_LIMIT = 10;
+
+  function aiRateLimited(ip: string): boolean {
+    const now = Date.now();
+    const hits = (aiHits.get(ip) ?? []).filter((t) => now - t < AI_WINDOW_MS);
+    if (hits.length >= AI_LIMIT) {
+      aiHits.set(ip, hits);
+      return true;
+    }
+    hits.push(now);
+    aiHits.set(ip, hits);
+    if (aiHits.size > 5000) aiHits.clear(); // kaba bellek koruması
+    return false;
+  }
+
+  app.post("/api/ai-generate", async (req: any, res: any) => {
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      console.error("[/api/ai-generate] ANTHROPIC_API_KEY tanimli degil");
+      return res.status(503).json({
+        error: "The AI writing service is not configured right now. Please try again later.",
+      });
+    }
+
+    const { tool, input } = req.body || {};
+    if (typeof input !== "string" || input.trim().length < 3) {
+      return res.status(400).json({ error: "Please enter a topic or some text first." });
+    }
+    if (input.length > AI_INPUT_MAX) {
+      return res.status(413).json({
+        error: `Input is too long. Please keep it under ${AI_INPUT_MAX} characters.`,
+      });
+    }
+
+    const ip = String(req.headers["x-forwarded-for"] || req.ip || "unknown").split(",")[0].trim();
+    if (aiRateLimited(ip)) {
+      return res.status(429).json({
+        error: "You have reached the free usage limit. Please wait a few minutes and try again.",
+      });
+    }
+
+    const key = String(tool || "").toLowerCase().trim();
+    const system =
+      AI_PROMPTS[key] ??
+      "You are a helpful writing assistant. Respond to the user's request with clean, well-organised prose. No preamble.";
+
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 60000);
+
+      const r = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({
+          model: AI_MODEL,
+          max_tokens: AI_MAX_TOKENS,
+          system,
+          messages: [{ role: "user", content: input.trim() }],
+        }),
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+
+      if (!r.ok) {
+        const detail = await r.text().catch(() => "");
+        console.error(`[/api/ai-generate] upstream ${r.status}: ${detail.slice(0, 300)}`);
+        if (r.status === 429) {
+          return res.status(429).json({ error: "The service is busy right now. Please try again in a moment." });
+        }
+        return res.status(502).json({ error: "Could not generate text right now. Please try again." });
+      }
+
+      const data: any = await r.json();
+      const output = (data?.content ?? [])
+        .filter((b: any) => b?.type === "text")
+        .map((b: any) => b.text)
+        .join("\n")
+        .trim();
+
+      if (!output) {
+        return res.status(502).json({ error: "The response came back empty. Please try rephrasing your input." });
+      }
+
+      res.json({ output });
+    } catch (err: any) {
+      const aborted = err?.name === "AbortError";
+      console.error("[/api/ai-generate]", aborted ? "timeout" : err?.message);
+      res.status(aborted ? 504 : 500).json({
+        error: aborted
+          ? "The request took too long. Please try a shorter input."
+          : "Something went wrong generating your text. Please try again.",
+      });
+    }
+  });
+
   // ========== ADMIN PANEL ==========
   const ADMIN_TOKENS = new Set<string>();
 
