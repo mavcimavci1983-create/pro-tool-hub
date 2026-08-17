@@ -71,17 +71,12 @@ const NAV_CATEGORIES = [
       { title: "Merge PDF", icon: <Layers className="w-4 h-4 text-red-500" />, href: "/tools/merge-pdf" },
       { title: "Split PDF", icon: <Split className="w-4 h-4 text-red-500" />, href: "/tools/split-pdf" },
       { title: "Compress PDF", icon: <Minimize className="w-4 h-4 text-emerald-500" />, href: "/tools/compress-pdf" },
-      { title: "Protect PDF", icon: <Lock className="w-4 h-4 text-gray-700" />, href: "/tools/protect-pdf" },
       { title: "Unlock PDF", icon: <LockOpen className="w-4 h-4 text-rose-500" />, href: "/tools/remove-password" },
       { title: "Add Watermark", icon: <Stamp className="w-4 h-4 text-indigo-500" />, href: "/tools/add-watermark" },
-      { title: "Sign PDF", icon: <FileSignature className="w-4 h-4 text-purple-500" />, href: "/tools/sign-pdf" },
       { title: "Rotate PDF", icon: <RotateCw className="w-4 h-4 text-red-500" />, href: "/tools/rotate-pdf" },
       { title: "Page Numbers", icon: <Hash className="w-4 h-4 text-red-500" />, href: "/tools/page-numbers" },
       { title: "Remove Pages", icon: <Scissors className="w-4 h-4 text-red-500" />, href: "/tools/delete-pages" },
       { title: "Reorder Pages", icon: <ArrowRightLeft className="w-4 h-4 text-red-500" />, href: "/tools/reorder-pages" },
-      { title: "Edit PDF", icon: <PenTool className="w-4 h-4 text-red-500" />, href: "/tools/edit-pdf" },
-      { title: "Crop PDF", icon: <Scissors className="w-4 h-4 text-red-500" />, href: "/tools/crop-pdf" },
-      { title: "Flatten PDF", icon: <Layers className="w-4 h-4 text-red-500" />, href: "/tools/flatten-pdf" },
     ],
   },
   {
@@ -92,10 +87,8 @@ const NAV_CATEGORIES = [
     filterSub: "security" as const,
     tools: [
       { title: "Watermark PDF", icon: <Stamp className="w-4 h-4 text-indigo-500" />, href: "/tools/add-watermark" },
-      { title: "Sign PDF", icon: <FileSignature className="w-4 h-4 text-purple-500" />, href: "/tools/sign-pdf" },
       { title: "Compare PDF", icon: <FileDiff className="w-4 h-4 text-sky-500" />, href: "/tools/compare-pdf" },
       { title: "Translate PDF", icon: <Languages className="w-4 h-4 text-amber-500" />, href: "/tools/translate-pdf" },
-      { title: "Repair PDF", icon: <Wrench className="w-4 h-4 text-orange-500" />, href: "/tools/repair-pdf" },
     ],
   },
   {
@@ -107,11 +100,8 @@ const NAV_CATEGORIES = [
     tools: [
       { title: "PDF to Word", icon: <FileText className="w-4 h-4 text-blue-600" />, href: "/tools/pdf-to-word" },
       { title: "PDF to Excel", icon: <Table className="w-4 h-4 text-green-600" />, href: "/tools/pdf-to-excel" },
-      { title: "PDF to PPT", icon: <Presentation className="w-4 h-4 text-orange-600" />, href: "/tools/pdf-to-powerpoint" },
       { title: "PDF to JPG", icon: <ImageIcon className="w-4 h-4 text-pink-500" />, href: "/tools/pdf-to-jpg" },
       { title: "PDF to Text", icon: <FileText className="w-4 h-4 text-orange-500" />, href: "/tools/pdf-to-text" },
-      { title: "PDF to PDF/A", icon: <FileText className="w-4 h-4 text-indigo-500" />, href: "/tools/pdf-to-pdfa" },
-      { title: "OCR PDF", icon: <Eye className="w-4 h-4 text-violet-500" />, href: "/tools/ocr-pdf" },
     ],
   },
   {
@@ -126,7 +116,6 @@ const NAV_CATEGORIES = [
       { title: "Excel to PDF", icon: <Table className="w-4 h-4 text-green-500" />, href: "/tools/excel-to-pdf" },
       { title: "JPG to PDF", icon: <ImageIcon className="w-4 h-4 text-red-500" />, href: "/tools/jpg-to-pdf" },
       { title: "HTML to PDF", icon: <Code className="w-4 h-4 text-cyan-500" />, href: "/tools/html-to-pdf" },
-      { title: "Scan to PDF", icon: <Eye className="w-4 h-4 text-teal-500" />, href: "/tools/scan-to-pdf" },
     ],
   },
   {
@@ -162,7 +151,6 @@ const NAV_CATEGORIES = [
       { title: "Video Resizer", icon: <Minimize className="w-4 h-4 text-indigo-400" />, href: "/tools/video-resizer" },
       { title: "Rotate Video", icon: <RotateCw className="w-4 h-4 text-sky-400" />, href: "/tools/rotate-video" },
       { title: "Trim Video", icon: <Scissors className="w-4 h-4 text-rose-400" />, href: "/tools/trim-video" },
-      { title: "Video to Text", icon: <Type className="w-4 h-4 text-slate-600" />, href: "/tools/video-to-text" },
     ],
   },
   {
@@ -200,10 +188,6 @@ const NAV_CATEGORIES = [
     filterCategory: "Other",
     filterSub: null,
     tools: [
-      { title: "QR Generator", icon: <QrCode className="w-4 h-4 text-slate-900" />, href: "/tools/qr-generator" },
-      { title: "Barcode Gen", icon: <Hash className="w-4 h-4 text-slate-700" />, href: "/tools/barcode-generator" },
-      { title: "My IP Address", icon: <Globe className="w-4 h-4 text-blue-500" />, href: "/tools/my-ip" },
-      { title: "Internet Speed", icon: <Monitor className="w-4 h-4 text-indigo-500" />, href: "/tools/speed-test" },
     ],
   },
 ];

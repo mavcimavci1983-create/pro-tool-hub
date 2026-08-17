@@ -42,21 +42,14 @@ const tools: ToolItem[] = [
   { title: "Page Numbers", titleTr: "Sayfa NumaralarÄ±", desc: "Add page numbers to your PDF.", descTr: "PDF'ye sayfa numaralarÄ± ekleyin.", cat: "PDF", pdfSub: "organize", icon: <Hash className="w-5 h-5 text-red-500" />, link: "/tools/page-numbers" },
   { title: "Remove Pages", titleTr: "Sayfa Sil", desc: "Delete unwanted pages from PDF.", descTr: "PDF'den istenmeyen sayfalarÄ± silin.", cat: "PDF", pdfSub: "organize", icon: <Scissors className="w-5 h-5 text-red-500" />, link: "/tools/delete-pages" },
   { title: "Reorder Pages", titleTr: "Sayfa SÄ±rala", desc: "Rearrange PDF page order.", descTr: "PDF sayfa sÄ±rasÄ±nÄ± yeniden dÃ¼zenleyin.", cat: "PDF", pdfSub: "organize", icon: <AlignJustify className="w-5 h-5 text-red-500" />, link: "/tools/reorder-pages" },
-  { title: "Edit PDF", titleTr: "PDF DÃ¼zenle", desc: "Edit text and images in PDF.", descTr: "PDF'deki metin ve gÃ¶rselleri dÃ¼zenleyin.", cat: "PDF", pdfSub: "organize", icon: <PenTool className="w-5 h-5 text-red-500" />, link: "/tools/edit-pdf" },
-  { title: "Crop PDF", titleTr: "PDF KÄ±rpma", desc: "Crop and resize PDF pages.", descTr: "PDF sayfalarÄ±nÄ± kÄ±rpÄ±n ve yeniden boyutlandÄ±rÄ±n.", cat: "PDF", pdfSub: "organize", icon: <CropIcon className="w-5 h-5 text-red-500" />, link: "/tools/crop-pdf" },
-  { title: "Repair PDF", titleTr: "PDF Onar", desc: "Fix corrupted PDF files.", descTr: "BozulmuÅŸ PDF dosyalarÄ±nÄ± onarÄ±n.", cat: "PDF", pdfSub: "organize", icon: <Wrench className="w-5 h-5 text-red-500" />, link: "/tools/repair-pdf" },
-  { title: "Flatten PDF", titleTr: "PDF DÃ¼zelt", desc: "Flatten forms and annotations.", descTr: "Form ve aÃ§Ä±klamalarÄ± dÃ¼zleÅŸtirin.", cat: "PDF", pdfSub: "organize", icon: <FileOutput className="w-5 h-5 text-red-500" />, link: "/tools/flatten-pdf" },
 
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // PDF Tools â€” Convert FROM PDF
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   { title: "PDF to Word", titleTr: "PDF â†’ Word", desc: "Convert PDF to editable Word files.", descTr: "PDF'yi dÃ¼zenlenebilir Word dosyasÄ±na Ã§evirin.", cat: "PDF", pdfSub: "convert-from", icon: <FileText className="w-5 h-5 text-blue-600" />, link: "/tools/pdf-to-word" },
   { title: "PDF to Excel", titleTr: "PDF â†’ Excel", desc: "Convert PDF tables to Excel.", descTr: "PDF tablolarÄ±nÄ± Excel'e dÃ¶nÃ¼ÅŸtÃ¼rÃ¼n.", cat: "PDF", pdfSub: "convert-from", icon: <Table className="w-5 h-5 text-green-600" />, link: "/tools/pdf-to-excel" },
-  { title: "PDF to PPT", titleTr: "PDF â†’ PPT", desc: "Convert PDF to PowerPoint.", descTr: "PDF'yi PowerPoint sunumuna Ã§evirin.", cat: "PDF", pdfSub: "convert-from", icon: <Presentation className="w-5 h-5 text-orange-600" />, link: "/tools/pdf-to-powerpoint" },
   { title: "PDF to JPG", titleTr: "PDF â†’ JPG", desc: "Convert PDF pages to images.", descTr: "PDF sayfalarÄ±nÄ± yÃ¼ksek kaliteli gÃ¶rsellere Ã§evirin.", cat: "PDF", pdfSub: "convert-from", icon: <ImageIcon className="w-5 h-5 text-pink-500" />, link: "/tools/pdf-to-jpg" },
   { title: "PDF to Text", titleTr: "PDF â†’ Metin", desc: "Extract text from PDF files.", descTr: "PDF dosyalarÄ±ndan metin Ã§Ä±karÄ±n.", cat: "PDF", pdfSub: "convert-from", icon: <FileText className="w-5 h-5 text-orange-500" />, link: "/tools/pdf-to-text" },
-  { title: "PDF to PDF/A", titleTr: "PDF â†’ PDF/A", desc: "Convert to archival PDF/A format.", descTr: "ArÅŸiv uyumlu PDF/A formatÄ±na dÃ¶nÃ¼ÅŸtÃ¼rÃ¼n.", cat: "PDF", pdfSub: "convert-from", icon: <FileOutput className="w-5 h-5 text-indigo-500" />, link: "/tools/pdf-to-pdfa" },
-  { title: "OCR PDF", titleTr: "OCR PDF", desc: "Make scanned PDFs searchable.", descTr: "TaranmÄ±ÅŸ PDF'leri aranabilir hale getirin.", cat: "PDF", pdfSub: "convert-from", icon: <Eye className="w-5 h-5 text-violet-500" />, link: "/tools/ocr-pdf" },
 
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // PDF Tools â€” Convert TO PDF
@@ -66,16 +59,13 @@ const tools: ToolItem[] = [
   { title: "Excel to PDF", titleTr: "Excel â†’ PDF", desc: "Convert Excel spreadsheets to PDF.", descTr: "Excel tablolarÄ±nÄ± PDF'ye dÃ¶nÃ¼ÅŸtÃ¼rÃ¼n.", cat: "PDF", pdfSub: "convert-to", icon: <Table className="w-5 h-5 text-green-500" />, link: "/tools/excel-to-pdf" },
   { title: "JPG to PDF", titleTr: "JPG â†’ PDF", desc: "Convert images to PDF documents.", descTr: "GÃ¶rselleri PDF belgesine dÃ¶nÃ¼ÅŸtÃ¼rÃ¼n.", cat: "PDF", pdfSub: "convert-to", icon: <ImageIcon className="w-5 h-5 text-red-500" />, link: "/tools/jpg-to-pdf" },
   { title: "HTML to PDF", titleTr: "HTML â†’ PDF", desc: "Convert web pages to PDF.", descTr: "Web sayfalarÄ±nÄ± PDF'ye dÃ¶nÃ¼ÅŸtÃ¼rÃ¼n.", cat: "PDF", pdfSub: "convert-to", icon: <Code className="w-5 h-5 text-cyan-500" />, link: "/tools/html-to-pdf" },
-  { title: "Scan to PDF", titleTr: "PDF'e Tara", desc: "Scan documents directly to PDF.", descTr: "Belgeleri doÄŸrudan PDF olarak tarayÄ±n.", cat: "PDF", pdfSub: "convert-to", icon: <Scan className="w-5 h-5 text-teal-500" />, link: "/tools/scan-to-pdf" },
 
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // PDF Tools â€” Security & Optimize
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   { title: "Compress PDF", titleTr: "PDF KÃ¼Ã§Ã¼lt", desc: "Reduce PDF file size.", descTr: "PDF dosya boyutunu kÃ¼Ã§Ã¼ltÃ¼n.", cat: "PDF", pdfSub: "security", icon: <Minimize className="w-5 h-5 text-emerald-500" />, link: "/tools/compress-pdf" },
-  { title: "Protect PDF", titleTr: "PDF Koru", desc: "Add password protection to PDF.", descTr: "PDF'ye ÅŸifre korumasÄ± ekleyin.", cat: "PDF", pdfSub: "security", icon: <Lock className="w-5 h-5 text-gray-700" />, link: "/tools/protect-pdf" },
   { title: "Unlock PDF", titleTr: "PDF Kilidi AÃ§", desc: "Remove PDF password restrictions.", descTr: "PDF ÅŸifre kÄ±sÄ±tlamalarÄ±nÄ± kaldÄ±rÄ±n.", cat: "PDF", pdfSub: "security", icon: <LockOpen className="w-5 h-5 text-rose-500" />, link: "/tools/remove-password" },
   { title: "Add Watermark", titleTr: "Filigran Ekle", desc: "Stamp text or image on PDF.", descTr: "PDF'ye metin veya gÃ¶rÃ¼ntÃ¼ filigranÄ± ekleyin.", cat: "PDF", pdfSub: "security", icon: <Stamp className="w-5 h-5 text-indigo-500" />, link: "/tools/add-watermark" },
-  { title: "Sign PDF", titleTr: "PDF Ä°mzala", desc: "Add electronic signatures to PDF.", descTr: "PDF'ye elektronik imza ekleyin.", cat: "PDF", pdfSub: "security", icon: <FileSignature className="w-5 h-5 text-purple-500" />, link: "/tools/sign-pdf" },
   { title: "Compare PDF", titleTr: "PDF KarÅŸÄ±laÅŸtÄ±r", desc: "Compare two PDF documents.", descTr: "Ä°ki PDF belgesini karÅŸÄ±laÅŸtÄ±rÄ±n.", cat: "PDF", pdfSub: "security", icon: <FileDiff className="w-5 h-5 text-sky-500" />, link: "/tools/compare-pdf" },
   { title: "Translate PDF", titleTr: "PDF Ã‡evir", desc: "Translate PDF content easily.", descTr: "PDF iÃ§eriÄŸini kolayca Ã§evirin.", cat: "PDF", pdfSub: "security", icon: <Languages className="w-5 h-5 text-amber-500" />, link: "/tools/translate-pdf" },
 
@@ -90,7 +80,6 @@ const tools: ToolItem[] = [
   { title: "Rotate Video", desc: "Fix sideways video", cat: "Video", icon: <RefreshCw className="w-5 h-5 text-sky-400" />, link: "/tools/rotate-video" },
   { title: "Trim Video", desc: "Cut video clips", cat: "Video", icon: <Scissors className="w-5 h-5 text-rose-400" />, link: "/tools/trim-video" },
   { title: "Compress Video", desc: "Reduce video size", cat: "Video", icon: <Minimize className="w-5 h-5 text-emerald-400" />, link: "/tools/compress-video" },
-  { title: "Video to Text", desc: "Transcribe video", cat: "Video", icon: <Type className="w-5 h-5 text-slate-600" />, link: "/tools/video-to-text" },
 
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // Image Tools
@@ -103,7 +92,6 @@ const tools: ToolItem[] = [
   { title: "Resize Image", desc: "Change image dimensions", cat: "Image", icon: <Minimize className="w-5 h-5 text-indigo-500" />, link: "/tools/resize-image" },
   { title: "Compress Image", desc: "Reduce image size", cat: "Image", icon: <Minimize className="w-5 h-5 text-emerald-500" />, link: "/tools/compress-image" },
   { title: "Crop Image", desc: "Crop photos easily", cat: "Image", icon: <Scissors className="w-5 h-5 text-rose-500" />, link: "/tools/crop-image" },
-  { title: "Watermark Remover", titleTr: "Filigran Kaldırıcı", desc: "Remove watermarks from images", descTr: "Görseldeki filigranı kaldırın", cat: "Image", icon: <Layers className="w-5 h-5 text-amber-500" />, link: "/tools/remove-watermark" },
   { title: "Add Text to Image", desc: "Add text overlays", cat: "Image", icon: <Type className="w-5 h-5 text-slate-500" />, link: "/tools/add-text-to-image" },
 
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -127,10 +115,6 @@ const tools: ToolItem[] = [
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // Other Tools
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-  { title: "QR Generator", desc: "Custom QR codes", cat: "Other", icon: <QrCode className="w-5 h-5 text-slate-900" />, link: "/tools/qr-generator" },
-  { title: "Barcode Gen", desc: "Professional barcodes", cat: "Other", icon: <Hash className="w-5 h-5 text-slate-700" />, link: "/tools/barcode-generator" },
-  { title: "My IP Address", desc: "Check public IP", cat: "Other", icon: <Globe className="w-5 h-5 text-blue-500" />, link: "/tools/my-ip" },
-  { title: "Internet Speed", desc: "Check connection", cat: "Other", icon: <Monitor className="w-5 h-5 text-indigo-500" />, link: "/tools/speed-test" },
 ];
 
 const PDF_SUB_CATEGORIES: { id: PdfSubCategory; labelEn: string; labelTr: string; color: string; bgColor: string }[] = [
@@ -140,7 +124,6 @@ const PDF_SUB_CATEGORIES: { id: PdfSubCategory; labelEn: string; labelTr: string
   { id: "security",     labelEn: "Security & Optimize", labelTr: "GÃ¼venlik & Optimizasyon", color: "text-purple-600", bgColor: "bg-purple-50 border-purple-200" },
 ];
 
-const INLINE_TOOL_LINKS = new Set(["/tools/add-watermark", "/tools/sign-pdf", "/tools/translate-pdf", "/tools/compare-pdf"]);
 
 function ToolCard({ tool, t, language, onInlineOpen }: { tool: ToolItem; t: any; language: string; onInlineOpen?: (link: string) => void }) {
   const title = language === "tr" && tool.titleTr ? tool.titleTr : tool.title;
@@ -185,7 +168,6 @@ function InlineToolPanel({ expandedTool }: { expandedTool: string | null }) {
   if (!expandedTool) return null;
   switch (expandedTool) {
     case "/tools/add-watermark": return <WatermarkTool />;
-    case "/tools/sign-pdf":      return <SignPdfTool />;
     case "/tools/translate-pdf": return <TranslatePdfTool />;
     case "/tools/compare-pdf":   return <ComparePdfTool />;
     default: return null;

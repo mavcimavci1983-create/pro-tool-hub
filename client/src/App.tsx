@@ -28,33 +28,23 @@ function Router() {
       <Route path="/tools/page-numbers">{() => <GenericPdfTool title="Page Numbers" desc="Add page numbers to your PDF." />}</Route>
       <Route path="/tools/delete-pages">{() => <GenericPdfTool title="Remove Pages" desc="Delete unwanted pages from PDF." />}</Route>
       <Route path="/tools/reorder-pages">{() => <GenericPdfTool title="Reorder Pages" desc="Rearrange PDF page order." />}</Route>
-      <Route path="/tools/edit-pdf">{() => <GenericPdfTool title="Edit PDF" desc="Edit PDF text and images directly." />}</Route>
-      <Route path="/tools/crop-pdf">{() => <GenericPdfTool title="Crop PDF" desc="Crop and resize PDF pages." />}</Route>
-      <Route path="/tools/repair-pdf">{() => <GenericPdfTool title="Repair PDF" desc="Fix corrupted PDF files." />}</Route>
-      <Route path="/tools/flatten-pdf">{() => <GenericPdfTool title="Flatten PDF" desc="Flatten forms and annotations." />}</Route>
 
       {/* PDF Tools â€” Convert FROM PDF */}
       <Route path="/tools/pdf-to-word">{() => <GenericPdfTool title="PDF to Word" desc="Convert PDF to editable Word files." />}</Route>
       <Route path="/tools/pdf-to-excel">{() => <GenericPdfTool title="PDF to Excel" desc="Convert PDF tables to Excel spreadsheets." />}</Route>
-      <Route path="/tools/pdf-to-powerpoint">{() => <GenericPdfTool title="PDF to PPT" desc="Convert PDF to PowerPoint presentations." />}</Route>
       <Route path="/tools/pdf-to-jpg">{() => <GenericPdfTool title="PDF to JPG" desc="Convert PDF pages to high-quality images." />}</Route>
       <Route path="/tools/pdf-to-text">{() => <GenericPdfTool title="PDF to Text" desc="Extract text from your PDF file." />}</Route>
-      <Route path="/tools/pdf-to-pdfa">{() => <GenericPdfTool title="PDF to PDF/A" desc="Convert to archival PDF/A format." />}</Route>
-      <Route path="/tools/ocr-pdf">{() => <GenericPdfTool title="OCR PDF" desc="Make scanned PDFs searchable." />}</Route>
 
       {/* PDF Tools â€” Convert TO PDF */}
       <Route path="/tools/word-to-pdf">{() => <GenericPdfTool title="Word to PDF" desc="Convert Word documents to PDF files." />}</Route>
       <Route path="/tools/ppt-to-pdf">{() => <GenericPdfTool title="PPT to PDF" desc="Convert PowerPoint presentations to PDF." />}</Route>
       <Route path="/tools/jpg-to-pdf">{() => <GenericPdfTool title="JPG to PDF" desc="Convert images to PDF documents." />}</Route>
       <Route path="/tools/html-to-pdf">{() => <GenericPdfTool title="HTML to PDF" desc="Convert web pages to PDF." />}</Route>
-      <Route path="/tools/scan-to-pdf">{() => <GenericPdfTool title="Scan to PDF" desc="Scan documents directly to PDF." />}</Route>
 
       {/* PDF Tools â€” Security & Optimize */}
       <Route path="/tools/compress-pdf">{() => <GenericPdfTool title="Compress PDF" desc="Reduce the size of your PDF files." />}</Route>
-      <Route path="/tools/protect-pdf">{() => <GenericPdfTool title="Protect PDF" desc="Add password protection to your PDF." />}</Route>
       <Route path="/tools/remove-password">{() => <GenericPdfTool title="Unlock PDF" desc="Remove passwords and restrictions from PDFs." />}</Route>
       <Route path="/tools/add-watermark">{() => <GenericPdfTool title="Add Watermark" desc="Stamp text or image on your PDF." />}</Route>
-      <Route path="/tools/sign-pdf">{() => <GenericPdfTool title="Sign PDF" desc="Add electronic signatures to PDF." />}</Route>
       <Route path="/tools/compare-pdf">{() => <GenericPdfTool title="Compare PDF" desc="Compare two PDF documents." />}</Route>
       <Route path="/tools/translate-pdf">{() => <GenericPdfTool title="Translate PDF" desc="Translate PDF content easily." />}</Route>
 
@@ -67,7 +57,6 @@ function Router() {
       <Route path="/tools/video-resizer">{(params) => <VideoTool title="Video Resizer" desc="Resize video dimensions for social media." />}</Route>
       <Route path="/tools/rotate-video">{(params) => <VideoTool title="Rotate Video" desc="Rotate your video 90, 180, or 270 degrees." />}</Route>
       <Route path="/tools/trim-video">{(params) => <VideoTool title="Trim Video" desc="Cut and trim video segments easily." />}</Route>
-      <Route path="/tools/video-to-text">{(params) => <VideoTool title="Video to Text" desc="Transcribe your local video files to text." />}</Route>
 
       {/* Image Tools */}
       <Route path="/tools/image-to-webp">{(params) => <ImageTool title="Image to WebP" desc="Convert images to next-gen WebP format." />}</Route>
@@ -80,7 +69,6 @@ function Router() {
       <Route path="/tools/crop-image">{(params) => <ImageTool title="Crop Image" desc="Crop images to specific aspect ratios." />}</Route>
       <Route path="/tools/add-text-to-image">{(params) => <ImageTool title="Add Text" desc="Add stylish text overlays to your images." />}</Route>
 
-      <Route path="/tools/remove-watermark">{(params) => <ImageTool title="Watermark Remover" desc="Remove watermarks from images automatically." />}</Route>`n`n            {/* Converter Tools */}
       <Route path="/tools/csv-to-json">{(params) => <GenericConverterTool title="CSV to JSON" desc="Convert CSV spreadsheets to JSON data." />}</Route>
       <Route path="/tools/json-to-csv">{(params) => <GenericConverterTool title="JSON to CSV" desc="Convert JSON data to CSV spreadsheets." />}</Route>
       <Route path="/tools/excel-to-pdf">{(params) => <GenericConverterTool title="Excel to PDF" desc="Turn Excel spreadsheets into PDF documents." />}</Route>
@@ -96,10 +84,6 @@ function Router() {
       <Route path="/tools/linkedin-post-generator">{(params) => <GenericAiTool title="LinkedIn Post" desc="Professional posts for your network." />}</Route>
 
       {/* Other Tools */}
-      <Route path="/tools/qr-generator">{(params) => <GenericPdfTool title="QR Generator" desc="Create custom QR codes instantly." />}</Route>
-      <Route path="/tools/barcode-generator">{(params) => <GenericPdfTool title="Barcode Gen" desc="Generate professional barcodes." />}</Route>
-      <Route path="/tools/my-ip">{(params) => <GenericPdfTool title="My IP Address" desc="Check your public IP address." />}</Route>
-      <Route path="/tools/speed-test">{(params) => <GenericPdfTool title="Internet Speed" desc="Test your connection speed." />}</Route>
 
       {/* Generic Tool Catch-all */}
       <Route path="/tools/:id">{(params) => <GenericPdfTool title={params.id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} desc="Professional online tool for your digital needs." />}</Route>
