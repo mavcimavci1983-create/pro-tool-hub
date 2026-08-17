@@ -2,421 +2,319 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://protoolhub.net/</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/about</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/contact</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/cookie-policy</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/privacy-policy</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/terms</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://protoolhub.net/tools/:id</loc>
-    <lastmod>2026-08-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://protoolhub.net/tools/add-text-to-image</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/add-watermark</loc>
-    <lastmod>2026-08-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://protoolhub.net/tools/barcode-generator</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/blog-post-idea</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/compare-pdf</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/compress-image</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/compress-pdf</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/compress-video</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/content-improver</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/crop-image</loc>
-    <lastmod>2026-08-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://protoolhub.net/tools/crop-pdf</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/csv-to-json</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/delete-pages</loc>
-    <lastmod>2026-08-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://protoolhub.net/tools/edit-pdf</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/essay-writer</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/excel-to-pdf</loc>
-    <lastmod>2026-08-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://protoolhub.net/tools/flatten-pdf</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/heic-to-jpg</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/html-to-pdf</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/image-to-webp</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/instagram-caption-generator</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/jpg-to-pdf</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/json-to-csv</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/linkedin-post-generator</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/merge-pdf</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/mp4-to-webm</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/mute-video</loc>
-    <lastmod>2026-08-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://protoolhub.net/tools/my-ip</loc>
-    <lastmod>2026-08-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://protoolhub.net/tools/ocr-pdf</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/page-numbers</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/paragraph-writer</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/pdf-to-excel</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/pdf-to-jpg</loc>
-    <lastmod>2026-08-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://protoolhub.net/tools/pdf-to-pdfa</loc>
-    <lastmod>2026-08-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://protoolhub.net/tools/pdf-to-powerpoint</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/pdf-to-text</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/pdf-to-word</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/ppt-to-pdf</loc>
-    <lastmod>2026-08-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://protoolhub.net/tools/protect-pdf</loc>
-    <lastmod>2026-08-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://protoolhub.net/tools/qr-generator</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/remove-background</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/remove-password</loc>
-    <lastmod>2026-08-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://protoolhub.net/tools/remove-watermark</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/reorder-pages</loc>
-    <lastmod>2026-08-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://protoolhub.net/tools/repair-pdf</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/resize-image</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/rotate-pdf</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/rotate-video</loc>
-    <lastmod>2026-08-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://protoolhub.net/tools/scan-to-pdf</loc>
-    <lastmod>2026-08-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://protoolhub.net/tools/sign-pdf</loc>
-    <lastmod>2026-08-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://protoolhub.net/tools/speed-test</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/split-pdf</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/story-generator</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/translate-pdf</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/trim-video</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/video-resizer</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/video-to-gif</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/video-to-mp3</loc>
-    <lastmod>2026-08-17</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://protoolhub.net/tools/video-to-text</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/webp-to-jpg</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/webp-to-png</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/word-to-pdf</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://protoolhub.net/tools/xml-to-json</loc>
-    <lastmod>2026-08-17</lastmod>
+    <lastmod>2026-08-18</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>

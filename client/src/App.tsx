@@ -85,8 +85,6 @@ function Router() {
 
       {/* Other Tools */}
 
-      {/* Generic Tool Catch-all */}
-      <Route path="/tools/:id">{(params) => <GenericPdfTool title={params.id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')} desc="Professional online tool for your digital needs." />}</Route>
       <Route path="/privacy-policy"><PrivacyPolicy /></Route>
       <Route path="/terms"><TermsOfService /></Route>
       <Route path="/cookie-policy"><CookiePolicy /></Route>
