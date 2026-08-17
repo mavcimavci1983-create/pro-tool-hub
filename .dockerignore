@@ -1,0 +1,12 @@
+node_modules
+dist
+.git
+.cache
+.local
+.upm
+.vscode
+attached_assets
+cookies
+*.log
+.env
+.env.local

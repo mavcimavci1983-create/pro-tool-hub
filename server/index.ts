@@ -113,11 +113,7 @@ app.use((req, res, next) => {
     await setupVite(httpServer, app);
   }
 
-  const PORT_FIXED = 5001;
-  if (process.env.PORT && parseInt(process.env.PORT, 10) !== PORT_FIXED) {
-    console.error(`[server] PORT must be ${PORT_FIXED}. Got PORT=${process.env.PORT}. Refusing to start.`);
-    process.exit(1);
-  }
+  const PORT_FIXED = Number(process.env.PORT) || 5001;
   httpServer.on("error", (err: NodeJS.ErrnoException) => {
     if (err.code === "EADDRINUSE") {
       console.error(`[server] Port ${PORT_FIXED} is already in use. Stop the other process or run: Get-NetTCPConnection -LocalPort ${PORT_FIXED} | ForEach-Object { Stop-Process -Id $_.OwningProcess -Force }`);
