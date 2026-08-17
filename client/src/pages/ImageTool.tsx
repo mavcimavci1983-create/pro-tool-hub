@@ -17,6 +17,7 @@ import {
   AddTextToImageTool,
   WatermarkRemoverTool,
 } from "@/components/home/ImageTools";
+import { ToolSeoContent, hasToolSeo } from "@/components/tool/ToolSeoContent";
 
 const translations = translationsData as Record<string, any>;
 
@@ -66,7 +67,10 @@ export default function ImageTool({ title = "Image Tool", desc = "Professional i
               <BillboardAd />
 
               <article className="prose prose-lg max-w-none border-t border-slate-100 pt-16 mt-8 text-slate-600 leading-relaxed">
-                      <div className="grid md:grid-cols-2 gap-12 text-left mb-10">
+                <ToolSeoContent title={title} />
+
+                      {!hasToolSeo(title) && (
+                <div className="grid md:grid-cols-2 gap-12 text-left mb-10">
                         <section>
                           <h2 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">How to Use {title}</h2>
                           <p className="text-md font-medium leading-relaxed mb-3">Using our <strong>{title}</strong> tool is effortless. Simply drag and drop your image into the upload area or click to select a file from your device. The tool processes your image instantly — no account, no installation, no waiting.</p>
@@ -78,6 +82,7 @@ export default function ImageTool({ title = "Image Tool", desc = "Professional i
                           <p className="text-md font-medium leading-relaxed">From compressing photos for email to converting formats for web use, ProToolHub handles it all with professional quality and zero cost. No watermarks are ever added to your output files.</p>
                         </section>
                       </div>
+                )}
                       <div className="grid md:grid-cols-3 gap-6 mb-10">
                         <div className="bg-green-50 border border-green-100 rounded-2xl p-6">
                           <div className="text-2xl mb-2">🖥️</div>

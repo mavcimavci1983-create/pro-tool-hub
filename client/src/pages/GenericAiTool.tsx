@@ -8,6 +8,7 @@ import { Sparkles, PenTool, Loader2, Copy, Check, Download, AlertCircle } from "
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { LeaderboardAd, StickySkyscraper, BillboardAd } from "@/components/ads/AdUnit";
+import { ToolSeoContent, hasToolSeo } from "@/components/tool/ToolSeoContent";
 
 const translations = translationsData as Record<string, any>;
 
@@ -221,6 +222,9 @@ export default function GenericAiTool({ title = "AI Writer", desc = "Professiona
               <BillboardAd />
 
               <article className="prose prose-lg max-w-none border-t border-slate-100 pt-16 mt-8 text-slate-600 leading-relaxed">
+                <ToolSeoContent title={title} />
+
+                {!hasToolSeo(title) && (
                 <div className="grid md:grid-cols-2 gap-12 text-left">
                   <section>
                     <h2 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">AI-Powered Content Generation</h2>
@@ -231,6 +235,7 @@ export default function GenericAiTool({ title = "AI Writer", desc = "Professiona
                     <p className="text-sm font-medium text-slate-500 leading-relaxed">Your text is sent to our language model provider over an encrypted connection to produce the result, then discarded. We do not save it to our database or use it to train models. See our <a href="/privacy-policy" className="underline hover:text-slate-700">Privacy Policy</a> for details.</p>
                   </section>
                 </div>
+                )}
               </article>
             </div>
 

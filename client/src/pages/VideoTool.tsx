@@ -13,6 +13,7 @@ import {
   TrimVideoTool,
   RotateVideoTool,
 } from "@/components/home/VideoTools";
+import { ToolSeoContent, hasToolSeo } from "@/components/tool/ToolSeoContent";
 
 const translations = translationsData as Record<string, any>;
 
@@ -60,6 +61,9 @@ export default function VideoTool({ title = "Video Tool", desc = "Free online vi
               )}
               <BillboardAd />
               <article className="prose prose-lg max-w-none border-t border-slate-100 pt-16 mt-8 text-slate-600 leading-relaxed">
+                <ToolSeoContent title={title} />
+
+                {!hasToolSeo(title) && (
                 <div className="grid md:grid-cols-2 gap-12 text-left">
                   <section>
                     <h2 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">Professional Video Processing</h2>
@@ -70,6 +74,7 @@ export default function VideoTool({ title = "Video Tool", desc = "Free online vi
                     <p className="text-sm font-medium text-slate-500 leading-relaxed italic">Your videos never leave your device. FFmpeg runs locally in your browser - no uploads, no servers, no data collection.</p>
                   </section>
                 </div>
+                )}
               </article>
             </div>
             <StickySkyscraper side="right" />

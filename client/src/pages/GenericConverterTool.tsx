@@ -4,6 +4,7 @@ import { ToolWorkflow } from "@/components/tool/ToolWorkflow";
 import { CsvToJsonTool, JsonToCsvTool, XmlToJsonTool } from "@/components/home/ConverterTools";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { LeaderboardAd, StickySkyscraper, BillboardAd } from "@/components/ads/AdUnit";
+import { ToolSeoContent, hasToolSeo } from "@/components/tool/ToolSeoContent";
 
 function getInlineConverterTool(title: string) {
   const t = title.toLowerCase();
@@ -44,6 +45,9 @@ export default function GenericConverterTool({ title = "Converter Tool", desc = 
               <BillboardAd />
 
               <article className="prose prose-lg max-w-none border-t border-slate-100 pt-16 mt-8 text-slate-600 leading-relaxed">
+                <ToolSeoContent title={title} />
+
+                {!hasToolSeo(title) && (
                 <div className="grid md:grid-cols-2 gap-12 text-left">
                   <section>
                     <h2 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">Professional File Conversion</h2>
@@ -54,6 +58,7 @@ export default function GenericConverterTool({ title = "Converter Tool", desc = 
                     <p className="text-sm font-medium text-slate-500 leading-relaxed italic">"Your files are processed in real-time and automatically purged from our servers within 60 minutes. We never store, share, or look at your data."</p>
                   </section>
                 </div>
+                )}
               </article>
             </div>
 
