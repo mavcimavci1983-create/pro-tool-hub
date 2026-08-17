@@ -4,66 +4,41 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
 
+    <!-- Google Analytics (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5S6SYQ3WPV"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-5S6SYQ3WPV');
+    </script>
+
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5653749400805966" crossorigin="anonymous"></script>
+
     <!-- SEO Meta Tags -->
     <title>ProToolHub - 100+ Professional Online Tools</title>
     <meta name="description" content="Professional-grade PDF, Video, Image, and AI writing tools. 100% Free. 100% Secure." />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://protoolhub.replit.app/" />
+    <meta property="og:url" content="https://protoolhub.net/" />
     <meta property="og:title" content="ProToolHub - 100+ Professional Online Tools" />
     <meta property="og:description" content="Professional-grade PDF, Video, Image, and AI writing tools. 100% Free. 100% Secure." />
-    <meta property="og:image" content="https://replit.com/public/images/opengraph.png" />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://protoolhub.replit.app/" />
+    <meta property="twitter:url" content="https://protoolhub.net/" />
     <meta property="twitter:title" content="ProToolHub - 100+ Professional Online Tools" />
     <meta property="twitter:description" content="Professional-grade PDF, Video, Image, and AI writing tools. 100% Free. 100% Secure." />
-    <meta property="twitter:image" content="https://replit.com/public/images/opengraph.png" />
-
-    <!-- Tracking Infrastructure Placeholders -->
-    <!-- Google Tag Manager -->
-    <script>
-      // GTM Placeholder
-      (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-      new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-      j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-      'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-      })(window,document,'script','dataLayer','GTM-XXXXXXX');
-    </script>
-    <!-- End Google Tag Manager -->
-
-    <!-- Meta Pixel -->
-    <script>
-      // Meta Pixel Placeholder
-      !function(f,b,e,v,n,t,s)
-      {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-      if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-      n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];
-      s.parentNode.insertBefore(t,s)}(window, document,'script',
-      'https://connect.facebook.net/en_US/fbevents.js');
-      fbq('init', 'XXXXXXXXXXXXXXX');
-      fbq('track', 'PageView');
-    </script>
-    <!-- End Meta Pixel -->
 
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Google AdSense -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5653749400805966" crossorigin="anonymous"></script>
-  <!-- /Google AdSense -->
-</head>
+  </head>
   <body>
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXXXXX"
-    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
-    
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
