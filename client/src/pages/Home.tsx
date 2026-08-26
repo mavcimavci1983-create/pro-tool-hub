@@ -1,7 +1,7 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Stats } from "@/components/home/Stats";
-import { ToolGrid, tools } from "@/components/home/ToolGrid";
+import { ToolGrid } from "@/components/home/ToolGrid";
 import { CategoryCards } from "@/components/home/CategoryCards";
 import { HowItWorks } from "@/components/home/HowItWorks";
 import { HomeFaq } from "@/components/home/HomeFaq";
@@ -24,7 +24,6 @@ const translations = translationsData as Record<string, any>;
 export default function Home() {
   const { language } = useLanguageStore();
   const t = translations[language] ?? translations.en;
-  const toolCount = tools.length;
 
   return (
     <HelmetProvider>
@@ -45,9 +44,6 @@ export default function Home() {
               </h1>
               <p className="text-xl text-slate-600 max-w-2xl mx-auto font-medium">
                 {t.home.hero_subtitle}
-              </p>
-              <p className="text-sm text-slate-400 mt-4 font-bold uppercase tracking-widest">
-                {t.home.hero_note.replace("{count}", String(toolCount))}
               </p>
             </div>
 
