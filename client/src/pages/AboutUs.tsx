@@ -19,12 +19,12 @@ export default function AboutUs() {
             <h2 className="text-3xl font-bold text-slate-900 mb-6">Our Mission</h2>
             <p className="text-slate-600 leading-relaxed mb-4">ProToolHub was created with one goal: to give everyone access to professional-grade document and media tools without paywalls, subscriptions, or complicated software installations.</p>
             <p className="text-slate-600 leading-relaxed mb-4">Whether you need to merge PDF files, compress images, convert videos, or remove backgrounds, ProToolHub handles it all — directly in your browser, with complete privacy.</p>
-            <p className="text-slate-600 leading-relaxed">We process over 100,000 files every month for users around the world, from students and freelancers to enterprise teams.</p>
+            <p className="text-slate-600 leading-relaxed">The toolkit currently covers 47 tools across PDF, image, video, file conversion, and AI-assisted writing. Image and video tools run entirely inside your browser, so those files never leave your device.</p>
           </div>
           <div className="grid grid-cols-2 gap-6">
             {[
-              { icon: <Zap className="w-8 h-8 text-yellow-500" />, title: "100+ Tools", desc: "PDF, Image, Video, AI Writing and more" },
-              { icon: <Shield className="w-8 h-8 text-green-500" />, title: "100% Secure", desc: "Files deleted automatically after processing" },
+              { icon: <Zap className="w-8 h-8 text-yellow-500" />, title: "47 Tools", desc: "PDF, Image, Video, Conversion and AI Writing" },
+              { icon: <Shield className="w-8 h-8 text-green-500" />, title: "Private by Design", desc: "Image and video tools process files in your browser" },
               { icon: <Globe className="w-8 h-8 text-blue-500" />, title: "Always Free", desc: "No subscription, no hidden fees" },
               { icon: <Users className="w-8 h-8 text-purple-500" />, title: "No Sign-up", desc: "Use any tool instantly, no account needed" },
             ].map((item, i) => (

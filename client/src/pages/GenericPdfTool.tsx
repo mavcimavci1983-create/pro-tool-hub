@@ -234,7 +234,7 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
                 <div className="bg-slate-900 rounded-2xl p-8 text-white text-left">
                   <h3 className="text-xl font-bold mb-3">Bank-Grade Security on Every File</h3>
                   <p className="text-slate-300 leading-relaxed text-sm">
-                    All file transfers are protected with end-to-end SSL/TLS encryption. Files processed on our infrastructure are kept in isolated temporary storage and automatically deleted within 60 minutes.
+                    File transfers are protected with SSL/TLS encryption. Files processed on our infrastructure are held in temporary storage only for as long as the operation takes.
                   </p>
                 </div>
               </article>

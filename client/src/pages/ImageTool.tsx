@@ -102,7 +102,7 @@ export default function ImageTool({ title = "Image Tool", desc = "Professional i
                       </div>
                       <div className="bg-slate-900 rounded-2xl p-8 text-white">
                         <h3 className="text-xl font-bold mb-3">Your Privacy Is Our Priority</h3>
-                        <p className="text-slate-300 leading-relaxed text-sm">ProToolHub is built privacy-first. For browser-side tools, your files never leave your device. For tools requiring server processing, files are encrypted in transit using SSL/TLS and automatically deleted within 60 minutes — guaranteed. We do not analyze, store, or share your images under any circumstances. Our platform has been designed from the ground up to handle your personal photos and sensitive documents with the utmost care and security.</p>
+                        <p className="text-slate-300 leading-relaxed text-sm">The image tools on ProToolHub run entirely in your browser using the Canvas API — your photos are never uploaded to a server at all. Tools that do need server processing send the file over an encrypted connection. We do not analyse your images, build a profile from them, or share them with third parties.</p>
                       </div>
                     </article>
                   </div>

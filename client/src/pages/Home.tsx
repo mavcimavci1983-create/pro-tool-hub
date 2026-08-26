@@ -17,7 +17,7 @@ export default function Home() {
     <HelmetProvider>
       <div className="min-h-screen flex flex-col bg-white">
         <Helmet>
-          <title>{language === 'en' ? 'ProToolHub: 100+ Free Online Professional Tools' : 'ProToolHub: 100+ Ücretsiz Profesyonel Araç'}</title>
+          <title>{language === 'en' ? 'ProToolHub: 47 Free Online Tools' : 'ProToolHub: 47 Ücretsiz Online Araç'}</title>
           <meta name="description" content={t.home.hero_subtitle} />
         </Helmet>
         <Header />

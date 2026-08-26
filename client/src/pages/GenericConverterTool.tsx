@@ -55,7 +55,7 @@ export default function GenericConverterTool({ title = "Converter Tool", desc = 
                   </section>
                   <section className="bg-slate-50 p-8 rounded-2xl border border-slate-100">
                     <h3 className="text-lg font-bold text-slate-900 mb-3 tracking-tight">Secure & Private</h3>
-                    <p className="text-sm font-medium text-slate-500 leading-relaxed italic">"Your files are processed in real-time and automatically purged from our servers within 60 minutes. We never store, share, or look at your data."</p>
+                    <p className="text-sm font-medium text-slate-500 leading-relaxed italic">"Your file is processed and the result returned to you. We do not sell or share your data, and we do not use your uploads to train anything."</p>
                   </section>
                 </div>
                 )}

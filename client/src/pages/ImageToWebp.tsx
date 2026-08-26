@@ -16,17 +16,6 @@ export default function ImageToWebp() {
   const [webpSize, setWebpSize] = useState<number>(0);
   const [location] = useLocation();
 
-  const canonicalUrl = `https://microwow.replit.app${location}`;
-
-  useEffect(() => {
-    let link: HTMLLinkElement | null = document.querySelector("link[rel='canonical']");
-    if (!link) {
-      link = document.createElement("link");
-      link.setAttribute("rel", "canonical");
-      document.head.appendChild(link);
-    }
-    link.setAttribute("href", canonicalUrl);
-  }, [canonicalUrl]);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -225,7 +214,7 @@ export default function ImageToWebp() {
               <AlertCircle className="h-4 w-4 text-blue-500" />
               <AlertTitle className="font-bold text-blue-900">Privacy & Security</AlertTitle>
               <AlertDescription className="text-blue-800/80">
-                Your images are processed locally or on our secure Node.js backend. All temporary data is automatically purged after 60 minutes.
+                This conversion runs entirely in your browser — your images are never uploaded to a server.
               </AlertDescription>
             </Alert>
 

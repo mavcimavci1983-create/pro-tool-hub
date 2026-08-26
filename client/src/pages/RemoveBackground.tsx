@@ -37,7 +37,7 @@ export default function RemoveBackground() {
 
             <Alert className="mb-12 bg-blue-50/50 border-blue-100">
               <AlertCircle className="h-4 w-4 text-blue-500" />
-              <AlertTitle className="font-bold text-blue-900 font-bold">60-Minute Auto-Wipe</AlertTitle>
+              <AlertTitle className="font-bold text-blue-900 font-bold">Processed In Your Browser</AlertTitle>
               <AlertDescription className="mt-1 text-blue-800/80">
                 Backend processing is active. Your temporary files are scheduled for <strong>immediate and permanent fs.unlink exactly 1 hour after upload</strong>.
               </AlertDescription>

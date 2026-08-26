@@ -407,8 +407,8 @@ function TrustBadges() {
     <div className="grid grid-cols-3 gap-4 pt-8 border-t border-slate-100">
       {[
         { icon: <ShieldCheck className="w-6 h-6 text-slate-300 mb-2" />, label: "Secure SSL" },
-        { icon: <Clock className="w-6 h-6 text-slate-300 mb-2" />, label: "60-Min Auto-Purge" },
-        { icon: <CheckCircle2 className="w-6 h-6 text-slate-300 mb-2" />, label: "100% Private" },
+        { icon: <Clock className="w-6 h-6 text-slate-300 mb-2" />, label: "No Account Needed" },
+        { icon: <CheckCircle2 className="w-6 h-6 text-slate-300 mb-2" />, label: "Free to Use" },
       ].map(({ icon, label }) => (
         <div key={label} className="flex flex-col items-center text-center p-4">
           {icon}

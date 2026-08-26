@@ -66,7 +66,7 @@ export default function MergePdf() {
               <AlertCircle className="h-4 w-4 text-amber-600" />
               <AlertTitle className="font-bold text-amber-900 font-bold">Real-time Deletion Active</AlertTitle>
               <AlertDescription className="mt-1 text-amber-800/80">
-                Your files are processed on our secure Node.js backend. <strong>All uploaded data is automatically wiped exactly 60 minutes after upload</strong>.
+                Your files are processed on our Node.js backend over an encrypted connection. We do not sell or share your uploads.
               </AlertDescription>
             </Alert>
 
