@@ -9,6 +9,25 @@ import {
   Globe 
 } from "lucide-react";
 import { useLanguageStore } from "@/lib/languageStore";
+import { tools } from "@/components/home/ToolGrid";
+import translationsData from "@/locales/translations.json";
+
+const translations = translationsData as Record<string, any>;
+
+/**
+ * Footer'daki kategori sutunlari.
+ * Linkler ToolGrid'deki `tools` dizisinden uretilir - sabit yazilmaz.
+ * Kategori basina ilk 5 arac gosterilir; 47 aracin tamamini listeleyip
+ * footer'i sisirmemek icin sinirli tutuldu.
+ */
+const FOOTER_CATEGORIES = [
+  { cat: "PDF", labelKey: "footer_pdf" },
+  { cat: "Image", labelKey: "footer_image" },
+  { cat: "Video", labelKey: "footer_video" },
+  { cat: "Converter", labelKey: "footer_converter" },
+  { cat: "AI Writing", labelKey: "footer_ai" },
+];
+const FOOTER_LINKS_PER_CATEGORY = 5;
 
 export function Footer() {
   const { language } = useLanguageStore();
@@ -35,11 +54,12 @@ export function Footer() {
   };
 
   const t = content[language];
+  const th = translations[language]?.home ?? translations.en.home;
 
   return (
     <footer className="bg-slate-950 text-slate-400 py-16 border-t border-slate-900">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-8 lg:gap-6 mb-16">
           <div className="space-y-6">
             <div className="flex items-center gap-2 text-white">
               <Zap className="h-6 w-6 text-slate-400" />
@@ -55,15 +75,29 @@ export function Footer() {
             </div>
           </div>
 
-          <div>
-            <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">{t.links}</h4>
-            <ul className="space-y-4 text-sm font-medium">
-              <li><Link href="/tools/merge-pdf" className="hover:text-white transition-colors">Merge PDF</Link></li>
-              <li><Link href="/tools/video-to-gif" className="hover:text-white transition-colors">Video to GIF</Link></li>
-              <li><Link href="/tools/remove-background" className="hover:text-white transition-colors">Remove Background</Link></li>
-              <li><Link href="/tools/essay-writer" className="hover:text-white transition-colors">Essay Writer</Link></li>
-            </ul>
-          </div>
+          {FOOTER_CATEGORIES.map(({ cat, labelKey }) => {
+            const catTools = tools
+              .filter((tool) => tool.cat === cat)
+              .slice(0, FOOTER_LINKS_PER_CATEGORY);
+            if (catTools.length === 0) return null;
+
+            return (
+              <div key={cat} data-testid={`footer-cat-${cat.toLowerCase().replace(/\s+/g, "-")}`}>
+                <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">
+                  {th[labelKey]}
+                </h4>
+                <ul className="space-y-4 text-sm font-medium">
+                  {catTools.map((tool) => (
+                    <li key={tool.link}>
+                      <Link href={tool.link} className="hover:text-white transition-colors">
+                        {language === "tr" && tool.titleTr ? tool.titleTr : tool.title}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
 
           <div>
             <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">{t.legal}</h4>

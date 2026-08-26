@@ -1,80 +1,87 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Stats } from "@/components/home/Stats";
-import { ToolGrid } from "@/components/home/ToolGrid";
+import { ToolGrid, tools } from "@/components/home/ToolGrid";
+import { CategoryCards } from "@/components/home/CategoryCards";
+import { HowItWorks } from "@/components/home/HowItWorks";
+import { HomeFaq } from "@/components/home/HomeFaq";
 import { useLanguageStore } from "@/lib/languageStore";
 import translationsData from "@/locales/translations.json";
 import { Helmet, HelmetProvider } from "react-helmet-async";
-import { LeaderboardAd, StickySkyscraper, BillboardAd, SidebarAd } from "@/components/ads/AdUnit";
 
 const translations = translationsData as Record<string, any>;
 
+/**
+ * NOT — reklam alanlari hakkinda:
+ * LeaderboardAd / SidebarAd / StickySkyscraper / BillboardAd bilesenleri
+ * AdUnit.tsx icinde duruyor ve silinmedi. Ancak bunlar su an gercek AdSense
+ * yuklemiyor (adsbygoogle push cagrisi yok), sadece gri "AD" yer tutucu
+ * kutulari cizivorlar. Onay alinmadan bu kutulari gostermek kullaniciya
+ * yarim kalmis bir site izlenimi verdigi icin ana sayfadan cikarildilar.
+ * Gercek AdSense entegrasyonu yapildiginda buraya geri eklenebilirler.
+ */
+
 export default function Home() {
   const { language } = useLanguageStore();
-  const t = translations[language];
+  const t = translations[language] ?? translations.en;
+  const toolCount = tools.length;
 
   return (
     <HelmetProvider>
       <div className="min-h-screen flex flex-col bg-white">
         <Helmet>
-          <title>{language === 'en' ? 'ProToolHub: 47 Free Online Tools' : 'ProToolHub: 47 Ücretsiz Online Araç'}</title>
+          <title>{t.home.hero_title}</title>
           <meta name="description" content={t.home.hero_subtitle} />
         </Helmet>
+
         <Header />
-        <main className="flex-grow flex flex-col items-center">
-          <LeaderboardAd />
 
-          <div className="w-full max-w-[1400px] mx-auto flex">
-            <aside className="hidden lg:flex flex-col w-[300px] flex-shrink-0 gap-4">
-              <StickySkyscraper side="left" />
-              <SidebarAd variant="medium-rectangle" />
-            </aside>
-
-            <div className="flex-1 min-w-0 px-4 py-16">
-              <div className="text-center mb-16">
-                <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight text-slate-900">
-                  {t.home.hero_title}
-                </h1>
-                <p className="text-xl text-slate-600 max-w-2xl mx-auto font-medium">
-                  {t.home.hero_subtitle}
-                </p>
-              </div>
-              
-              <ToolGrid />
-
-              <BillboardAd />
-              
-              <article className="prose prose-slate max-w-none border-t border-slate-100 mt-8 pt-16 text-slate-600">
-                <div className="space-y-12">
-                  <section>
-                    <h2 className="text-3xl font-bold text-slate-900 mb-6 tracking-tight">{t.home.seo_title}</h2>
-                    <p className="leading-relaxed text-lg font-medium">
-                      {t.home.seo_desc}
-                    </p>
-                  </section>
-                  <div className="grid md:grid-cols-2 gap-8">
-                    <div className="bg-slate-50 p-10 rounded-2xl border border-slate-100">
-                      <h3 className="text-xl font-bold text-slate-900 mb-4 tracking-tight">{t.home.security_title}</h3>
-                      <p className="font-medium text-sm leading-relaxed text-slate-500">
-                        {t.home.security_desc}
-                      </p>
-                    </div>
-                    <div className="bg-slate-900 p-10 rounded-2xl border border-slate-800">
-                      <h3 className="text-xl font-bold text-white mb-4 tracking-tight">{t.home.speed_title}</h3>
-                      <p className="font-medium text-sm leading-relaxed text-slate-400">
-                        {t.home.speed_desc}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </article>
+        <main className="flex-grow flex flex-col items-center w-full">
+          <div className="w-full max-w-[1400px] mx-auto px-4 py-16">
+            {/* ── HERO ─────────────────────────────────────────────── */}
+            <div className="text-center mb-14">
+              <h1 className="text-4xl md:text-6xl font-bold mb-6 tracking-tight text-slate-900">
+                {t.home.hero_title}
+              </h1>
+              <p className="text-xl text-slate-600 max-w-2xl mx-auto font-medium">
+                {t.home.hero_subtitle}
+              </p>
+              <p className="text-sm text-slate-400 mt-4 font-bold uppercase tracking-widest">
+                {t.home.hero_note.replace("{count}", String(toolCount))}
+              </p>
             </div>
 
-            <StickySkyscraper side="right" />
+            {/* ── CATEGORY CARDS ───────────────────────────────────── */}
+            <CategoryCards />
+
+            {/* ── HOW IT WORKS ─────────────────────────────────────── */}
+            <HowItWorks />
+
+            {/* ── TOOL GRID ────────────────────────────────────────── */}
+            <div id="tool-grid" className="scroll-mt-24">
+              <ToolGrid />
+            </div>
+
+            {/* ── WHY PROTOOLHUB ───────────────────────────────────── */}
+            <section
+              className="max-w-3xl mx-auto border-t border-slate-100 mt-16 pt-16 mb-16"
+              aria-label={t.home.why_title}
+            >
+              <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-6 tracking-tight text-center">
+                {t.home.why_title}
+              </h2>
+              <p className="text-slate-600 leading-relaxed font-medium text-center">
+                {t.home.why_desc}
+              </p>
+            </section>
+
+            {/* ── FAQ ──────────────────────────────────────────────── */}
+            <HomeFaq />
           </div>
 
           <Stats />
         </main>
+
         <Footer />
       </div>
     </HelmetProvider>

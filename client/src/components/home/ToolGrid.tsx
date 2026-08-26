@@ -21,7 +21,7 @@ const CATEGORIES = ['PDF', 'Image', 'Video', 'Converter', 'AI Writing', 'Other']
 
 type PdfSubCategory = "organize" | "convert-from" | "convert-to" | "security";
 
-interface ToolItem {
+export interface ToolItem {
   title: string;
   titleTr?: string;
   desc: string;
@@ -32,7 +32,7 @@ interface ToolItem {
   link: string;
 }
 
-const tools: ToolItem[] = [
+export const tools: ToolItem[] = [
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
   // PDF Tools â€” Organize
   // â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
@@ -124,6 +124,13 @@ const PDF_SUB_CATEGORIES: { id: PdfSubCategory; labelEn: string; labelTr: string
   { id: "security",     labelEn: "Security & Optimize", labelTr: "GÃ¼venlik & Optimizasyon", color: "text-purple-600", bgColor: "bg-purple-50 border-purple-200" },
 ];
 
+// Bu araclar ayri bir sayfaya gitmek yerine kart uzerinde satir ici acilir.
+// NOT: "/tools/sign-pdf" bu listede yer almiyor - o arac kaldirildi.
+const INLINE_TOOL_LINKS = new Set([
+  "/tools/add-watermark",
+  "/tools/translate-pdf",
+  "/tools/compare-pdf",
+]);
 
 function ToolCard({ tool, t, language, onInlineOpen }: { tool: ToolItem; t: any; language: string; onInlineOpen?: (link: string) => void }) {
   const title = language === "tr" && tool.titleTr ? tool.titleTr : tool.title;
