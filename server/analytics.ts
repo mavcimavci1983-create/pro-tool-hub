@@ -15,13 +15,20 @@ import { join } from "path";
  */
 const _require = createRequire(import.meta.url);
 
+/**
+ * Varsayilan olarak calisma dizini; kalici disk icin ANALYTICS_DB_PATH verin.
+ * Docker imajinda WORKDIR /app oldugu icin varsayilan uretimde
+ * /app/analytics.db olarak cozulur - yani mevcut davranis aynen korunur.
+ * contact-store.ts icindeki CONTACT_DB_PATH ile ayni kalip.
+ */
+const DB_PATH = process.env.ANALYTICS_DB_PATH || join(process.cwd(), "analytics.db");
+
 let db: any = null;
 
 function getDb() {
   if (db) return db;
   const Database = _require("better-sqlite3");
-  const dbPath = join(process.cwd(), "analytics.db");
-  db = new Database(dbPath);
+  db = new Database(DB_PATH);
   db.pragma("journal_mode = WAL");
   db.exec(`
     CREATE TABLE IF NOT EXISTS events (
