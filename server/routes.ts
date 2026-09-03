@@ -81,7 +81,7 @@ function textToParagraphs(rawText: string): Paragraph[] {
     const isHeading =
       trimmed === trimmed.toUpperCase() &&
       trimmed.length <= 60 &&
-      /[A-ZÇÃ„ÂİÃƒ"“Ã…ÂÃƒş“]/.test(trimmed);
+      /[A-ZÇĞİÖŞÜ]/.test(trimmed);
 
     if (isHeading) {
       paragraphs.push(new Paragraph({ text: trimmed, heading: HeadingLevel.HEADING_2 }));
@@ -647,7 +647,7 @@ export async function registerRoutes(
 
       const firstRow = rows[0];
       const isHeader = firstRow.every(
-        (c) => typeof c === "string" && c === c.toUpperCase() && /[A-ZÇÃ„ÂİÃƒ"“Ã…ÂÃƒş“]/.test(c)
+        (c) => typeof c === "string" && c === c.toUpperCase() && /[A-ZÇĞİÖŞÜ]/.test(c)
       );
       if (isHeader && ws["!ref"]) {
         const range = XLSX.utils.decode_range(ws["!ref"]);

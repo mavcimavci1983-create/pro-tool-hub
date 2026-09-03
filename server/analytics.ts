@@ -1,10 +1,25 @@
-﻿import { join } from "path";
+﻿import { createRequire } from "module";
+import { join } from "path";
+
+/**
+ * `_require` kullanimi bilincli, ayni kalip routes.ts ve contact-store.ts
+ * icinde de var: script/build.ts `_require(` cagrilarini `require(` olarak
+ * yeniden yaziyor ve better-sqlite3 bundle'a girmeyip calisma aninda
+ * node_modules'ten cozuluyor.
+ *
+ * Onceden burada `(globalThis as any)._require(...)` yaziyordu. Build sonrasi
+ * bu `globalThis.require(...)` haline geliyordu; `require` CJS'te modul yerel
+ * bir degisken olup globalThis uzerinde bulunmadigi icin cagri her seferinde
+ * TypeError firlatiyor, asagidaki try/catch bunu yutuyordu. Sonuc: uretimde
+ * hicbir olay kaydedilmiyordu.
+ */
+const _require = createRequire(import.meta.url);
 
 let db: any = null;
 
 function getDb() {
   if (db) return db;
-  const Database = (globalThis as any)._require("better-sqlite3");
+  const Database = _require("better-sqlite3");
   const dbPath = join(process.cwd(), "analytics.db");
   db = new Database(dbPath);
   db.pragma("journal_mode = WAL");
