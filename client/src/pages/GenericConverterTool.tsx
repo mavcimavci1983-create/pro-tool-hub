@@ -3,7 +3,6 @@ import { Footer } from "@/components/layout/Footer";
 import { ToolWorkflow } from "@/components/tool/ToolWorkflow";
 import { CsvToJsonTool, JsonToCsvTool, XmlToJsonTool } from "@/components/home/ConverterTools";
 import { Helmet, HelmetProvider } from "react-helmet-async";
-import { LeaderboardAd, StickySkyscraper, BillboardAd } from "@/components/ads/AdUnit";
 import { ToolSeoContent, hasToolSeo } from "@/components/tool/ToolSeoContent";
 
 function getInlineConverterTool(title: string) {
@@ -27,11 +26,7 @@ export default function GenericConverterTool({ title = "Converter Tool", desc = 
         </Helmet>
         <Header />
         <main className="flex-grow flex flex-col items-center pt-10 pb-20">
-          <LeaderboardAd />
-
           <div className="w-full max-w-[1400px] mx-auto flex mt-10 px-4">
-            <StickySkyscraper side="left" />
-
             <div className="flex-1 min-w-0 max-w-4xl mx-auto">
               <div className="mb-12 text-center lg:text-left">
                 <h1 className="text-3xl md:text-5xl font-bold mb-4 text-slate-900 tracking-tight leading-none">
@@ -41,8 +36,6 @@ export default function GenericConverterTool({ title = "Converter Tool", desc = 
               </div>
 
               {inlineTool ?? <ToolWorkflow toolName={title} acceptedFileTypes="*" />}
-
-              <BillboardAd />
 
               <article className="prose prose-lg max-w-none border-t border-slate-100 pt-16 mt-8 text-slate-600 leading-relaxed">
                 <ToolSeoContent title={title} />
@@ -62,7 +55,6 @@ export default function GenericConverterTool({ title = "Converter Tool", desc = 
               </article>
             </div>
 
-            <StickySkyscraper side="right" />
           </div>
         </main>
         <Footer />

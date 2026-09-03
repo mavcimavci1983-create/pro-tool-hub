@@ -40,16 +40,16 @@ export function Footer() {
       privacy: "Privacy Policy",
       terms: "Terms of Service",
       contact: "Contact Us",
-      copyright: "Â© 2026 ProToolHub. All rights reserved."
+      copyright: "© 2026 ProToolHub. All rights reserved."
     },
     tr: {
-      about: "PDF, Video, Resim ve YazÄ±m iÃ§in profesyonel dÃ¼zeyde Ã§evrimiÃ§i araÃ§lar. GÃ¼venli, hÄ±zlÄ± ve %100 Ã¼cretsiz.",
-      links: "HÄ±zlÄ± BaÄŸlantÄ±lar",
+      about: "PDF, Video, Resim ve Yazım için profesyonel düzeyde çevrimiçi araçlar. Güvenli, hızlı ve %100 ücretsiz.",
+      links: "Hızlı Bağlantılar",
       legal: "Yasal",
-      privacy: "Gizlilik PolitikasÄ±",
-      terms: "KullanÄ±m ÅartlarÄ±",
-      contact: "Bize UlaÅŸÄ±n",
-      copyright: "Â© 2026 ProToolHub. TÃ¼m haklarÄ± saklÄ±dÄ±r."
+      privacy: "Gizlilik Politikası",
+      terms: "Kullanım Şartları",
+      contact: "Bize Ulaşın",
+      copyright: "© 2026 ProToolHub. Tüm hakları saklıdır."
     }
   };
 

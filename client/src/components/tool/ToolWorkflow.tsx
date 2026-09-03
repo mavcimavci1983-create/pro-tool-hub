@@ -10,7 +10,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useLanguageStore }                    from "@/lib/languageStore";
 import translationsData                        from "@/locales/translations.json";
 import { jsPDF }                               from "jspdf";
-import { BelowResultAd }                       from "@/components/ads/AdUnit";
 
 const translations = translationsData as Record<string, any>;
 
@@ -657,7 +656,6 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess, extraPara
             <ShieldCheck className="w-4 h-4" /> BANK-GRADE ENCRYPTION ACTIVE
           </div>
         </Card>
-        <BelowResultAd />
         <TrustBadges />
       </div>
     );
@@ -696,7 +694,6 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess, extraPara
           </div>
         </div>
       </Card>
-      <BelowResultAd />
       <TrustBadges />
     </div>
   );

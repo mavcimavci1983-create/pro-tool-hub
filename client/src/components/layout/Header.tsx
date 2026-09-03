@@ -50,7 +50,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
-import { BelowHeaderAd } from "@/components/ads/AdUnit";
 import { useLanguageStore } from "@/lib/languageStore";
 import { useCategoryStore } from "@/lib/categoryStore";
 import translationsData from "@/locales/translations.json";
@@ -208,7 +207,6 @@ export function Header() {
   };
 
   return (
-    <>
     <header className="sticky top-0 z-50 w-full border-b bg-white">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
@@ -308,7 +306,5 @@ export function Header() {
         </div>
       </div>
     </header>
-    <BelowHeaderAd />
-    </>
   );
 }

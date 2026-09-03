@@ -7,7 +7,6 @@ import { Helmet, HelmetProvider } from "react-helmet-async";
 import { Sparkles, PenTool, Loader2, Copy, Check, Download, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { LeaderboardAd, StickySkyscraper, BillboardAd } from "@/components/ads/AdUnit";
 import { ToolSeoContent, hasToolSeo } from "@/components/tool/ToolSeoContent";
 
 const translations = translationsData as Record<string, any>;
@@ -80,11 +79,7 @@ export default function GenericAiTool({ title = "AI Writer", desc = "Professiona
         </Helmet>
         <Header />
         <main className="flex-grow flex flex-col items-center pt-10 pb-20">
-          <LeaderboardAd />
-
           <div className="w-full max-w-[1400px] mx-auto flex mt-10 px-4">
-            <StickySkyscraper side="left" />
-
             <div className="flex-1 min-w-0 max-w-4xl mx-auto">
               <div className="mb-12 text-center lg:text-left">
                 <div className="flex items-center gap-3 mb-4 justify-center lg:justify-start">
@@ -219,8 +214,6 @@ export default function GenericAiTool({ title = "AI Writer", desc = "Professiona
                 </div>
               )}
 
-              <BillboardAd />
-
               <article className="prose prose-lg max-w-none border-t border-slate-100 pt-16 mt-8 text-slate-600 leading-relaxed">
                 <ToolSeoContent title={title} />
 
@@ -239,7 +232,6 @@ export default function GenericAiTool({ title = "AI Writer", desc = "Professiona
               </article>
             </div>
 
-            <StickySkyscraper side="right" />
           </div>
         </main>
         <Footer />

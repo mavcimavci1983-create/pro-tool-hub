@@ -1,33 +1,33 @@
 ﻿/**
- * ImageTools.tsx â€” ProToolHub v1.0  "Image Suite"
- * â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+ * ImageTools.tsx — ProToolHub v1.0  "Image Suite"
+ * ═══════════════════════════════════════════════════════════════════════════
  *
- * 10 AraÃ§ â€” TamamÄ± Client-Side (SÄ±fÄ±r Backend):
- *  1.  CompressImageTool    Kalite kaydÄ±rÄ±cÄ±, anlÄ±k boyut tahmini, alpha-aware
+ * 10 Araç — Tamamı Client-Side (Sıfır Backend):
+ *  1.  CompressImageTool    Kalite kaydırıcı, anlık boyut tahmini, alpha-aware
  *  2.  ResizeImageTool      px / % modu, oran kilidi, sosyal medya preset'leri
- *  3.  CropImageTool        SÃ¼rÃ¼kle-bÄ±rak kÄ±rpma, 6 aspect-ratio preset, Ä±zgara
- *  4.  ConvertFormatTool    JPG â†” PNG â†” WebP â†” BMP, alpha-aware dÃ¶nÃ¼ÅŸÃ¼m
- *  5.  WebPToJpgTool        Tek tÄ±kla WebP â†’ JPG
- *  6.  WebPToPngTool        Tek tÄ±kla WebP â†’ PNG (alpha korunur)
- *  7.  ImageToWebpTool      GÃ¶rÃ¼ntÃ¼ â†’ WebP (herhangi format)
- *  8.  HeicToJpgTool        HEIC/HEIF â†’ JPG (heic2any CDN lazy-load)
+ *  3.  CropImageTool        Sürükle-bırak kırpma, 6 aspect-ratio preset, ızgara
+ *  4.  ConvertFormatTool    JPG ↔ PNG ↔ WebP ↔ BMP, alpha-aware dönüşüm
+ *  5.  WebPToJpgTool        Tek tıkla WebP → JPG
+ *  6.  WebPToPngTool        Tek tıkla WebP → PNG (alpha korunur)
+ *  7.  ImageToWebpTool      Görüntü → WebP (herhangi format)
+ *  8.  HeicToJpgTool        HEIC/HEIF → JPG (heic2any CDN lazy-load)
  *  9.  RemoveBackgroundTool remove.bg API + yerel edge-detection fallback
- *  10. AddTextToImageTool   Metin overlay: font, renk, konum, canlÄ± Ã¶nizleme
+ *  10. AddTextToImageTool   Metin overlay: font, renk, konum, canlı önizleme
  *
- * MÄ°MARÄ°:
- *  â€¢ MAX_SAFE_PIXELS (16MP) â€” canvas bellek gÃ¼venlik sÄ±nÄ±rÄ±
- *  â€¢ Alpha compositing: PNG/WebPâ†’JPG = beyaz arka plan otomatik
- *  â€¢ useImageTool() hook: tÃ¼m araÃ§larda tekrar eden state + progress mantÄ±ÄŸÄ±
- *  â€¢ Her araÃ§ kendi state'inde izole â€” Ã§apraz kirlenme yok
- *  â€¢ HEIC: heic2any@0.0.4 script tag ile CDN'den lazy-load
+ * MİMARİ:
+ *  • MAX_SAFE_PIXELS (16MP) — canvas bellek güvenlik sınırı
+ *  • Alpha compositing: PNG/WebP→JPG = beyaz arka plan otomatik
+ *  • useImageTool() hook: tüm araçlarda tekrar eden state + progress mantığı
+ *  • Her araç kendi state'inde izole — çapraz kirlenme yok
+ *  • HEIC: heic2any@0.0.4 script tag ile CDN'den lazy-load
  *
  * KURULUM:
- *  Ek paket gerekmez. remove.bg iÃ§in API key opsiyonel.
+ *  Ek paket gerekmez. remove.bg için API key opsiyonel.
  *
  * KULLANIM:
  *  import { CompressImageTool } from "@/components/ImageTools";
  *  <CompressImageTool />
- * â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+ * ═══════════════════════════════════════════════════════════════════════════
  */
 
 import React, {
@@ -49,7 +49,7 @@ import translationsData     from "@/locales/translations.json";
 
 const translations = translationsData as Record<string, any>;
 
-// â”€â”€â”€ Meta Pixel â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Meta Pixel ──────────────────────────────────────────────────────────────
 function trackEvent(name: string, params?: Record<string, unknown>) {
   try {
     const fbq = (window as any).fbq;
@@ -57,25 +57,25 @@ function trackEvent(name: string, params?: Record<string, unknown>) {
   } catch {}
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// Â§ CANVAS ENGINE â€” Bellek gÃ¼venli, alpha-aware temel fonksiyonlar
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════════════════
+// § CANVAS ENGINE — Bellek güvenli, alpha-aware temel fonksiyonlar
+// ═══════════════════════════════════════════════════════════════════════════
 
-/** Canvas gÃ¼venli piksel sÄ±nÄ±rÄ± ~16MP â€” Ã¼zeri OOM riski */
+/** Canvas güvenli piksel sınırı ~16MP — üzeri OOM riski */
 const MAX_SAFE_PIXELS = 16_000_000;
 
-/** File â†’ HTMLImageElement (URL nesnesini temizler) */
+/** File → HTMLImageElement (URL nesnesini temizler) */
 function loadImageSafe(file: File): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload  = () => { URL.revokeObjectURL(url); resolve(img); };
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("GÃ¶rÃ¼ntÃ¼ yÃ¼klenemedi / Image load failed")); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Görüntü yüklenemedi / Image load failed")); };
     img.src = url;
   });
 }
 
-/** HTMLImageElement â†’ gÃ¼venli Ã¶lÃ§eklenmiÅŸ canvas */
+/** HTMLImageElement → güvenli ölçeklenmiş canvas */
 function imgToCanvas(
   img: HTMLImageElement,
   targetW: number,
@@ -87,7 +87,7 @@ function imgToCanvas(
   cv.width  = Math.round(Math.max(1, targetW));
   cv.height = Math.round(Math.max(1, targetH));
   const ctx = cv.getContext("2d")!;
-  // JPG/BMP alpha yoktur â†’ beyaz arka plan
+  // JPG/BMP alpha yoktur → beyaz arka plan
   if (targetMime === "image/jpeg" || targetMime === "image/bmp") {
     ctx.fillStyle = bgColor;
     ctx.fillRect(0, 0, cv.width, cv.height);
@@ -98,19 +98,19 @@ function imgToCanvas(
   return cv;
 }
 
-/** Canvas â†’ Blob (kaliteli) */
+/** Canvas → Blob (kaliteli) */
 function cvToBlob(cv: HTMLCanvasElement, mime: string, q = 0.92): Promise<Blob> {
   return new Promise((resolve, reject) => {
     cv.toBlob(
       b => b && b.size > 0
         ? resolve(b)
-        : reject(new Error("Canvas â†’ Blob baÅŸarÄ±sÄ±z. Dosya formatÄ± desteklenmiyor olabilir.")),
+        : reject(new Error("Canvas → Blob başarısız. Dosya formatı desteklenmiyor olabilir.")),
       mime, q
     );
   });
 }
 
-/** YÃ¼ksek Ã§Ã¶zÃ¼nÃ¼rlÃ¼k gÃ¼venlik Ã¶lÃ§ekleme: toplam piksel > MAX_SAFE ise kÃ¼Ã§Ã¼lt */
+/** Yüksek çözünürlük güvenlik ölçekleme: toplam piksel > MAX_SAFE ise küçült */
 function safeScale(w: number, h: number): [number, number] {
   const total = w * h;
   if (total <= MAX_SAFE_PIXELS) return [w, h];
@@ -118,7 +118,7 @@ function safeScale(w: number, h: number): [number, number] {
   return [Math.round(w * factor), Math.round(h * factor)];
 }
 
-/** BaytÄ± okunabilir boyuta Ã§evir */
+/** Baytı okunabilir boyuta çevir */
 function fmtSize(b: number): string {
   if (b < 1024)      return `${b} B`;
   if (b < 1048576)   return `${(b / 1024).toFixed(1)} KB`;
@@ -135,21 +135,21 @@ function saveBlobAs(blob: Blob, name: string) {
   setTimeout(() => URL.revokeObjectURL(url), 12_000);
 }
 
-/** Dosya adÄ± uzantÄ±sÄ±nÄ± deÄŸiÅŸtir */
+/** Dosya adı uzantısını değiştir */
 function swapExt(name: string, ext: string) {
   return name.replace(/\.[^.]+$/, "") + "." + ext;
 }
 
-/** MIME â†’ uzantÄ± */
+/** MIME → uzantı */
 const MIME_EXT: Record<string, string> = {
   "image/jpeg": "jpg", "image/png": "png",
   "image/webp": "webp", "image/bmp": "bmp", "image/gif": "gif",
 };
 const mimeToExt = (m: string) => MIME_EXT[m] ?? "jpg";
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// Â§ ORTAK STATE HOOK
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════════════════
+// § ORTAK STATE HOOK
+// ═══════════════════════════════════════════════════════════════════════════
 
 type ToolStatus = "idle" | "processing" | "done" | "error";
 
@@ -167,7 +167,7 @@ function useImageTool() {
 
   const timer = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  /** Sahte progress animasyonu â€” iÅŸin uzunluÄŸuna gÃ¶re duration ayarla */
+  /** Sahte progress animasyonu — işin uzunluğuna göre duration ayarla */
   const startAnim = useCallback((durationMs = 3000) => {
     setPct(0);
     let ms = 0;
@@ -200,11 +200,11 @@ function useImageTool() {
   return { t, isEn, file, setFile, status, setStatus, pct, label, setLabel, error, setError, result, startAnim, finish, fail, reset };
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// Â§ ORTAK UI BÄ°LEÅENLERÄ°
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════════════════
+// § ORTAK UI BİLEŞENLERİ
+// ═══════════════════════════════════════════════════════════════════════════
 
-/** SÃ¼rÃ¼kle-bÄ±rak yÃ¼kleme alanÄ± */
+/** Sürükle-bırak yükleme alanı */
 function DropZone({
   onFiles, accept = "image/*", isEn, error, multiple = false, hint,
 }: {
@@ -248,7 +248,7 @@ function DropZone({
           }}
         />
 
-        {/* Animasyonlu ikon arka planÄ± */}
+        {/* Animasyonlu ikon arka planı */}
         <div className={[
           "p-7 rounded-2xl shadow-sm border mb-7 transition-all duration-300",
           "group-hover:scale-110 group-hover:shadow-md",
@@ -260,10 +260,10 @@ function DropZone({
         </div>
 
         <h3 className="text-2xl font-bold text-slate-800 mb-2 tracking-tight">
-          {isEn ? "Drop your image here" : "GÃ¶rÃ¼ntÃ¼yÃ¼ buraya bÄ±rakÄ±n"}
+          {isEn ? "Drop your image here" : "Görüntüyü buraya bırakın"}
         </h3>
         <p className="text-slate-400 text-sm font-medium mb-1">
-          {isEn ? "or click to browse" : "veya tÄ±klayarak seÃ§in"}
+          {isEn ? "or click to browse" : "veya tıklayarak seçin"}
         </p>
         {hint && (
           <p className="text-xs text-slate-300 mb-8">{hint}</p>
@@ -271,7 +271,7 @@ function DropZone({
         {!hint && <div className="mb-8" />}
         <Button size="lg" variant={error ? "destructive" : "default"}
           className="rounded-full px-12 font-bold h-14 shadow-lg hover:scale-105 transition-transform">
-          {isEn ? "Choose Image" : "GÃ¶rÃ¼ntÃ¼ SeÃ§"}
+          {isEn ? "Choose Image" : "Görüntü Seç"}
         </Button>
       </div>
 
@@ -286,7 +286,7 @@ function DropZone({
   );
 }
 
-/** Ä°ÅŸleniyor kartÄ± */
+/** İşleniyor kartı */
 function ProcessingCard({ pct, label, isEn }: { pct: number; label: string; isEn: boolean }) {
   return (
     <Card className="p-16 rounded-3xl border border-slate-100 bg-white shadow-xl flex flex-col items-center text-center">
@@ -303,11 +303,11 @@ function ProcessingCard({ pct, label, isEn }: { pct: number; label: string; isEn
         </div>
       </div>
       <h3 className="text-2xl font-bold text-slate-900 mb-1">
-        {isEn ? "Processing..." : "Ä°ÅŸleniyor..."}
+        {isEn ? "Processing..." : "İşleniyor..."}
       </h3>
       <p className="text-primary/70 font-semibold text-sm mb-2">{label}</p>
       <p className="text-slate-400 text-sm mb-10">
-        {isEn ? "Running locally â€” your file never leaves your device" : "Yerel olarak Ã§alÄ±ÅŸÄ±yor â€” dosyanÄ±z cihazÄ±nÄ±zdan ayrÄ±lmaz"}
+        {isEn ? "Running locally — your file never leaves your device" : "Yerel olarak çalışıyor — dosyanız cihazınızdan ayrılmaz"}
       </p>
       <div className="w-full max-w-sm">
         <Progress value={pct} className="h-2 rounded-full bg-slate-100" />
@@ -319,7 +319,7 @@ function ProcessingCard({ pct, label, isEn }: { pct: number; label: string; isEn
   );
 }
 
-/** Ä°ndirme / tamamlandÄ± kartÄ± */
+/** İndirme / tamamlandı kartı */
 function DoneCard({
   blob, filename, origSize, isEn, onReset, children,
 }: {
@@ -337,11 +337,11 @@ function DoneCard({
       </div>
 
       <h3 className="text-3xl font-black text-slate-900 mb-1 tracking-tight">
-        {isEn ? "Done!" : "HazÄ±r!"}
+        {isEn ? "Done!" : "Hazır!"}
       </h3>
       <p className="text-slate-500 mb-4 font-medium text-sm truncate max-w-xs">{filename}</p>
 
-      {/* Boyut karÅŸÄ±laÅŸtÄ±rmasÄ± */}
+      {/* Boyut karşılaştırması */}
       {origSize != null && (
         <div className="flex items-center gap-3 mb-6 text-sm">
           <span className="px-3 py-1.5 bg-slate-100 text-slate-500 rounded-full font-mono font-medium">
@@ -355,7 +355,7 @@ function DoneCard({
           </span>
           {reduction != null && reduction > 0 && (
             <span className="px-2.5 py-1 bg-emerald-500 text-white rounded-full text-xs font-black">
-              âˆ’{reduction}%
+              −{reduction}%
             </span>
           )}
         </div>
@@ -367,47 +367,47 @@ function DoneCard({
         onClick={() => { saveBlobAs(blob, filename); trackEvent("ImageDownloaded", { filename }); }}
         className="rounded-full px-20 font-bold h-16 shadow-xl bg-emerald-600 hover:bg-emerald-700 text-white text-lg mb-5 w-full max-w-xs border-none">
         <Download className="w-5 h-5 mr-3" />
-        {isEn ? "Download" : "Ä°ndir"}
+        {isEn ? "Download" : "İndir"}
       </Button>
 
       <Button variant="ghost" onClick={onReset}
         className="text-slate-400 hover:text-primary font-bold transition-colors">
         <RefreshCw className="w-4 h-4 mr-2" />
-        {isEn ? "Process another image" : "BaÅŸka gÃ¶rÃ¼ntÃ¼ iÅŸle"}
+        {isEn ? "Process another image" : "Başka görüntü işle"}
       </Button>
 
       <div className="mt-6 flex items-center gap-2 px-5 py-2.5 bg-slate-50 border border-slate-100 rounded-2xl text-slate-400 text-xs font-medium">
         <Clock className="w-3.5 h-3.5 text-rose-300" />
-        {isEn ? "File never uploaded â€” stays on your device" : "Dosya hiÃ§ yÃ¼klenmedi â€” cihazÄ±nÄ±zda kaldÄ±"}
+        {isEn ? "File never uploaded — stays on your device" : "Dosya hiç yüklenmedi — cihazınızda kaldı"}
       </div>
     </Card>
   );
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════════════════
 // 1. COMPRESS IMAGE
-// Kalite kaydÄ±rÄ±cÄ± + gerÃ§ek zamanlÄ± boyut tahmini + alpha-aware sÄ±kÄ±ÅŸtÄ±rma
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// Kalite kaydırıcı + gerçek zamanlı boyut tahmini + alpha-aware sıkıştırma
+// ═══════════════════════════════════════════════════════════════════════════
 
 export function CompressImageTool() {
   const { t, isEn, file, setFile, status, setStatus, pct, label, setLabel, error, result, startAnim, finish, fail, reset } = useImageTool();
   const [quality, setQuality] = useState(82);
 
-  const qualityLabel = quality >= 90 ? (isEn ? "Near-lossless" : "KayÄ±psÄ±za yakÄ±n")
+  const qualityLabel = quality >= 90 ? (isEn ? "Near-lossless" : "Kayıpsıza yakın")
     : quality >= 70 ? (isEn ? "Balanced" : "Dengeli")
-    : quality >= 50 ? (isEn ? "Web optimized" : "Web iÃ§in optimize")
-    : (isEn ? "Maximum compression" : "Maksimum sÄ±kÄ±ÅŸtÄ±rma");
+    : quality >= 50 ? (isEn ? "Web optimized" : "Web için optimize")
+    : (isEn ? "Maximum compression" : "Maksimum sıkıştırma");
 
   const process = async (f: File) => {
     setFile(f);
     setStatus("processing");
-    setLabel(isEn ? "Compressing..." : "SÄ±kÄ±ÅŸtÄ±rÄ±lÄ±yor...");
+    setLabel(isEn ? "Compressing..." : "Sıkıştırılıyor...");
     startAnim(2500);
     try {
       const img = await loadImageSafe(f);
       const [sw, sh] = safeScale(img.naturalWidth, img.naturalHeight);
 
-      // Alpha olan PNG/WebP â†’ WebP korunur (kalite kaybetmeden sÄ±kÄ±ÅŸtÄ±r)
+      // Alpha olan PNG/WebP → WebP korunur (kalite kaybetmeden sıkıştır)
       const isAlpha   = f.type === "image/png" || f.type === "image/webp";
       const outMime   = isAlpha ? "image/webp" : "image/jpeg";
 
@@ -417,7 +417,7 @@ export function CompressImageTool() {
       finish(blob);
       trackEvent("ImageCompressed", { quality, before: f.size, after: blob.size });
     } catch (e: any) {
-      fail(isEn ? `Compression failed: ${e.message}` : `SÄ±kÄ±ÅŸtÄ±rma hatasÄ±: ${e.message}`);
+      fail(isEn ? `Compression failed: ${e.message}` : `Sıkıştırma hatası: ${e.message}`);
     }
   };
 
@@ -436,8 +436,8 @@ export function CompressImageTool() {
         <div className="flex items-center gap-3 mb-6">
           <div className="p-3 bg-blue-50 rounded-2xl"><Minimize2 className="w-5 h-5 text-blue-600"/></div>
           <div>
-            <h3 className="text-base font-bold text-slate-800">{isEn ? "Compression Settings" : "SÄ±kÄ±ÅŸtÄ±rma AyarlarÄ±"}</h3>
-            <p className="text-xs text-slate-400 mt-0.5">{isEn ? "Adjust quality vs file size" : "Kalite ve dosya boyutunu ayarlayÄ±n"}</p>
+            <h3 className="text-base font-bold text-slate-800">{isEn ? "Compression Settings" : "Sıkıştırma Ayarları"}</h3>
+            <p className="text-xs text-slate-400 mt-0.5">{isEn ? "Adjust quality vs file size" : "Kalite ve dosya boyutunu ayarlayın"}</p>
           </div>
         </div>
 
@@ -461,12 +461,12 @@ export function CompressImageTool() {
                        [&::-webkit-slider-thumb]:cursor-pointer"
           />
           <div className="flex justify-between text-xs text-slate-300">
-            <span>{isEn ? "Smallest file" : "En kÃ¼Ã§Ã¼k dosya"}</span>
+            <span>{isEn ? "Smallest file" : "En küçük dosya"}</span>
             <span>{isEn ? "Best quality" : "En iyi kalite"}</span>
           </div>
         </div>
 
-        {/* Kalite bantlarÄ± */}
+        {/* Kalite bantları */}
         <div className="flex gap-2 mb-5">
           {[
             { range:[85,100], label:"High",    color:"bg-emerald-500" },
@@ -488,21 +488,21 @@ export function CompressImageTool() {
         </div>
 
         <div className="p-3 bg-slate-50 rounded-xl text-xs text-slate-500 font-medium">
-          ğŸ’¡ {qualityLabel} â€” {isEn ? "PNG/WebP inputs will be exported as WebP (alpha preserved)" : "PNG/WebP dosyalarÄ± WebP olarak Ã§Ä±ktÄ±lanÄ±r (alpha korunur)"}
+          💡 {qualityLabel} — {isEn ? "PNG/WebP inputs will be exported as WebP (alpha preserved)" : "PNG/WebP dosyaları WebP olarak çıktılanır (alpha korunur)"}
         </div>
       </Card>
 
       <DropZone onFiles={f => process(f[0])} accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
         isEn={isEn} error={error}
-        hint={isEn ? "JPG, PNG, WebP â€” up to 50MB" : "JPG, PNG, WebP â€” 50MB'a kadar"}/>
+        hint={isEn ? "JPG, PNG, WebP — up to 50MB" : "JPG, PNG, WebP — 50MB'a kadar"}/>
     </div>
   );
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════════════════
 // 2. RESIZE IMAGE
 // px / % modu, oran kilidi, sosyal medya preset'leri
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════════════════
 
 const SOCIAL_PRESETS = [
   { name:"HD 720p",       w:1280, h:720  },
@@ -559,15 +559,15 @@ export function ResizeImageTool() {
     if (!file || !orig) return;
     const wn = parseFloat(tw), hn = parseFloat(th);
     if (isNaN(wn) || isNaN(hn) || wn <= 0 || hn <= 0) {
-      setError(isEn ? "Enter valid dimensions" : "GeÃ§erli boyutlar girin"); return;
+      setError(isEn ? "Enter valid dimensions" : "Geçerli boyutlar girin"); return;
     }
     const fw = unit === "%" ? Math.round(orig.w * wn / 100) : Math.round(wn);
     const fh = unit === "%" ? Math.round(orig.h * hn / 100) : Math.round(hn);
     if (fw > 16000 || fh > 16000) {
-      setError(isEn ? "Max 16,000 Ã— 16,000 px" : "Maks. 16.000 Ã— 16.000 px"); return;
+      setError(isEn ? "Max 16,000 × 16,000 px" : "Maks. 16.000 × 16.000 px"); return;
     }
     setStatus("processing");
-    setLabel(isEn ? `Resizing to ${fw}Ã—${fh}pxâ€¦` : `${fw}Ã—${fh}px'e yeniden boyutlandÄ±rÄ±lÄ±yorâ€¦`);
+    setLabel(isEn ? `Resizing to ${fw}×${fh}px…` : `${fw}×${fh}px'e yeniden boyutlandırılıyor…`);
     startAnim(2000);
     try {
       const img  = await loadImageSafe(file);
@@ -588,23 +588,23 @@ export function ResizeImageTool() {
   if (!file) return (
     <div className="w-full max-w-4xl mx-auto">
       <DropZone onFiles={f => onFileSelect(f[0])} isEn={isEn} error={error}
-        hint={isEn ? "Any image format" : "TÃ¼m gÃ¶rÃ¼ntÃ¼ formatlarÄ±"}/>
+        hint={isEn ? "Any image format" : "Tüm görüntü formatları"}/>
     </div>
   );
 
   return (
     <div className="w-full max-w-4xl mx-auto space-y-6">
       <Card className="p-8 rounded-3xl border border-slate-100 bg-white shadow-sm">
-        {/* BaÅŸlÄ±k */}
+        {/* Başlık */}
         <div className="flex items-center gap-3 mb-6">
           <div className="p-3 bg-violet-50 rounded-2xl"><Maximize2 className="w-5 h-5 text-violet-600"/></div>
           <div>
-            <h3 className="text-base font-bold text-slate-800">{isEn?"Resize Settings":"Boyut AyarlarÄ±"}</h3>
-            {orig && <p className="text-xs text-slate-400 mt-0.5">{isEn?"Original:":"Orijinal:"} {orig.w} Ã— {orig.h} px â€” {fmtSize(file.size)}</p>}
+            <h3 className="text-base font-bold text-slate-800">{isEn?"Resize Settings":"Boyut Ayarları"}</h3>
+            {orig && <p className="text-xs text-slate-400 mt-0.5">{isEn?"Original:":"Orijinal:"} {orig.w} × {orig.h} px — {fmtSize(file.size)}</p>}
           </div>
         </div>
 
-        {/* Birim seÃ§ici */}
+        {/* Birim seçici */}
         <div className="flex gap-2 mb-6">
           {(["px", "%"] as const).map(u => (
             <button key={u} onClick={() => { setUnit(u); if(u==="%"){ setTw("100"); setTh("100"); } else if(orig){ setTw(String(orig.w)); setTh(String(orig.h)); } }}
@@ -614,11 +614,11 @@ export function ResizeImageTool() {
           ))}
         </div>
 
-        {/* Boyut inputlarÄ± */}
+        {/* Boyut inputları */}
         <div className="flex items-end gap-4 mb-6">
           <div className="flex-1 space-y-2">
             <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
-              {isEn?"Width":"GeniÅŸlik"} ({unit})
+              {isEn?"Width":"Genişlik"} ({unit})
             </label>
             <input type="number" value={tw} onChange={e => onWChange(e.target.value)}
               className="w-full px-4 py-4 rounded-2xl border border-slate-200 focus:border-violet-400 focus:ring-2 focus:ring-violet-100 outline-none font-mono text-2xl font-black text-slate-800 transition-all text-center"/>
@@ -635,7 +635,7 @@ export function ResizeImageTool() {
 
           <div className="flex-1 space-y-2">
             <label className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
-              {isEn?"Height":"YÃ¼kseklik"} ({unit})
+              {isEn?"Height":"Yükseklik"} ({unit})
             </label>
             <input type="number" value={th} onChange={e => onHChange(e.target.value)}
               className="w-full px-4 py-4 rounded-2xl border border-slate-200 focus:border-violet-400 focus:ring-2 focus:ring-violet-100 outline-none font-mono text-2xl font-black text-slate-800 transition-all text-center"/>
@@ -645,14 +645,14 @@ export function ResizeImageTool() {
         {/* Sosyal medya preset'leri */}
         <div className="mb-6">
           <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">
-            {isEn?"Quick Presets":"HÄ±zlÄ± Ã–n Ayarlar"}
+            {isEn?"Quick Presets":"Hızlı Ön Ayarlar"}
           </p>
           <div className="flex flex-wrap gap-2">
             {SOCIAL_PRESETS.map(p => (
               <button key={p.name} onClick={() => applyPreset(p.w, p.h)}
                 className="px-3 py-1.5 rounded-full border border-slate-200 text-xs font-semibold text-slate-500 hover:border-violet-400 hover:text-violet-600 hover:bg-violet-50 transition-all whitespace-nowrap">
                 {p.name}
-                <span className="ml-1.5 text-slate-300 font-normal">{p.w}Ã—{p.h}</span>
+                <span className="ml-1.5 text-slate-300 font-normal">{p.w}×{p.h}</span>
               </button>
             ))}
           </div>
@@ -666,10 +666,10 @@ export function ResizeImageTool() {
 
         <div className="flex gap-3">
           <Button variant="outline" onClick={reset} className="rounded-full">
-            <RefreshCw className="w-4 h-4 mr-2"/>{isEn?"Change file":"Dosya deÄŸiÅŸtir"}
+            <RefreshCw className="w-4 h-4 mr-2"/>{isEn?"Change file":"Dosya değiştir"}
           </Button>
           <Button onClick={process} className="rounded-full px-10 font-bold flex-1 h-12">
-            <Maximize2 className="w-4 h-4 mr-2"/>{isEn?"Resize Image":"BoyutlandÄ±r"}
+            <Maximize2 className="w-4 h-4 mr-2"/>{isEn?"Resize Image":"Boyutlandır"}
           </Button>
         </div>
       </Card>
@@ -677,10 +677,10 @@ export function ResizeImageTool() {
   );
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════════════════
 // 3. CROP IMAGE
-// SÃ¼rÃ¼kle-bÄ±rak kÄ±rpma kutusu + aspect-ratio preset'leri
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// Sürükle-bırak kırpma kutusu + aspect-ratio preset'leri
+// ═══════════════════════════════════════════════════════════════════════════
 
 export function CropImageTool() {
   const { t, isEn, file, setFile, status, setStatus, pct, label, setLabel, error, result, startAnim, finish, fail, reset } = useImageTool();
@@ -752,7 +752,7 @@ export function CropImageTool() {
   const applyCrop = async () => {
     if (!imgEl || !file) return;
     setStatus("processing");
-    setLabel(isEn ? "Cropping imageâ€¦" : "GÃ¶rÃ¼ntÃ¼ kÄ±rpÄ±lÄ±yorâ€¦");
+    setLabel(isEn ? "Cropping image…" : "Görüntü kırpılıyor…");
     startAnim(1500);
     try {
       const sx = Math.round(imgEl.naturalWidth  * crop.x / 100);
@@ -778,7 +778,7 @@ export function CropImageTool() {
   if (!thumbUrl) return (
     <div className="w-full max-w-4xl mx-auto">
       <DropZone onFiles={f=>onFileSelect(f[0])} isEn={isEn} error={null}
-        hint={isEn?"Drag the selection box to define crop area":"SeÃ§im kutusunu sÃ¼rÃ¼kleyerek kÄ±rpma alanÄ±nÄ± belirleyin"}/>
+        hint={isEn?"Drag the selection box to define crop area":"Seçim kutusunu sürükleyerek kırpma alanını belirleyin"}/>
     </div>
   );
 
@@ -788,8 +788,8 @@ export function CropImageTool() {
         <div className="flex items-center gap-3 mb-5">
           <div className="p-3 bg-orange-50 rounded-2xl"><Crop className="w-5 h-5 text-orange-600"/></div>
           <div>
-            <h3 className="text-base font-bold text-slate-800">{isEn?"Drag to crop":"SÃ¼rÃ¼kleyerek kÄ±rp"}</h3>
-            {imgEl && <p className="text-xs text-slate-400 mt-0.5">{imgEl.naturalWidth} Ã— {imgEl.naturalHeight} px</p>}
+            <h3 className="text-base font-bold text-slate-800">{isEn?"Drag to crop":"Sürükleyerek kırp"}</h3>
+            {imgEl && <p className="text-xs text-slate-400 mt-0.5">{imgEl.naturalWidth} × {imgEl.naturalHeight} px</p>}
           </div>
         </div>
 
@@ -803,14 +803,14 @@ export function CropImageTool() {
           ))}
         </div>
 
-        {/* Ã–nizleme + kÄ±rpma kutusu */}
+        {/* Önizleme + kırpma kutusu */}
         <div ref={boxRef}
           className="relative rounded-2xl overflow-hidden bg-slate-900 select-none"
           style={{ maxHeight: 440, cursor: "default" }}>
           <img src={thumbUrl} alt="preview"
             className="w-full h-auto object-contain max-h-[440px]" draggable={false}/>
 
-          {/* Karartma: sadece dÄ±ÅŸarÄ±sÄ± */}
+          {/* Karartma: sadece dışarısı */}
           <div className="absolute inset-0 pointer-events-none">
             <svg className="absolute inset-0 w-full h-full" xmlns="http://www.w3.org/2000/svg">
               <defs>
@@ -823,7 +823,7 @@ export function CropImageTool() {
             </svg>
           </div>
 
-          {/* KÄ±rpma kutusu kenarlÄ±ÄŸÄ± + tutamaÃ§lar */}
+          {/* Kırpma kutusu kenarlığı + tutamaçlar */}
           <div className="absolute border-2 border-white"
             style={{
               left:`${crop.x}%`, top:`${crop.y}%`,
@@ -832,14 +832,14 @@ export function CropImageTool() {
             }}
             onMouseDown={e => startDrag(e, "move")}
           >
-            {/* Izgara Ã§izgileri */}
+            {/* Izgara çizgileri */}
             <div className="absolute inset-0 pointer-events-none"
               style={{
                 backgroundImage: "linear-gradient(rgba(255,255,255,.25) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.25) 1px,transparent 1px)",
                 backgroundSize: "33.33% 33.33%",
               }}/>
 
-            {/* KÃ¶ÅŸe tutamaÃ§larÄ± */}
+            {/* Köşe tutamaçları */}
             {([["nw","cursor-nw-resize",{top:-5,left:-5}],["ne","cursor-ne-resize",{top:-5,right:-5}],["sw","cursor-sw-resize",{bottom:-5,left:-5}],["se","cursor-se-resize",{bottom:-5,right:-5}]] as const).map(([h,cur,st]) => (
               <div key={h} className={`absolute w-3.5 h-3.5 bg-white rounded-full shadow-lg border-2 border-orange-500 ${cur}`}
                 style={st as React.CSSProperties}
@@ -849,7 +849,7 @@ export function CropImageTool() {
             {/* Piksel bilgisi */}
             {imgEl && (
               <div className="absolute -bottom-7 left-0 text-white text-[11px] font-mono bg-black/70 px-2 py-0.5 rounded whitespace-nowrap pointer-events-none">
-                {Math.round(imgEl.naturalWidth*crop.w/100)} Ã— {Math.round(imgEl.naturalHeight*crop.h/100)} px
+                {Math.round(imgEl.naturalWidth*crop.w/100)} × {Math.round(imgEl.naturalHeight*crop.h/100)} px
               </div>
             )}
           </div>
@@ -857,10 +857,10 @@ export function CropImageTool() {
 
         <div className="flex gap-3 mt-8">
           <Button variant="outline" onClick={reset} className="rounded-full">
-            <RefreshCw className="w-4 h-4 mr-2"/>{isEn?"Change file":"Dosya deÄŸiÅŸtir"}
+            <RefreshCw className="w-4 h-4 mr-2"/>{isEn?"Change file":"Dosya değiştir"}
           </Button>
           <Button onClick={applyCrop} className="rounded-full px-10 font-bold flex-1 h-12">
-            <Crop className="w-4 h-4 mr-2"/>{isEn?"Crop Image":"KÄ±rp"}
+            <Crop className="w-4 h-4 mr-2"/>{isEn?"Crop Image":"Kırp"}
           </Button>
         </div>
       </Card>
@@ -868,16 +868,16 @@ export function CropImageTool() {
   );
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// 4. CONVERT FORMAT  (JPG â†” PNG â†” WebP â†” BMP)
-// Alpha-aware dÃ¶nÃ¼ÅŸÃ¼m, kalite kaydÄ±rÄ±cÄ±
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════════════════
+// 4. CONVERT FORMAT  (JPG ↔ PNG ↔ WebP ↔ BMP)
+// Alpha-aware dönüşüm, kalite kaydırıcı
+// ═══════════════════════════════════════════════════════════════════════════
 
 const FMT = [
-  { mime:"image/jpeg", ext:"jpg",  label:"JPG",  icon:"ğŸŸ¡", desc:"Best for photos, no transparency" },
-  { mime:"image/png",  ext:"png",  label:"PNG",  icon:"ğŸ”µ", desc:"Lossless, transparency preserved"  },
-  { mime:"image/webp", ext:"webp", label:"WebP", icon:"ğŸŸ¢", desc:"Modern, small size, alpha support" },
-  { mime:"image/bmp",  ext:"bmp",  label:"BMP",  icon:"ğŸ”´", desc:"Uncompressed bitmap"               },
+  { mime:"image/jpeg", ext:"jpg",  label:"JPG",  icon:"🟡", desc:"Best for photos, no transparency" },
+  { mime:"image/png",  ext:"png",  label:"PNG",  icon:"🔵", desc:"Lossless, transparency preserved"  },
+  { mime:"image/webp", ext:"webp", label:"WebP", icon:"🟢", desc:"Modern, small size, alpha support" },
+  { mime:"image/bmp",  ext:"bmp",  label:"BMP",  icon:"🔴", desc:"Uncompressed bitmap"               },
 ];
 
 export function ConvertFormatTool() {
@@ -889,7 +889,7 @@ export function ConvertFormatTool() {
     setFile(f);
     const fmt = FMT.find(x => x.mime === targetMime)!;
     setStatus("processing");
-    setLabel(isEn ? `Converting to ${fmt.label}â€¦` : `${fmt.label}'e dÃ¶nÃ¼ÅŸtÃ¼rÃ¼lÃ¼yorâ€¦`);
+    setLabel(isEn ? `Converting to ${fmt.label}…` : `${fmt.label}'e dönüştürülüyor…`);
     startAnim(2500);
     try {
       const img = await loadImageSafe(f);
@@ -931,11 +931,11 @@ export function ConvertFormatTool() {
           ))}
         </div>
 
-        {/* Kalite kaydÄ±rÄ±cÄ± (sadece JPEG/WebP iÃ§in) */}
+        {/* Kalite kaydırıcı (sadece JPEG/WebP için) */}
         {(targetMime === "image/jpeg" || targetMime === "image/webp") && (
           <div className="p-4 bg-slate-50 rounded-2xl mb-4">
             <div className="flex justify-between mb-2">
-              <label className="text-sm font-semibold text-slate-600">{isEn?"Output Quality":"Ã‡Ä±ktÄ± Kalitesi"}</label>
+              <label className="text-sm font-semibold text-slate-600">{isEn?"Output Quality":"Çıktı Kalitesi"}</label>
               <span className="text-sm font-black text-primary">{quality}%</span>
             </div>
             <input type="range" min={10} max={100} value={quality}
@@ -943,28 +943,28 @@ export function ConvertFormatTool() {
           </div>
         )}
 
-        {/* Alpha uyarÄ±sÄ± */}
+        {/* Alpha uyarısı */}
         {targetMime === "image/jpeg" && (
           <div className="p-3 bg-amber-50 rounded-xl text-amber-700 text-xs font-medium">
-            âš ï¸ {isEn ? "Transparency will be composited on white background" : "ÅeffaflÄ±k beyaz arka plan Ã¼zerine aktarÄ±lacak"}
+            ⚠️ {isEn ? "Transparency will be composited on white background" : "Şeffaflık beyaz arka plan üzerine aktarılacak"}
           </div>
         )}
         {(targetMime === "image/png" || targetMime === "image/webp") && (
           <div className="p-3 bg-blue-50 rounded-xl text-blue-700 text-xs font-medium">
-            âœ… {isEn ? "Transparency (alpha channel) will be preserved" : "ÅeffaflÄ±k (alpha kanalÄ±) korunacak"}
+            ✅ {isEn ? "Transparency (alpha channel) will be preserved" : "Şeffaflık (alpha kanalı) korunacak"}
           </div>
         )}
       </Card>
 
       <DropZone onFiles={f=>process(f[0])} isEn={isEn} error={error}
-        hint={isEn?"Drop any image to convert":"DÃ¶nÃ¼ÅŸtÃ¼rmek iÃ§in gÃ¶rÃ¼ntÃ¼ bÄ±rakÄ±n"}/>
+        hint={isEn?"Drop any image to convert":"Dönüştürmek için görüntü bırakın"}/>
     </div>
   );
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// Â§  Tek-adÄ±m dÃ¶nÃ¼ÅŸÃ¼m yardÄ±mcÄ± bileÅŸeni (5, 6, 7)
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════════════════
+// §  Tek-adım dönüşüm yardımcı bileşeni (5, 6, 7)
+// ═══════════════════════════════════════════════════════════════════════════
 
 function QuickConvertTool({
   fromAccept, toMime, toExt, toolName, hint,
@@ -974,7 +974,7 @@ function QuickConvertTool({
   const process = async (f: File) => {
     setFile(f);
     setStatus("processing");
-    setLabel(isEn ? `Converting to ${toExt.toUpperCase()}â€¦` : `${toExt.toUpperCase()}'ye dÃ¶nÃ¼ÅŸtÃ¼rÃ¼lÃ¼yorâ€¦`);
+    setLabel(isEn ? `Converting to ${toExt.toUpperCase()}…` : `${toExt.toUpperCase()}'ye dönüştürülüyor…`);
     startAnim(2000);
     try {
       const img = await loadImageSafe(f);
@@ -999,29 +999,29 @@ function QuickConvertTool({
   );
 }
 
-// 5. WebP â†’ JPG
+// 5. WebP → JPG
 export function WebPToJpgTool() {
   return <QuickConvertTool fromAccept=".webp,image/webp" toMime="image/jpeg" toExt="jpg"
-    toolName="WebP to JPG" hint="Drop a .webp file â€” transparency fills white"/>;
+    toolName="WebP to JPG" hint="Drop a .webp file — transparency fills white"/>;
 }
 
-// 6. WebP â†’ PNG
+// 6. WebP → PNG
 export function WebPToPngTool() {
   return <QuickConvertTool fromAccept=".webp,image/webp" toMime="image/png" toExt="png"
     toolName="WebP to PNG" hint="Transparency (alpha) is fully preserved"/>;
 }
 
-// 7. Image â†’ WebP
+// 7. Image → WebP
 export function ImageToWebpTool() {
   return <QuickConvertTool fromAccept="image/jpeg,image/png,image/gif,image/bmp,.jpg,.jpeg,.png,.gif,.bmp"
     toMime="image/webp" toExt="webp" toolName="Image to WebP"
     hint="Smaller files than JPG/PNG, supports transparency"/>;
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// 8. HEIC â†’ JPG
+// ═══════════════════════════════════════════════════════════════════════════
+// 8. HEIC → JPG
 // heic2any@0.0.4 CDN lazy-load
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════════════════
 
 export function HeicToJpgTool() {
   const { t, isEn, file, setFile, status, setStatus, pct, label, setLabel, error, result, startAnim, finish, fail, reset } = useImageTool();
@@ -1029,28 +1029,28 @@ export function HeicToJpgTool() {
   const process = async (f: File) => {
     setFile(f);
     setStatus("processing");
-    setLabel(isEn ? "Loading HEIC decoderâ€¦" : "HEIC dekoder yÃ¼kleniyorâ€¦");
-    startAnim(9000); // HEIC dÃ¶nÃ¼ÅŸÃ¼mÃ¼ yavaÅŸ olabilir
+    setLabel(isEn ? "Loading HEIC decoder…" : "HEIC dekoder yükleniyor…");
+    startAnim(9000); // HEIC dönüşümü yavaş olabilir
 
     try {
-      // lazy-load heic2any from CDN (bir kere yÃ¼klenir)
+      // lazy-load heic2any from CDN (bir kere yüklenir)
       if (!(window as any).heic2any) {
         await new Promise<void>((resolve, reject) => {
           const s   = document.createElement("script");
           s.src     = "https://cdnjs.cloudflare.com/ajax/libs/heic2any/0.0.4/heic2any.min.js";
           s.onload  = () => resolve();
-          s.onerror = () => reject(new Error("heic2any CDN yÃ¼klenemedi â€” internet baÄŸlantÄ±sÄ±nÄ± kontrol edin"));
+          s.onerror = () => reject(new Error("heic2any CDN yüklenemedi — internet bağlantısını kontrol edin"));
           document.head.appendChild(s);
         });
       }
 
-      setLabel(isEn ? "Decoding HEICâ€¦" : "HEIC kodu Ã§Ã¶zÃ¼lÃ¼yorâ€¦");
+      setLabel(isEn ? "Decoding HEIC…" : "HEIC kodu çözülüyor…");
       const h2a = (window as any).heic2any;
       let resultBlob: Blob = await h2a({ blob: f, toType: "image/jpeg", quality: 0.92 });
-      // heic2any bazen Blob[] dÃ¶ndÃ¼rÃ¼r (Ã§oklu sayfa)
+      // heic2any bazen Blob[] döndürür (çoklu sayfa)
       if (Array.isArray(resultBlob)) resultBlob = resultBlob[0];
       if (!resultBlob || resultBlob.size === 0)
-        throw new Error(isEn ? "Conversion produced empty file â€” is this a valid HEIC?" : "GeÃ§erli bir HEIC dosyasÄ± mÄ±? Ã‡Ä±ktÄ± boÅŸ.");
+        throw new Error(isEn ? "Conversion produced empty file — is this a valid HEIC?" : "Geçerli bir HEIC dosyası mı? Çıktı boş.");
 
       finish(resultBlob);
       trackEvent("HeicConverted", { size: f.size });
@@ -1066,27 +1066,27 @@ export function HeicToJpgTool() {
   return (
     <div className="w-full max-w-4xl mx-auto space-y-5">
       <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-100 rounded-2xl text-blue-700 text-sm">
-        <span className="text-xl">ğŸ“±</span>
+        <span className="text-xl">📱</span>
         <div>
-          <p className="font-bold mb-0.5">{isEn?"Apple HEIC Format":"Apple HEIC FormatÄ±"}</p>
+          <p className="font-bold mb-0.5">{isEn?"Apple HEIC Format":"Apple HEIC Formatı"}</p>
           <p className="text-xs font-medium opacity-80">
             {isEn
-              ? "HEIC is the default photo format on iPhone/iPad. Conversion runs entirely in your browser â€” nothing is uploaded."
-              : "HEIC, iPhone/iPad'in varsayÄ±lan fotoÄŸraf formatÄ±dÄ±r. DÃ¶nÃ¼ÅŸÃ¼m tarayÄ±cÄ±nÄ±zda gerÃ§ekleÅŸir â€” yÃ¼kleme yapÄ±lmaz."}
+              ? "HEIC is the default photo format on iPhone/iPad. Conversion runs entirely in your browser — nothing is uploaded."
+              : "HEIC, iPhone/iPad'in varsayılan fotoğraf formatıdır. Dönüşüm tarayıcınızda gerçekleşir — yükleme yapılmaz."}
           </p>
         </div>
       </div>
       <DropZone onFiles={f=>process(f[0])} accept=".heic,.heif,image/heic,image/heif"
         isEn={isEn} error={error}
-        hint={isEn?"iPhone/iPad photos (.heic, .heif)":"iPhone/iPad fotoÄŸraflarÄ± (.heic, .heif)"}/>
+        hint={isEn?"iPhone/iPad photos (.heic, .heif)":"iPhone/iPad fotoğrafları (.heic, .heif)"}/>
     </div>
   );
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════════════════
 // 9. REMOVE BACKGROUND
-// Tamamen tarayÄ±cÄ± tabanlÄ±, @imgly/background-removal ile AI arka plan silme
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// Tamamen tarayıcı tabanlı, @imgly/background-removal ile AI arka plan silme
+// ═══════════════════════════════════════════════════════════════════════════
 
 export function RemoveBackgroundTool() {
   const { t, isEn, file, setFile, status, setStatus, pct, label, setLabel, error, result, startAnim, finish, fail, reset } = useImageTool();
@@ -1094,7 +1094,7 @@ export function RemoveBackgroundTool() {
   const processWithAi = async (f: File) => {
     setFile(f);
     setStatus("processing");
-    setLabel(isEn ? "Preparing AI background removerâ€¦" : "Yapay zeka arka plan silici hazÄ±rlanÄ±yorâ€¦");
+    setLabel(isEn ? "Preparing AI background remover…" : "Yapay zeka arka plan silici hazırlanıyor…");
     startAnim(12_000);
 
     try {
@@ -1110,24 +1110,24 @@ export function RemoveBackgroundTool() {
           if (p < 100) {
             setLabel(
               isEn
-                ? `Downloading AI modelâ€¦ ${p}%`
-                : `Yapay zeka modeli indiriliyorâ€¦ ${p}%`,
+                ? `Downloading AI model… ${p}%`
+                : `Yapay zeka modeli indiriliyor… ${p}%`,
             );
           } else {
-            setLabel(isEn ? "Removing backgroundâ€¦" : "Arka plan kaldÄ±rÄ±lÄ±yorâ€¦");
+            setLabel(isEn ? "Removing background…" : "Arka plan kaldırılıyor…");
           }
         },
       } as ImglyBgConfig;
 
       const blob = await removeBackground(f, config);
       if (!blob || blob.size === 0) {
-        throw new Error(isEn ? "Empty output" : "BoÅŸ Ã§Ä±ktÄ±");
+        throw new Error(isEn ? "Empty output" : "Boş çıktı");
       }
 
       finish(blob);
       trackEvent("BgRemoved", { method: "imgly" });
     } catch (e: any) {
-      const msg = e?.message ?? (isEn ? "Background removal failed." : "Arka plan silme baÅŸarÄ±sÄ±z oldu.");
+      const msg = e?.message ?? (isEn ? "Background removal failed." : "Arka plan silme başarısız oldu.");
       fail(msg);
     }
   };
@@ -1158,7 +1158,7 @@ export function RemoveBackgroundTool() {
             className="mb-4 p-3 bg-blue-50 rounded-xl text-blue-700 text-xs font-medium"
             data-testid="text-bg-removed-info"
           >
-            âœ… {isEn ? "Saved as PNG â€” transparency preserved" : "PNG olarak kaydedildi â€” ÅŸeffaflÄ±k korundu"}
+            ✅ {isEn ? "Saved as PNG — transparency preserved" : "PNG olarak kaydedildi — şeffaflık korundu"}
           </div>
         </DoneCard>
       </div>
@@ -1174,8 +1174,8 @@ export function RemoveBackgroundTool() {
         error={error}
         hint={
           isEn
-            ? "Drop an image â€” AI will remove the background directly in your browser"
-            : "Bir gÃ¶rsel bÄ±rakÄ±n â€” yapay zeka arka planÄ± tamamen tarayÄ±cÄ±da silecek"
+            ? "Drop an image — AI will remove the background directly in your browser"
+            : "Bir görsel bırakın — yapay zeka arka planı tamamen tarayıcıda silecek"
         }
       />
 
@@ -1199,10 +1199,10 @@ export function RemoveBackgroundTool() {
   );
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════════════════
 // 10. ADD TEXT TO IMAGE
-// Font, boyut, renk, konum seÃ§imi + gerÃ§ek zamanlÄ± canvas Ã¶nizleme
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// Font, boyut, renk, konum seçimi + gerçek zamanlı canvas önizleme
+// ═══════════════════════════════════════════════════════════════════════════
 
 export function AddTextToImageTool() {
   const { t, isEn, file, setFile, status, setStatus, pct, label, setLabel, error, result, startAnim, finish, fail, reset } = useImageTool();
@@ -1234,7 +1234,7 @@ export function AddTextToImageTool() {
     } catch (e: any) { fail(e.message); }
   };
 
-  /** Ortak metin Ã§izim mantÄ±ÄŸÄ± (Ã¶nizleme + final iÃ§in) */
+  /** Ortak metin çizim mantığı (önizleme + final için) */
   const drawText = useCallback((ctx: CanvasRenderingContext2D, w: number, h: number, scale=1) => {
     if (!text.trim()) return;
     const fs     = fontSize * scale;
@@ -1246,7 +1246,7 @@ export function AddTextToImageTool() {
     const x = w * posX / 100;
     const y = h * posY / 100;
 
-    // YarÄ±-saydam arka plan
+    // Yarı-saydam arka plan
     if (bgPad) {
       const m   = ctx.measureText(text);
       const pad = fs * 0.35;
@@ -1265,7 +1265,7 @@ export function AddTextToImageTool() {
       ctx.fill();
     }
 
-    // GÃ¶lge
+    // Gölge
     if (shadow) {
       ctx.shadowColor   = "rgba(0,0,0,0.6)";
       ctx.shadowBlur    = fs * 0.15;
@@ -1277,7 +1277,7 @@ export function AddTextToImageTool() {
     ctx.shadowColor = "transparent"; ctx.shadowBlur = 0;
   }, [text, fontSize, fontFamily, textColor, bold, italic, shadow, bgPad, bgColor, bgOpacity, posX, posY, align]);
 
-  // CanlÄ± Ã¶nizleme
+  // Canlı önizleme
   useEffect(() => {
     if (!imgEl || !previewCv.current) return;
     const cv  = previewCv.current;
@@ -1293,7 +1293,7 @@ export function AddTextToImageTool() {
   const applyAndSave = async () => {
     if (!imgEl || !file) return;
     setStatus("processing");
-    setLabel(isEn?"Rendering text overlayâ€¦":"Metin katmanÄ± iÅŸleniyorâ€¦");
+    setLabel(isEn?"Rendering text overlay…":"Metin katmanı işleniyor…");
     startAnim(1800);
     try {
       const cv  = document.createElement("canvas");
@@ -1317,7 +1317,7 @@ export function AddTextToImageTool() {
   if (!imgEl) return (
     <div className="w-full max-w-4xl mx-auto">
       <DropZone onFiles={f=>onFileSelect(f[0])} isEn={isEn} error={error}
-        hint={isEn?"Upload an image to add text overlay":"Metin eklemek iÃ§in gÃ¶rÃ¼ntÃ¼ yÃ¼kleyin"}/>
+        hint={isEn?"Upload an image to add text overlay":"Metin eklemek için görüntü yükleyin"}/>
     </div>
   );
 
@@ -1325,11 +1325,11 @@ export function AddTextToImageTool() {
     <div className="w-full max-w-4xl mx-auto">
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
-        {/* â”€â”€ Ayar Paneli (2/5) â”€â”€ */}
+        {/* ── Ayar Paneli (2/5) ── */}
         <Card className="lg:col-span-2 p-6 rounded-3xl border border-slate-100 bg-white shadow-sm space-y-5 h-fit">
           <div className="flex items-center gap-3">
             <div className="p-2.5 bg-indigo-50 rounded-xl"><Type className="w-5 h-5 text-indigo-600"/></div>
-            <h3 className="text-base font-bold text-slate-800">{isEn?"Text Settings":"Metin AyarlarÄ±"}</h3>
+            <h3 className="text-base font-bold text-slate-800">{isEn?"Text Settings":"Metin Ayarları"}</h3>
           </div>
 
           {/* Metin */}
@@ -1414,15 +1414,15 @@ export function AddTextToImageTool() {
             </label>
             <div className="grid grid-cols-3 gap-1.5">
               {([
-                {px:10,py:12,al:"left"   as CanvasTextAlign,label:"â†–"},
-                {px:50,py:12,al:"center" as CanvasTextAlign,label:"â†‘"},
-                {px:90,py:12,al:"right"  as CanvasTextAlign,label:"â†—"},
-                {px:10,py:50,al:"left"   as CanvasTextAlign,label:"â†"},
-                {px:50,py:50,al:"center" as CanvasTextAlign,label:"âœ›"},
-                {px:90,py:50,al:"right"  as CanvasTextAlign,label:"â†’"},
-                {px:10,py:88,al:"left"   as CanvasTextAlign,label:"â†™"},
-                {px:50,py:88,al:"center" as CanvasTextAlign,label:"â†“"},
-                {px:90,py:88,al:"right"  as CanvasTextAlign,label:"â†˜"},
+                {px:10,py:12,al:"left"   as CanvasTextAlign,label:"↖"},
+                {px:50,py:12,al:"center" as CanvasTextAlign,label:"↑"},
+                {px:90,py:12,al:"right"  as CanvasTextAlign,label:"↗"},
+                {px:10,py:50,al:"left"   as CanvasTextAlign,label:"←"},
+                {px:50,py:50,al:"center" as CanvasTextAlign,label:"✛"},
+                {px:90,py:50,al:"right"  as CanvasTextAlign,label:"→"},
+                {px:10,py:88,al:"left"   as CanvasTextAlign,label:"↙"},
+                {px:50,py:88,al:"center" as CanvasTextAlign,label:"↓"},
+                {px:90,py:88,al:"right"  as CanvasTextAlign,label:"↘"},
               ] as const).map(({px,py,al,label:lbl}) => (
                 <button key={lbl} onClick={()=>{setPosX(px);setPosY(py);setAlign(al);}}
                   className={`py-2 rounded-xl text-sm border transition-all ${
@@ -1444,21 +1444,21 @@ export function AddTextToImageTool() {
           </div>
         </Card>
 
-        {/* â”€â”€ CanlÄ± Ã–nizleme (3/5) â”€â”€ */}
+        {/* ── Canlı Önizleme (3/5) ── */}
         <div className="lg:col-span-3 space-y-3">
           <div className="flex items-center justify-between">
             <p className="text-sm font-bold text-slate-500 uppercase tracking-widest">
-              {isEn?"Live Preview":"CanlÄ± Ã–nizleme"}
+              {isEn?"Live Preview":"Canlı Önizleme"}
             </p>
             <span className="text-xs text-slate-300 font-medium">
-              {imgEl ? `${imgEl.naturalWidth}Ã—${imgEl.naturalHeight}px` : ""}
+              {imgEl ? `${imgEl.naturalWidth}×${imgEl.naturalHeight}px` : ""}
             </span>
           </div>
           <div className="rounded-2xl overflow-hidden border border-slate-200 bg-[repeating-conic-gradient(#f8fafc_0%_25%,#fff_0%_50%)] bg-[length:24px_24px]">
             <canvas ref={previewCv} className="w-full h-auto"/>
           </div>
           <p className="text-xs text-slate-400 text-center">
-            {isEn?"Preview is scaled â€” final output is full resolution":"Ã–nizleme Ã¶lÃ§ekli â€” final Ã§Ä±ktÄ± tam Ã§Ã¶zÃ¼nÃ¼rlÃ¼kte"}
+            {isEn?"Preview is scaled — final output is full resolution":"Önizleme ölçekli — final çıktı tam çözünürlükte"}
           </p>
         </div>
       </div>
@@ -1466,9 +1466,9 @@ export function AddTextToImageTool() {
   );
 }
 
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-// EXPORT â€” hazÄ±r kullanÄ±m listesi
-// â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
+// ═══════════════════════════════════════════════════════════════════════════
+// EXPORT — hazır kullanım listesi
+// ═══════════════════════════════════════════════════════════════════════════
 
 
 // ════════════════════════════════════════════════════════════════════════════
@@ -1515,18 +1515,18 @@ export default CompressImageTool;
 
 /*
  KULLANIM:
- â”€â”€â”€â”€â”€â”€â”€â”€â”€
+ ─────────
  import {
-   CompressImageTool,   // Kalite kaydÄ±rÄ±cÄ± sÄ±kÄ±ÅŸtÄ±rma
-   ResizeImageTool,     // px/% yeniden boyutlandÄ±rma
-   CropImageTool,       // SÃ¼rÃ¼kle-bÄ±rak kÄ±rpma
-   ConvertFormatTool,   // JPG/PNG/WebP/BMP dÃ¶nÃ¼ÅŸÃ¼mÃ¼
-   WebPToJpgTool,       // WebP â†’ JPG
-   WebPToPngTool,       // WebP â†’ PNG
-   ImageToWebpTool,     // Herhangi â†’ WebP
-   HeicToJpgTool,       // HEIC â†’ JPG (iPhone)
-   RemoveBackgroundTool,// Arka plan kaldÄ±rma
-   AddTextToImageTool,  // GÃ¶rÃ¼ntÃ¼ye metin ekleme
+   CompressImageTool,   // Kalite kaydırıcı sıkıştırma
+   ResizeImageTool,     // px/% yeniden boyutlandırma
+   CropImageTool,       // Sürükle-bırak kırpma
+   ConvertFormatTool,   // JPG/PNG/WebP/BMP dönüşümü
+   WebPToJpgTool,       // WebP → JPG
+   WebPToPngTool,       // WebP → PNG
+   ImageToWebpTool,     // Herhangi → WebP
+   HeicToJpgTool,       // HEIC → JPG (iPhone)
+   RemoveBackgroundTool,// Arka plan kaldırma
+   AddTextToImageTool,  // Görüntüye metin ekleme
  } from "@/components/ImageTools";
 */
 

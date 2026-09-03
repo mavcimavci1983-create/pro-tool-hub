@@ -6,6 +6,11 @@ import * as XLSX from "xlsx";
 import { createRequire } from "module";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+import {
+  saveContactMessage,
+  forwardContactMessage,
+  listContactMessages,
+} from "./contact-store";
 const _require = createRequire(import.meta.url);
 const pdfParse = _require("pdf-parse/lib/pdf-parse.js");
 const { PDFDocument, rgb, StandardFonts, degrees } = _require("pdf-lib");
@@ -1442,23 +1447,44 @@ export async function registerRoutes(
     if (!name || !email || !message) return res.status(400).json({ error: "All fields are required" });
     if (!email.includes("@")) return res.status(400).json({ error: "Invalid email address" });
     if (message.length < 10) return res.status(400).json({ error: "Message too short" });
+
+    const payload = {
+      name: String(name).slice(0, 200),
+      email: String(email).slice(0, 200),
+      message: String(message).slice(0, 5000),
+      ip: String(req.headers["x-forwarded-for"] || req.ip || "").split(",")[0].trim() || undefined,
+      userAgent: String(req.headers["user-agent"] || "").slice(0, 300) || undefined,
+    };
+
+    // Once diske yaz, sonra (tanimliysa) webhook'a ilet. Ikisi de basarisiz
+    // olursa kullaniciya basarili demeyiz - mesajin kayboldugunu soyleriz.
+    let stored: number | null = null;
+    let forwarded = false;
     try {
-      // Log to console and save to DB
-      console.log(`[CONTACT] From: ${name} <${email}> | Message: ${message}`);
-      const db = (app as any).locals?.db;
-      if (db) {
-        db.prepare(`CREATE TABLE IF NOT EXISTS contact_messages (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          name TEXT, email TEXT, message TEXT,
-          created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`).run();
-        db.prepare("INSERT INTO contact_messages (name, email, message) VALUES (?, ?, ?)").run(name, email, message);
-      }
-      res.json({ success: true, message: "Message received! We will get back to you within 24-48 hours." });
+      stored = saveContactMessage(payload);
+      forwarded = await forwardContactMessage(payload);
     } catch (err: any) {
-      console.error("[/api/contact]", err.message);
-      res.status(500).json({ error: "Failed to send message" });
+      console.error("[/api/contact] store error:", err?.message);
     }
+
+    if (stored === null && !forwarded) {
+      // Mesaj hicbir yere yazilamadi. Sessizce yutmak yerine kullaniciya
+      // dogrudan e-posta adresini veriyoruz.
+      console.error(`[CONTACT][LOST] ${payload.name} <${payload.email}>: ${payload.message}`);
+      return res.status(503).json({
+        error:
+          "We could not save your message right now. Please email us directly at hello@protoolhub.net and we will get back to you.",
+      });
+    }
+
+    console.log(
+      `[CONTACT] #${stored ?? "-"} from ${payload.name} <${payload.email}>` +
+        (forwarded ? " (forwarded)" : ""),
+    );
+    res.json({
+      success: true,
+      message: "Message received! We will get back to you within 24-48 hours.",
+    });
   });
 
 
@@ -1627,6 +1653,16 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/admin/api/contact-messages", adminAuth, (req: any, res: any) => {
+    try {
+      const limit = Number(req.query.limit) || 100;
+      const offset = Number(req.query.offset) || 0;
+      res.json({ messages: listContactMessages(limit, offset) });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
   app.post("/admin/api/track", (req: any, res: any) => {
     try {
       const { trackEvent } = _require("./analytics");
@@ -1651,6 +1687,9 @@ export async function registerRoutes(
     const fs = _require("fs");
     const path = _require("path");
     const htmlPath = path.join(process.cwd(), "server", "admin.html");
+    // Belt and braces with robots.txt: an X-Robots-Tag keeps the panel out of
+    // the index even if the URL is discovered through a link rather than a crawl.
+    res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
     res.setHeader("Content-Type", "text/html");
     res.send(fs.readFileSync(htmlPath, "utf8"));
   });

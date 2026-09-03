@@ -22,7 +22,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Home} />
       
-      {/* PDF Tools â€” Organize */}
+      {/* PDF Tools — Organize */}
       <Route path="/tools/merge-pdf">{() => <GenericPdfTool title="Merge PDF" desc="Combine multiple PDF files into one." />}</Route>
       <Route path="/tools/split-pdf">{() => <GenericPdfTool title="Split PDF" desc="Separate pages into individual files." />}</Route>
       <Route path="/tools/rotate-pdf">{() => <GenericPdfTool title="Rotate PDF" desc="Rotate pages of your PDF document." />}</Route>
@@ -30,19 +30,19 @@ function Router() {
       <Route path="/tools/delete-pages">{() => <GenericPdfTool title="Remove Pages" desc="Delete unwanted pages from PDF." />}</Route>
       <Route path="/tools/reorder-pages">{() => <GenericPdfTool title="Reorder Pages" desc="Rearrange PDF page order." />}</Route>
 
-      {/* PDF Tools â€” Convert FROM PDF */}
+      {/* PDF Tools — Convert FROM PDF */}
       <Route path="/tools/pdf-to-word">{() => <GenericPdfTool title="PDF to Word" desc="Convert PDF to editable Word files." />}</Route>
       <Route path="/tools/pdf-to-excel">{() => <GenericPdfTool title="PDF to Excel" desc="Convert PDF tables to Excel spreadsheets." />}</Route>
       <Route path="/tools/pdf-to-jpg">{() => <GenericPdfTool title="PDF to JPG" desc="Convert PDF pages to high-quality images." />}</Route>
       <Route path="/tools/pdf-to-text">{() => <GenericPdfTool title="PDF to Text" desc="Extract text from your PDF file." />}</Route>
 
-      {/* PDF Tools â€” Convert TO PDF */}
+      {/* PDF Tools — Convert TO PDF */}
       <Route path="/tools/word-to-pdf">{() => <GenericPdfTool title="Word to PDF" desc="Convert Word documents to PDF files." />}</Route>
       <Route path="/tools/ppt-to-pdf">{() => <GenericPdfTool title="PPT to PDF" desc="Convert PowerPoint presentations to PDF." />}</Route>
       <Route path="/tools/jpg-to-pdf">{() => <GenericPdfTool title="JPG to PDF" desc="Convert images to PDF documents." />}</Route>
       <Route path="/tools/html-to-pdf">{() => <GenericPdfTool title="HTML to PDF" desc="Convert web pages to PDF." />}</Route>
 
-      {/* PDF Tools â€” Security & Optimize */}
+      {/* PDF Tools — Security & Optimize */}
       <Route path="/tools/compress-pdf">{() => <GenericPdfTool title="Compress PDF" desc="Reduce the size of your PDF files." />}</Route>
       <Route path="/tools/remove-password">{() => <GenericPdfTool title="Unlock PDF" desc="Remove passwords and restrictions from PDFs." />}</Route>
       <Route path="/tools/add-watermark">{() => <GenericPdfTool title="Add Watermark" desc="Stamp text or image on your PDF." />}</Route>

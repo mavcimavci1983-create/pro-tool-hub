@@ -8,3 +8,7 @@ youtube-cookies.json
 youtube-cookies-netscape.txt
 .env
 .env.local
+analytics.db
+analytics.db-*
+contact.db
+contact.db-*

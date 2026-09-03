@@ -105,6 +105,7 @@ export function serveStatic(app: Express) {
     // SEO mantigina (410 / 404 / noindex / canonical) hic girmemesini garanti
     // eder; admin routing veya auth mekanizmasina dokunulmaz.
     if (req.path === "/admin" || req.path.startsWith("/admin/")) {
+      res.setHeader("X-Robots-Tag", "noindex, nofollow, noarchive");
       if (req.path === "/admin") {
         return res.status(404).type("text/plain").send("Not found");
       }

@@ -13,12 +13,14 @@ const translations = translationsData as Record<string, any>;
 
 /**
  * NOT — reklam alanlari hakkinda:
- * LeaderboardAd / SidebarAd / StickySkyscraper / BillboardAd bilesenleri
- * AdUnit.tsx icinde duruyor ve silinmedi. Ancak bunlar su an gercek AdSense
- * yuklemiyor (adsbygoogle push cagrisi yok), sadece gri "AD" yer tutucu
- * kutulari cizivorlar. Onay alinmadan bu kutulari gostermek kullaniciya
- * yarim kalmis bir site izlenimi verdigi icin ana sayfadan cikarildilar.
- * Gercek AdSense entegrasyonu yapildiginda buraya geri eklenebilirler.
+ * AdUnit.tsx ve icindeki tum yer tutucu bilesenler kaldirildi. Bunlar gercek
+ * AdSense yuklemiyor, sadece uzerinde "LEADERBOARD AD (728X90)" yazan gri
+ * kutular ciziyorlardi; site yarim kalmis gosteriyor ve mobilde ekranin
+ * ustunde yuzlerce piksel bos alan biraktiriyorlardi.
+ *
+ * Gercek AdSense birimleri (<ins class="adsbygoogle"> + adsbygoogle.push)
+ * onay alindiktan sonra eklenecek. O zamana kadar sitede hicbir reklam
+ * yuvasi bulunmuyor.
  */
 
 export default function Home() {
