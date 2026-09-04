@@ -1,13 +1,11 @@
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { ToolWorkflow } from "@/components/tool/ToolWorkflow";
 import { useLanguageStore } from "@/lib/languageStore";
 import translationsData from "@/locales/translations.json";
 import { Helmet, HelmetProvider } from "react-helmet-async";
-import { Sparkles, PenTool, Loader2, Copy, Check, Download, AlertCircle } from "lucide-react";
+import { Sparkles, PenTool, Loader2, Copy, Check, Download, AlertCircle, Upload, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { LeaderboardAd, StickySkyscraper, BillboardAd } from "@/components/ads/AdUnit";
 import { ToolSeoContent, hasToolSeo } from "@/components/tool/ToolSeoContent";
 
 const translations = translationsData as Record<string, any>;
@@ -20,8 +18,46 @@ export default function GenericAiTool({ title = "AI Writer", desc = "Professiona
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
+  const [extracting, setExtracting] = useState(false);
+  const [docNote, setDocNote] = useState("");
 
   const INPUT_MAX = 4000;
+
+  /**
+   * Belgeyi metne cevirir ve AI kutusuna yazar.
+   *
+   * Onceki hali dosyayi ToolWorkflow'a veriyordu; orada hicbir arac tipiyle
+   * eslesmedigi icin "identity"ye dusuyor ve kullaniciya kendi dosyasi geri
+   * indiriliyordu. Artik metin sunucuda cikariliyor (/api/extract-text) ve
+   * yazma kutusuna konuyor - kullanici gonderilecek metni gorup duzenleyebilir.
+   */
+  async function handleDocument(file: File) {
+    setExtracting(true);
+    setError("");
+    setDocNote("");
+    setOutput("");
+    try {
+      const fd = new FormData();
+      fd.append("file", file, file.name);
+      const res = await fetch("/api/extract-text", { method: "POST", body: fd });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data?.error || "This document could not be read.");
+        return;
+      }
+      setInput(data.text || "");
+      setDocNote(
+        data.truncated
+          ? `Loaded the first ${data.characters.toLocaleString()} characters of ${file.name}. The rest was left out because the tool accepts up to ${INPUT_MAX.toLocaleString()} characters.`
+          : `Loaded ${data.characters.toLocaleString()} characters from ${file.name}. Edit the text below if you want, then generate.`,
+      );
+      setInputType("text");
+    } catch {
+      setError("Network error while reading the document. Please try again.");
+    } finally {
+      setExtracting(false);
+    }
+  }
 
   async function handleGenerate() {
     const trimmed = input.trim();
@@ -80,11 +116,7 @@ export default function GenericAiTool({ title = "AI Writer", desc = "Professiona
         </Helmet>
         <Header />
         <main className="flex-grow flex flex-col items-center pt-10 pb-20">
-          <LeaderboardAd />
-
           <div className="w-full max-w-[1400px] mx-auto flex mt-10 px-4">
-            <StickySkyscraper side="left" />
-
             <div className="flex-1 min-w-0 max-w-4xl mx-auto">
               <div className="mb-12 text-center lg:text-left">
                 <div className="flex items-center gap-3 mb-4 justify-center lg:justify-start">
@@ -118,12 +150,74 @@ export default function GenericAiTool({ title = "AI Writer", desc = "Professiona
               </div>
 
               {inputType === "file" ? (
-                <ToolWorkflow 
-                  toolName={title} 
-                  acceptedFileTypes=".txt,.doc,.docx,.pdf" 
-                />
+                <div className="w-full max-w-4xl mx-auto">
+                  <label
+                    className={`relative block cursor-pointer rounded-3xl border-2 border-dashed p-16 text-center transition-all ${
+                      extracting
+                        ? "border-slate-200 bg-slate-50"
+                        : "border-slate-200 bg-slate-50/50 hover:bg-white hover:border-primary/50"
+                    }`}
+                    data-testid="dropzone-ai-document"
+                  >
+                    <input
+                      type="file"
+                      accept=".txt,.md,.pdf,.docx"
+                      className="hidden"
+                      disabled={extracting}
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        e.target.value = "";
+                        if (f) handleDocument(f);
+                      }}
+                      data-testid="input-ai-document"
+                    />
+                    <div className="flex flex-col items-center">
+                      <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-6">
+                        {extracting ? (
+                          <Loader2 className="w-12 h-12 text-primary animate-spin" />
+                        ) : (
+                          <Upload className="w-12 h-12 text-primary" />
+                        )}
+                      </div>
+                      <h3 className="text-2xl font-bold text-slate-900 mb-3 tracking-tight">
+                        {extracting ? "Reading your document…" : "Drop a document here"}
+                      </h3>
+                      <p className="text-slate-500 font-medium mb-2">
+                        We read the text out of it and put it in the writing box, so you can
+                        check and edit it before generating.
+                      </p>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                        .txt · .md · .pdf · .docx — up to 10 MB
+                      </p>
+                    </div>
+                  </label>
+
+                  {error && (
+                    <div
+                      className="mt-6 flex items-start gap-3 p-5 rounded-2xl bg-red-50 border border-red-100 text-red-700"
+                      data-testid="text-ai-doc-error"
+                    >
+                      <AlertCircle className="w-5 h-5 shrink-0 mt-0.5" />
+                      <p className="text-sm font-semibold">{error}</p>
+                    </div>
+                  )}
+
+                  <p className="mt-6 text-center text-xs text-slate-400 font-medium leading-relaxed">
+                    Scanned PDFs hold pictures of text rather than text itself, so nothing can be
+                    read from them here.
+                  </p>
+                </div>
               ) : (
                 <div className="space-y-6">
+                  {docNote && (
+                    <div
+                      className="flex items-start gap-3 p-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-600"
+                      data-testid="text-ai-doc-note"
+                    >
+                      <FileText className="w-5 h-5 shrink-0 mt-0.5 text-slate-400" />
+                      <p className="text-sm font-medium leading-relaxed">{docNote}</p>
+                    </div>
+                  )}
                   <textarea
                     className="w-full h-64 p-6 rounded-3xl border-2 border-slate-100 focus:border-primary/30 focus:ring-0 transition-all text-lg font-medium resize-none placeholder:text-slate-300"
                     placeholder="Enter your topic or starting text here..."
@@ -219,8 +313,6 @@ export default function GenericAiTool({ title = "AI Writer", desc = "Professiona
                 </div>
               )}
 
-              <BillboardAd />
-
               <article className="prose prose-lg max-w-none border-t border-slate-100 pt-16 mt-8 text-slate-600 leading-relaxed">
                 <ToolSeoContent title={title} />
 
@@ -232,14 +324,13 @@ export default function GenericAiTool({ title = "AI Writer", desc = "Professiona
                   </section>
                   <section className="bg-slate-50 p-8 rounded-2xl border border-slate-100">
                     <h3 className="text-lg font-bold text-slate-900 mb-3 tracking-tight">How your input is handled</h3>
-                    <p className="text-sm font-medium text-slate-500 leading-relaxed">Your text is sent to our language model provider over an encrypted connection to produce the result, then discarded. We do not save it to our database or use it to train models. See our <a href="/privacy-policy" className="underline hover:text-slate-700">Privacy Policy</a> for details.</p>
+                    <p className="text-sm font-medium text-slate-500 leading-relaxed">Your text — typed or read out of a document you upload — is sent to Anthropic over an encrypted connection to produce the result, then discarded. We do not save it to our database, and we do not use it to train anything. See our <a href="/privacy-policy" className="underline hover:text-slate-700">Privacy Policy</a> for details.</p>
                   </section>
                 </div>
                 )}
               </article>
             </div>
 
-            <StickySkyscraper side="right" />
           </div>
         </main>
         <Footer />

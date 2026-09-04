@@ -4,37 +4,91 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Google Analytics (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5S6SYQ3WPV"></script>
+    <!-- Google Consent Mode v2 ------------------------------------------------
+         Bu blok HERHANGI bir Google etiketinden ONCE calismak zorunda.
+         Onaya bagli her kategori "denied" baslar; kullanici karar verene kadar
+         ne analitik ne de reklam cerezi yazilir.
+
+         Karar client/src/components/consent/CookieConsent.tsx icinde alinir ve
+         localStorage'da "protoolhub_consent" anahtarinda tutulur. Asagidaki IIFE
+         kayitli karari React yuklenmeden once yeniden uygular; boylece geri donen
+         ziyaretci bir an icin "karar vermemis" gibi islenmez.
+
+         Google Analytics etiketi buraya statik olarak KONULMADI: yalnizca
+         analitik onayi varsa eklenir (asagida ve consentStore.ts icinde).
+         AdSense etiketi ise her zaman yuklenir - bkz. asagidaki not. -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
 
-      gtag('config', 'G-5S6SYQ3WPV');
+      gtag('consent', 'default', {
+        ad_storage: 'denied',
+        ad_user_data: 'denied',
+        ad_personalization: 'denied',
+        analytics_storage: 'denied',
+        functionality_storage: 'granted',
+        security_storage: 'granted',
+        wait_for_update: 500
+      });
+
+      (function () {
+        try {
+          var raw = localStorage.getItem('protoolhub_consent');
+          if (!raw) return;
+          var c = JSON.parse(raw);
+          if (!c || c.version !== 1) return;
+          if (typeof c.analytics !== 'boolean' || typeof c.ads !== 'boolean') return;
+
+          gtag('consent', 'update', {
+            ad_storage: c.ads ? 'granted' : 'denied',
+            ad_user_data: c.ads ? 'granted' : 'denied',
+            ad_personalization: c.ads ? 'granted' : 'denied',
+            analytics_storage: c.analytics ? 'granted' : 'denied'
+          });
+
+          if (c.analytics === true) {
+            var s = document.createElement('script');
+            s.async = true;
+            s.src = 'https://www.googletagmanager.com/gtag/js?id=G-5S6SYQ3WPV';
+            document.head.appendChild(s);
+            gtag('js', new Date());
+            gtag('config', 'G-5S6SYQ3WPV');
+          }
+        } catch (e) {
+          // localStorage kapali/erisilemez: onay yokmus gibi devam et.
+        }
+      })();
     </script>
 
-    <!-- Google AdSense -->
+    <!-- Google AdSense ---------------------------------------------------------
+         Etiket her sayfada yuklenir ama YALNIZCA yukarida ilan edilen onay
+         durumu altinda calisir: ad_storage "denied" iken reklam cerezi yazmaz
+         ve kisisellestirme yapmaz.
+
+         Neden onayin arkasina alinmadi: AdSense site dogrulamasi etiketin
+         sayfada bulunmasini bekliyor, ve Google'in kendi sertifikali CMP'si
+         (Privacy & Messaging) de bu etiket uzerinden teslim ediliyor. Etiketi
+         tamamen gizlemek ikisini birden bozardi. -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5653749400805966" crossorigin="anonymous"></script>
 
     <!-- SEO Meta Tags -->
     <link rel="canonical" href="https://protoolhub.net/" />
     <title>ProToolHub - 47 Free Online Tools</title>
-    <meta name="description" content="Professional-grade PDF, Video, Image, and AI writing tools. 100% Free. 100% Secure." />
+    <meta name="description" content="Free online tools for PDF, video, image and AI writing. No sign-up. Image, video and converter tools run entirely in your browser." />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://protoolhub.net/" />
     <meta property="og:title" content="ProToolHub - 47 Free Online Tools" />
     <meta property="og:image" content="https://protoolhub.net/opengraph.jpg" />
-    <meta property="og:description" content="Professional-grade PDF, Video, Image, and AI writing tools. 100% Free. 100% Secure." />
+    <meta property="og:description" content="Free online tools for PDF, video, image and AI writing. No sign-up. Image, video and converter tools run entirely in your browser." />
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta property="twitter:url" content="https://protoolhub.net/" />
     <meta property="twitter:title" content="ProToolHub - 47 Free Online Tools" />
     <meta property="twitter:image" content="https://protoolhub.net/opengraph.jpg" />
-    <meta property="twitter:description" content="Professional-grade PDF, Video, Image, and AI writing tools. 100% Free. 100% Secure." />
+    <meta property="twitter:description" content="Free online tools for PDF, video, image and AI writing. No sign-up. Image, video and converter tools run entirely in your browser." />
 
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com">

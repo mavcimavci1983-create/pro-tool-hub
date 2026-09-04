@@ -39,7 +39,7 @@ export default function RemoveBackground() {
               <AlertCircle className="h-4 w-4 text-blue-500" />
               <AlertTitle className="font-bold text-blue-900 font-bold">Processed In Your Browser</AlertTitle>
               <AlertDescription className="mt-1 text-blue-800/80">
-                Backend processing is active. Your temporary files are scheduled for <strong>immediate and permanent fs.unlink exactly 1 hour after upload</strong>.
+                Processing runs in your browser. Your image is not uploaded to our server.
               </AlertDescription>
             </Alert>
 

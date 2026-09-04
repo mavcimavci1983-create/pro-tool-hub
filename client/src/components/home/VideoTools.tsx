@@ -44,7 +44,7 @@ import {
   Upload, Download, RefreshCw, AlertCircle, CheckCircle2,
   Loader2, ShieldCheck, Clock, ArrowLeftRight, Scissors,
   Volume2, VolumeX, Zap, Film, Music, Repeat, RotateCw,
-  ChevronRight, Play, Pause, FastForward, Youtube,
+  ChevronRight, Play, Pause, FastForward, Youtube, Minimize2,
 } from "lucide-react";
 import { Button }   from "@/components/ui/button";
 import { Card }     from "@/components/ui/card";
@@ -98,9 +98,7 @@ async function getFFmpeg(
           const s = document.createElement("script");
           s.src = FFMPEG_CDN;
           s.onload  = () => resolve();
-          s.onerror = () => reject(new Error(
-            "FFmpeg.wasm CDN yüklenemedi. İnternet bağlantınızı kontrol edin."
-          ));
+          s.onerror = () => reject(new Error("Could not load the FFmpeg engine. Check your internet connection and try again."));
           document.head.appendChild(s);
         });
       }
@@ -555,7 +553,7 @@ export function VideoConverterTool() {
       const data = ff.FS("readFile", outName);
       ffmpegCleanup(ff, inName, outName);
 
-      if (!data || data.byteLength < 100) throw new Error("FFmpeg boş çıktı üretti.");
+      if (!data || data.byteLength < 100) throw new Error("FFmpeg produced an empty file.");
       finish(new Blob([data.buffer], { type: targetFmt.mime }));
       trackEvent("VideoConverted", { from: ext, to: targetFmt.ext, size: f.size });
     } catch (e: any) { fail(e.message); }
@@ -654,7 +652,7 @@ export function VideoToMp3Tool() {
       const data = ff.FS("readFile", outName);
       ffmpegCleanup(ff, inName, outName);
 
-      if (!data || data.byteLength < 100) throw new Error("Ses kanalı bulunamadı veya boş.");
+      if (!data || data.byteLength < 100) throw new Error("No audio track was found in this video.");
       finish(new Blob([data.buffer], { type: fmt.mime }));
       trackEvent("VideoToMp3", { format, quality: quality.label, size: f.size });
     } catch (e: any) { fail(e.message); }
@@ -801,7 +799,7 @@ export function VideoToGifTool() {
       const data = ff.FS("readFile", outName);
       ffmpegCleanup(ff, inName, paletteFile, outName);
 
-      if (!data || data.byteLength < 100) throw new Error("GIF oluşturulamadı.");
+      if (!data || data.byteLength < 100) throw new Error("The GIF could not be created.");
       finish(new Blob([data.buffer], { type: "image/gif" }));
       trackEvent("VideoToGif", { fps, width, dur: durSec, size: file.size });
     } catch (e: any) { fail(e.message); }
@@ -983,7 +981,7 @@ export function CompressVideoTool() {
       const data = ff.FS("readFile", outName);
       ffmpegCleanup(ff, inName, outName);
 
-      if (!data || data.byteLength < 100) throw new Error("Sıkıştırma çıktısı boş.");
+      if (!data || data.byteLength < 100) throw new Error("Compression produced an empty file.");
       finish(new Blob([data.buffer], { type: "video/mp4" }));
       trackEvent("VideoCompressed", { crf:activeCrf, res:resScale, before:f.size });
     } catch (e: any) { fail(e.message); }
@@ -1092,7 +1090,7 @@ export function MuteVideoTool() {
       const data = ff.FS("readFile", outName);
       ffmpegCleanup(ff, inName, outName);
 
-      if (!data || data.byteLength < 100) throw new Error("Mute işlemi başarısız.");
+      if (!data || data.byteLength < 100) throw new Error("Removing the audio track failed.");
       finish(new Blob([data.buffer], { type: "video/mp4" }));
       trackEvent("VideoMuted", { size: f.size });
     } catch (e: any) { fail(e.message); }
@@ -1208,7 +1206,7 @@ export function TrimVideoTool() {
       const data = ff.FS("readFile", outName);
       ffmpegCleanup(ff, inName, outName);
 
-      if (!data || data.byteLength < 100) throw new Error("Trim çıktısı boş.");
+      if (!data || data.byteLength < 100) throw new Error("Trimming produced an empty file.");
       finish(new Blob([data.buffer], { type: "video/mp4" }));
       trackEvent("VideoTrimmed", { start:startSec, end:endSec, dur:endSec-startSec });
     } catch (e: any) { fail(e.message); }
@@ -1371,7 +1369,7 @@ export function RotateVideoTool() {
       const data = ff.FS("readFile", outName);
       ffmpegCleanup(ff, inName, outName);
 
-      if (!data || data.byteLength < 100) throw new Error("Rotate çıktısı boş.");
+      if (!data || data.byteLength < 100) throw new Error("Rotating produced an empty file.");
       finish(new Blob([data.buffer], { type: "video/mp4" }));
       trackEvent("VideoRotated", { transform: selected.label, size: f.size });
     } catch (e: any) { fail(e.message); }
@@ -1458,3 +1456,189 @@ export default VideoConverterTool;
    Paket kurmak zorunlu değil — FFmpeg.wasm CDN'den otomatik yüklenir.
    İlk yüklemede ~20 MB indirilir, sonraki oturumlarda cache'ten gelir.
 */
+
+// ═══════════════════════════════════════════════════════════════════════════
+// § VIDEO RESIZER — gercek boyut degistirme
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// /tools/video-resizer daha once VideoConverterTool bilesenini ciziyordu:
+// sayfa "Resize video dimensions for social media" diyor ama ekranda yalnizca
+// kap/format secici vardi, tek bir boyut kontrolu yoktu. Bu bilesen isin
+// kendisini yapar.
+//
+// Filtre stringleri yerel ffmpeg ile dogrulandi:
+//   scale=-2:720                    1920x1080 -> 1280x720
+//   scale=-2:480                    1920x1080 ->  854x480   (-2: cift sayiya yuvarlar)
+//   scale=1080:1080:...decrease,pad 1920x1080 -> 1080x1080
+//
+// "-2" onemli: h264 tek sayili boyut kodlayamaz; hesaplanan genislik tek
+// cikarsa encoder hata verir. min(H\,ih) ifadesi ise kucuk videolari
+// buyutmemek icin - 360p bir klip 720p secilse bile 360p kalir. Ifadedeki
+// virgul kacisli olmali, aksi halde filtre grafiginde ayirac sayilir.
+
+interface ResizePreset {
+  id: string;
+  label: string;
+  descEn: string;
+  descTr: string;
+  vf: string;
+}
+
+const RESIZE_PRESETS: ResizePreset[] = [
+  { id: "1080p", label: "1080p", descEn: "Full HD", descTr: "Full HD", vf: "scale=-2:min(1080\\,ih)" },
+  { id: "720p",  label: "720p",  descEn: "HD",      descTr: "HD",      vf: "scale=-2:min(720\\,ih)" },
+  { id: "480p",  label: "480p",  descEn: "SD",      descTr: "SD",      vf: "scale=-2:min(480\\,ih)" },
+  { id: "360p",  label: "360p",  descEn: "Small",   descTr: "Kucuk",   vf: "scale=-2:min(360\\,ih)" },
+  {
+    id: "square",
+    label: "1:1",
+    descEn: "1080x1080 feed post",
+    descTr: "1080x1080 gonderi",
+    vf: "scale=1080:1080:force_original_aspect_ratio=decrease,pad=1080:1080:(ow-iw)/2:(oh-ih)/2:black",
+  },
+  {
+    id: "vertical",
+    label: "9:16",
+    descEn: "1080x1920 reels / shorts",
+    descTr: "1080x1920 reels / shorts",
+    vf: "scale=1080:1920:force_original_aspect_ratio=decrease,pad=1080:1920:(ow-iw)/2:(oh-ih)/2:black",
+  },
+];
+
+/** Bir video blobunun gercek piksel boyutlarini okur. */
+function readVideoDimensions(src: Blob | File): Promise<{ w: number; h: number } | null> {
+  return new Promise((resolve) => {
+    const url = URL.createObjectURL(src);
+    const video = document.createElement("video");
+    let settled = false;
+    const done = (value: { w: number; h: number } | null) => {
+      if (settled) return;
+      settled = true;
+      URL.revokeObjectURL(url);
+      resolve(value);
+    };
+    video.preload = "metadata";
+    video.onloadedmetadata = () => done({ w: video.videoWidth, h: video.videoHeight });
+    video.onerror = () => done(null);
+    // Tarayici bu kabi cozemezse (orn. MKV) olculeri gostermeden devam ederiz.
+    setTimeout(() => done(null), 5000);
+    video.src = url;
+  });
+}
+
+export function VideoResizerTool() {
+  const core = useVideoTool();
+  const { isEn, file, setFile, status, setStatus, pct, label, setLabel, error, result,
+          prepareFFmpeg, finish, fail, reset } = core;
+
+  const [preset, setPreset] = useState<ResizePreset>(RESIZE_PRESETS[1]); // 720p
+  const [srcDims, setSrcDims] = useState<{ w: number; h: number } | null>(null);
+  const [outDims, setOutDims] = useState<{ w: number; h: number } | null>(null);
+
+  const process = async (f: File) => {
+    setFile(f);
+    setSrcDims(await readVideoDimensions(f));
+    setOutDims(null);
+    try {
+      const ff = await prepareFFmpeg();
+      const ext = getExt(f.name);
+
+      setStatus("processing");
+      setLabel(isEn ? `Resizing to ${preset.label}...` : `${preset.label} boyutuna getiriliyor...`);
+
+      const inName = `input.${ext}`;
+      const outName = "output.mp4";
+      ff.FS("writeFile", inName, new Uint8Array(await f.arrayBuffer()));
+
+      await ff.run(
+        "-i", inName,
+        "-vf", preset.vf,
+        "-c:v", "libx264",
+        "-preset", "ultrafast",
+        "-crf", "23",
+        "-pix_fmt", "yuv420p",
+        "-c:a", "copy",
+        "-y", outName,
+      );
+
+      const data = ff.FS("readFile", outName);
+      ffmpegCleanup(ff, inName, outName);
+      if (!data || data.byteLength < 100) throw new Error("FFmpeg produced an empty file.");
+
+      const blob = new Blob([data.buffer], { type: "video/mp4" });
+      setOutDims(await readVideoDimensions(blob));
+      finish(blob);
+      trackEvent("VideoResized", { preset: preset.id, size: f.size });
+    } catch (e: any) { fail(e.message); }
+  };
+
+  if (status === "loading_ffmpeg" || status === "processing") return (
+    <div className="w-full max-w-4xl mx-auto">
+      <ProcessingCard pct={pct} label={label} status={status} isEn={isEn}/>
+    </div>
+  );
+
+  if (status === "done" && result) return (
+    <div className="w-full max-w-4xl mx-auto">
+      <DoneCard blob={result} filename={swapExt(file!.name, "mp4")}
+        origSize={file!.size} isEn={isEn}
+        onReset={() => { setSrcDims(null); setOutDims(null); reset(); }}>
+        {srcDims && outDims && (
+          <div className="mb-4 flex items-center justify-center gap-3 px-4 py-2.5 bg-slate-100 rounded-xl text-slate-600 text-sm font-medium"
+               data-testid="text-resize-dimensions">
+            <span className="font-mono">{srcDims.w}x{srcDims.h}</span>
+            <ArrowLeftRight className="w-4 h-4 text-slate-400"/>
+            <span className="font-mono font-bold text-slate-900">{outDims.w}x{outDims.h}</span>
+          </div>
+        )}
+        {srcDims && outDims && srcDims.w === outDims.w && srcDims.h === outDims.h && (
+          <p className="mb-4 text-xs text-slate-500 font-medium max-w-sm leading-relaxed">
+            {isEn
+              ? "This video was already at or below the size you picked, so its dimensions were left alone rather than upscaled."
+              : "Bu video zaten sectiginiz boyutta veya daha kucuktu; buyutmek yerine boyutlari oldugu gibi birakildi."}
+          </p>
+        )}
+      </DoneCard>
+    </div>
+  );
+
+  return (
+    <div className="w-full max-w-4xl mx-auto space-y-6">
+      <Card className="p-8 rounded-3xl border border-slate-100 bg-white shadow-sm">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="p-3 bg-indigo-50 rounded-2xl"><Minimize2 className="w-5 h-5 text-indigo-600"/></div>
+          <div>
+            <h3 className="text-base font-bold text-slate-800">{isEn ? "Target Size" : "Hedef Boyut"}</h3>
+            <p className="text-xs text-slate-400 mt-0.5">
+              {isEn
+                ? "Heights keep the original aspect ratio. 1:1 and 9:16 pad the video instead of cropping it."
+                : "Yukseklikler en-boy oranini korur. 1:1 ve 9:16 videoyu kirpmak yerine kenarlarini doldurur."}
+            </p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {RESIZE_PRESETS.map(p => (
+            <button key={p.id} onClick={() => setPreset(p)}
+              data-testid={`resize-preset-${p.id}`}
+              className={`flex flex-col items-center gap-1 p-4 rounded-2xl border-2 transition-all ${
+                preset.id === p.id
+                  ? "border-primary bg-primary/5 scale-105 shadow-sm"
+                  : "border-slate-100 hover:border-primary/30 hover:bg-slate-50"
+              }`}>
+              <span className={`font-black text-lg ${preset.id === p.id ? "text-primary" : "text-slate-600"}`}>{p.label}</span>
+              <span className="text-[10px] text-slate-400 text-center leading-tight">{isEn ? p.descEn : p.descTr}</span>
+            </button>
+          ))}
+        </div>
+      </Card>
+
+      <DropZone onFile={f => process(f)}
+        accept=".mp4,.mkv,.mov,.avi,.webm,.flv,video/*"
+        isEn={isEn} error={error} icon={Minimize2}
+        hint={isEn
+          ? "Upload a video - it will be re-encoded at the size you picked"
+          : "Video yukleyin - sectiginiz boyutta yeniden kodlanacak"}/>
+    </div>
+  );
+}

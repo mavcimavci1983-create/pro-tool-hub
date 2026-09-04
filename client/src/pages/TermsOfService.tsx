@@ -9,7 +9,7 @@ export default function TermsOfService() {
       <Header />
       <main className="container mx-auto px-4 py-16 max-w-4xl">
         <h1 className="text-4xl font-bold mb-8 text-slate-900">Terms of Service</h1>
-        <p className="text-slate-500 mb-8">Last updated: March 2026</p>
+        <p className="text-slate-500 mb-8">Last updated: September 2026</p>
         <div className="prose prose-slate max-w-none space-y-8 text-slate-700">
           <section>
             <h2 className="text-2xl font-bold text-slate-900 mb-4">1. Acceptance of Terms</h2>
@@ -25,7 +25,7 @@ export default function TermsOfService() {
           </section>
           <section>
             <h2 className="text-2xl font-bold text-slate-900 mb-4">4. File Processing and Privacy</h2>
-            <p>Files you upload are processed solely to provide the requested service. We do not store your files permanently. All uploaded files are automatically deleted from our servers within 1 hour of processing. We do not access the content of your files beyond what is necessary for tool operation.</p>
+            <p>Many of our tools — every image tool, every video tool, the data-format converters and PDF to JPG — run entirely inside your browser, so those files are never uploaded to us at all. Where a tool does need our server, the file is held in memory only for as long as the request takes and the result is returned to you; nothing in our code saves it afterwards. We do not access the content of your files beyond what the tool needs to do its job. Our <a href="/privacy-policy" className="text-blue-600 hover:underline">Privacy Policy</a> describes this in full, including the two tools that pass content to an outside service.</p>
           </section>
           <section>
             <h2 className="text-2xl font-bold text-slate-900 mb-4">5. Intellectual Property</h2>

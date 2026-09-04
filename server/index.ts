@@ -29,12 +29,21 @@ app.use(
 
 app.use(express.urlencoded({ extended: false }));
 
-// Required for SharedArrayBuffer (FFmpeg.wasm) and cross-origin isolation in dev
-app.use((_req, res, next) => {
-  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
-  res.setHeader("Cross-Origin-Embedder-Policy", "require-corp");
-  next();
-});
+// NOTE — cross-origin isolation (COOP/COEP) was removed deliberately.
+//
+// These headers were added "for SharedArrayBuffer (FFmpeg.wasm)", but nothing
+// here needs SharedArrayBuffer: the video tools pin FFmpeg.wasm v0.11.6, which
+// works without it (see the header comment in VideoTools.tsx), and no file in
+// the codebase references SharedArrayBuffer or crossOriginIsolated.
+//
+// The cost is real, though. "Cross-Origin-Embedder-Policy: require-corp" blocks
+// every cross-origin subresource that does not opt in via CORP or CORS, and
+// third-party ad frames do not opt in - so ads cannot render on an isolated
+// document. (The FFmpeg CDN was unaffected either way: unpkg does send
+// Cross-Origin-Resource-Policy: cross-origin.)
+//
+// If a future tool genuinely requires SharedArrayBuffer, scope these headers to
+// that route only - do not reinstate them globally.
 
 export function log(message: string, source = "express") {
   const formattedTime = new Date().toLocaleTimeString("en-US", {

@@ -98,14 +98,14 @@ function uploadFiles(
           reject(new Error(msg));
         };
         reader.onerror = () =>
-          reject(new Error(`Sunucu hatası (${xhr.status})`));
+          reject(new Error(`Server error (${xhr.status})`));
         reader.readAsText(xhr.response as Blob);
       }
     };
 
     xhr.onerror = () =>
-      reject(new Error("Ağ bağlantı hatası — sunucu erişilemiyor"));
-    xhr.ontimeout = () => reject(new Error("İstek zaman aşımına uğradı (58s)"));
+      reject(new Error("Network error - the server could not be reached."));
+    xhr.ontimeout = () => reject(new Error("The request timed out after 58 seconds."));
     xhr.open("POST", endpoint);
     xhr.send(fd);
   });
@@ -157,7 +157,7 @@ function ProcessingCard({
         <Progress value={progress} className="h-3 rounded-full bg-slate-100" />
       </div>
       <div className="mt-12 flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-widest">
-        <ShieldCheck className="w-4 h-4" /> BANK-GRADE ENCRYPTION ACTIVE
+        <ShieldCheck className="w-4 h-4" /> ENCRYPTED CONNECTION
       </div>
     </Card>
   );
@@ -296,7 +296,7 @@ export function WatermarkTool() {
         (p) => setProgress(p),
       );
 
-      if (blob.size === 0) throw new Error("Sunucu boş PDF döndürdü");
+      if (blob.size === 0) throw new Error("The server returned an empty PDF.");
       await blob.arrayBuffer();
 
       resultBlobRef.current = blob;
@@ -685,7 +685,7 @@ export function SignPdfTool() {
       // Boyut kontrolü: imzalı PDF orijinalden büyük olmalı
       if (blob.size === 0) throw new Error("PDF kaydedilemedi (0 byte)");
       if (blob.size < pdfArrayBuffer.byteLength * 0.5) {
-        throw new Error("Çıktı şüpheli küçük — imza işlenemedi olabilir");
+        throw new Error("The output looks too small - the signature may not have been applied.");
       }
 
       // Okunabilirlik testi
@@ -1075,7 +1075,7 @@ export function TranslatePdfTool() {
         58_000,
       );
 
-      if (blob.size === 0) throw new Error("Sunucu boş dosya döndürdü");
+      if (blob.size === 0) throw new Error("The server returned an empty file.");
       await blob.arrayBuffer();
 
       resultBlobRef.current = blob;
@@ -1349,8 +1349,8 @@ export function ComparePdfTool() {
               );
             }
           };
-          xhr.onerror = () => reject(new Error("Ağ hatası"));
-          xhr.ontimeout = () => reject(new Error("Zaman aşımı (58s)"));
+          xhr.onerror = () => reject(new Error("Network error."));
+          xhr.ontimeout = () => reject(new Error("The request timed out after 58 seconds."));
           xhr.send(fd);
         });
 

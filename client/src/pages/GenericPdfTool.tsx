@@ -5,8 +5,8 @@ import { ToolWorkflow } from "@/components/tool/ToolWorkflow";
 import { useLanguageStore } from "@/lib/languageStore";
 import translationsData from "@/locales/translations.json";
 import { Helmet, HelmetProvider } from "react-helmet-async";
-import { LeaderboardAd, StickySkyscraper, BillboardAd } from "@/components/ads/AdUnit";
 import { TOOL_SEO_DATA } from "@/data/toolSEO";
+import { ToolGuides } from "@/components/tool/ToolGuides";
 
 const translations = translationsData as Record<string, any>;
 
@@ -98,11 +98,7 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
         </Helmet>
         <Header />
         <main className="flex-grow flex flex-col items-center pt-10 pb-20">
-          <LeaderboardAd />
-
           <div className="w-full max-w-[1400px] mx-auto flex mt-10 px-4">
-            <StickySkyscraper side="left" />
-
             <div className="flex-1 min-w-0 max-w-4xl mx-auto">
               <div className="mb-12 text-center lg:text-left">
                 <h1 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900 tracking-tight">
@@ -183,8 +179,6 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
                 extraParams={getExtraParams()}
               />
 
-              <BillboardAd />
-
               {/* DİNANİK VE ÖZGÜN SEO İÇERİK BÖLÜMÜ */}
               <article className="prose prose-slate max-w-none border-t border-slate-100 pt-16 mt-8 text-slate-600">
                 <div className="grid md:grid-cols-2 gap-12 text-left mb-10">
@@ -232,15 +226,15 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
 
                 {/* Güvenlik Kutusu */}
                 <div className="bg-slate-900 rounded-2xl p-8 text-white text-left">
-                  <h3 className="text-xl font-bold mb-3">Bank-Grade Security on Every File</h3>
+                  <h3 className="text-xl font-bold mb-3">What Happens to Your File</h3>
                   <p className="text-slate-300 leading-relaxed text-sm">
-                    File transfers are protected with SSL/TLS encryption. Files processed on our infrastructure are held in temporary storage only for as long as the operation takes.
+                    PDF tools do their work on our server, so your file is uploaded over an encrypted HTTPS connection. It is held in memory only for as long as the request takes, the result is sent straight back to you, and nothing in our code saves it afterwards. We do not read your file beyond what the tool needs to do its job. The <a href="/privacy-policy" className="underline hover:text-white">Privacy Policy</a> sets out the full detail.
                   </p>
                 </div>
+                <ToolGuides />
               </article>
             </div>
 
-            <StickySkyscraper side="right" />
           </div>
         </main>
         <Footer />

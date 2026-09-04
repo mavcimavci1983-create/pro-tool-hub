@@ -1,14 +1,13 @@
 ﻿import { Link } from "wouter";
 import { 
   Github, 
-  Twitter, 
-  Linkedin, 
   Mail, 
   ShieldCheck, 
   Zap, 
   Globe 
 } from "lucide-react";
 import { useLanguageStore } from "@/lib/languageStore";
+import { useConsentStore } from "@/lib/consentStore";
 import { tools } from "@/components/home/ToolGrid";
 import translationsData from "@/locales/translations.json";
 
@@ -40,18 +39,24 @@ export function Footer() {
       privacy: "Privacy Policy",
       terms: "Terms of Service",
       contact: "Contact Us",
-      copyright: "Â© 2026 ProToolHub. All rights reserved."
+      guides: "Guides",
+      cookieSettings: "Cookie Settings",
+      copyright: "© 2026 ProToolHub. All rights reserved."
     },
     tr: {
-      about: "PDF, Video, Resim ve YazÄ±m iÃ§in profesyonel dÃ¼zeyde Ã§evrimiÃ§i araÃ§lar. GÃ¼venli, hÄ±zlÄ± ve %100 Ã¼cretsiz.",
-      links: "HÄ±zlÄ± BaÄŸlantÄ±lar",
+      about: "PDF, Video, Resim ve Yazım için profesyonel düzeyde çevrimiçi araçlar. Güvenli, hızlı ve %100 ücretsiz.",
+      links: "Hızlı Bağlantılar",
       legal: "Yasal",
-      privacy: "Gizlilik PolitikasÄ±",
-      terms: "KullanÄ±m ÅartlarÄ±",
-      contact: "Bize UlaÅŸÄ±n",
-      copyright: "Â© 2026 ProToolHub. TÃ¼m haklarÄ± saklÄ±dÄ±r."
+      privacy: "Gizlilik Politikası",
+      terms: "Kullanım Şartları",
+      contact: "Bize Ulaşın",
+      guides: "Rehberler",
+      cookieSettings: "Çerez Ayarları",
+      copyright: "© 2026 ProToolHub. Tüm hakları saklıdır."
     }
   };
+
+  const openConsentPanel = useConsentStore((s) => s.openPanel);
 
   const t = content[language];
   const th = translations[language]?.home ?? translations.en.home;
@@ -68,11 +73,19 @@ export function Footer() {
             <p className="text-sm leading-relaxed font-medium">
               {t.about}
             </p>
-            <div className="flex gap-4">
-              <Link href="#"><Twitter className="w-5 h-5 hover:text-white cursor-pointer transition-colors" /></Link>
-              <Link href="#"><Linkedin className="w-5 h-5 hover:text-white cursor-pointer transition-colors" /></Link>
-              <Link href="#"><Mail className="w-5 h-5 hover:text-white cursor-pointer transition-colors" /></Link>
-            </div>
+            {/* Twitter ve LinkedIn ikonlari kaldirildi: her ikisi de href="#"
+                gosteriyordu, yani her sayfada hicbir yere gitmeyen iki bagalanti
+                vardi. Gercek hesaplar acildiginda buraya geri eklenebilir.
+                E-posta adresi ise gercekten yapilandirilmis (Contact sayfasi ve
+                /api/contact geri donus mesaji ayni adresi kullaniyor). */}
+            <a
+              href="mailto:hello@protoolhub.net"
+              className="inline-flex items-center gap-2 text-sm font-medium hover:text-white transition-colors"
+              data-testid="link-footer-email"
+            >
+              <Mail className="w-5 h-5" />
+              hello@protoolhub.net
+            </a>
           </div>
 
           {FOOTER_CATEGORIES.map(({ cat, labelKey }) => {
@@ -104,7 +117,7 @@ export function Footer() {
             <ul className="space-y-4 text-sm font-medium">
               <li><Link href="/privacy-policy" className="hover:text-white transition-colors">{t.privacy}</Link></li>
               <li><Link href="/terms" className="hover:text-white transition-colors">{t.terms}</Link></li>
-              <li><Link href="/cookie-policy" className="hover:text-white transition-colors">Cookie Policy</Link></li><li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li><li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li>
+              <li><Link href="/cookie-policy" className="hover:text-white transition-colors">Cookie Policy</Link></li><li><Link href="/resources" className="hover:text-white transition-colors" data-testid="link-footer-resources">{t.guides}</Link></li><li><Link href="/about" className="hover:text-white transition-colors">About Us</Link></li><li><Link href="/contact" className="hover:text-white transition-colors">Contact</Link></li><li><button type="button" onClick={openConsentPanel} className="hover:text-white transition-colors text-left" data-testid="button-cookie-settings">{t.cookieSettings}</button></li>
             </ul>
           </div>
 
@@ -114,7 +127,7 @@ export function Footer() {
               <ShieldCheck className="w-8 h-8 text-slate-400" />
               <div>
                 <p className="text-white text-xs font-bold uppercase tracking-tighter">SSL Secure</p>
-                <p className="text-[10px] opacity-70">Bank-grade encryption</p>
+                <p className="text-[10px] opacity-70">HTTPS on every page</p>
               </div>
             </div>
           </div>

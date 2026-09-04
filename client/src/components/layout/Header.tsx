@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useLocation } from "wouter";
 import { 
   Zap, 
@@ -48,9 +49,15 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
-import { BelowHeaderAd } from "@/components/ads/AdUnit";
 import { useLanguageStore } from "@/lib/languageStore";
 import { useCategoryStore } from "@/lib/categoryStore";
 import translationsData from "@/locales/translations.json";
@@ -192,10 +199,24 @@ const NAV_CATEGORIES = [
   },
 ];
 
+/**
+ * Yalnizca icinde arac bulunan kategoriler gosterilir.
+ *
+ * "Other" kategorisinde hic arac yok; sabit listeden silmek yerine filtreleme
+ * yapiliyor cunku ileride bu kategoriye arac eklenirse menu kendiliginden geri
+ * gelir ve bos bir acilir menu bir daha olusamaz. Hem masaustu hem mobil menu
+ * ayni listeyi kullanir.
+ */
+const VISIBLE_NAV_CATEGORIES = NAV_CATEGORIES.filter((cat) => cat.tools.length > 0);
+
 export function Header() {
   const { language, setLanguage } = useLanguageStore();
   const { setCategory } = useCategoryStore();
   const [, navigate] = useLocation();
+
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [openSection, setOpenSection] = useState<string | null>(null);
+  const isEn = language === "en";
 
   const handleCategoryClick = (cat: typeof NAV_CATEGORIES[0]) => {
     setCategory(cat.filterCategory, cat.filterSub as any);
@@ -207,8 +228,19 @@ export function Header() {
     }, 150);
   };
 
+  const closeMobile = () => {
+    setMobileOpen(false);
+    setOpenSection(null);
+  };
+
+  // Mobilde kategoriye dokunmak once menuyu kapatir, sonra masaustuyle ayni
+  // filtreleme + kaydirma davranisini calistirir.
+  const handleMobileCategoryClick = (cat: typeof NAV_CATEGORIES[0]) => {
+    closeMobile();
+    handleCategoryClick(cat);
+  };
+
   return (
-    <>
     <header className="sticky top-0 z-50 w-full border-b bg-white">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
         <div className="flex items-center gap-2">
@@ -229,7 +261,7 @@ export function Header() {
 
         <nav className="hidden lg:flex items-center">
           <ul className="flex list-none items-center justify-center space-x-0.5">
-            {NAV_CATEGORIES.map((cat) => (
+            {VISIBLE_NAV_CATEGORIES.map((cat) => (
               <li key={cat.id} className="relative">
                 <DropdownMenu>
                   <DropdownMenuTrigger
@@ -283,6 +315,14 @@ export function Header() {
                 </DropdownMenu>
               </li>
             ))}
+            <li>
+              <Link href="/resources">
+                <span className="group inline-flex h-9 w-max items-center justify-center rounded-md bg-transparent hover:bg-slate-100 font-bold text-[11px] px-2.5 py-1.5 text-slate-700 uppercase tracking-wide cursor-pointer" data-testid="nav-resources">
+                  <span className="mr-1.5 text-slate-400"><BookOpen className="w-3.5 h-3.5" /></span>
+                  Guides
+                </span>
+              </Link>
+            </li>
           </ul>
         </nav>
 
@@ -297,18 +337,135 @@ export function Header() {
             <Languages className="w-3.5 h-3.5 mr-1 text-slate-900" />
             {language.toUpperCase()}
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="lg:hidden"
-            data-testid="button-mobile-menu"
-          >
-            <Menu className="h-6 w-6" />
-          </Button>
+          {/* ── MOBIL MENU ────────────────────────────────────────────────
+              lg altinda masaustu navigasyonu gizli oldugu icin tum kategori ve
+              arac erisimi buradan saglanir. Sheet (Radix Dialog) odak tuzagi,
+              Escape ile kapanma ve overlay davranisini hazir getiriyor. */}
+          <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden"
+                aria-label={isEn ? "Open menu" : "Menüyü aç"}
+                data-testid="button-mobile-menu"
+              >
+                <Menu className="h-6 w-6" />
+              </Button>
+            </SheetTrigger>
+
+            <SheetContent
+              side="right"
+              className="w-[88vw] max-w-sm p-0 flex flex-col"
+              data-testid="mobile-menu"
+            >
+              <SheetHeader className="px-5 py-4 border-b shrink-0">
+                <SheetTitle className="flex items-center gap-2 text-left">
+                  <div className="bg-slate-900 text-white p-1.5 rounded-lg">
+                    <Zap className="h-4 w-4" />
+                  </div>
+                  <span className="font-bold text-lg tracking-tight text-slate-900">
+                    ProToolHub
+                  </span>
+                </SheetTitle>
+              </SheetHeader>
+
+              <nav className="flex-1 overflow-y-auto px-3 py-3" aria-label={isEn ? "Tool categories" : "Araç kategorileri"}>
+                <Link href="/" onClick={closeMobile}>
+                  <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-slate-50 font-bold text-sm text-slate-700">
+                    <Layers className="w-4 h-4 text-slate-400" />
+                    {isEn ? "All tools" : "Tüm araçlar"}
+                  </div>
+                </Link>
+
+                <Link href="/resources" onClick={closeMobile}>
+                  <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-slate-50 font-bold text-sm text-slate-700" data-testid="mobile-nav-resources">
+                    <BookOpen className="w-4 h-4 text-slate-400" />
+                    {isEn ? "Guides" : "Rehberler"}
+                  </div>
+                </Link>
+
+                <ul className="mt-1 space-y-0.5 list-none p-0">
+                  {VISIBLE_NAV_CATEGORIES.map((cat) => {
+                    const isOpen = openSection === cat.id;
+                    const panelId = `mobile-section-${cat.id}`;
+                    return (
+                      <li key={cat.id}>
+                        <div className="flex items-stretch gap-1">
+                          {/* Kategori adi: grid'i o kategoriye filtreler */}
+                          <button
+                            type="button"
+                            onClick={() => handleMobileCategoryClick(cat)}
+                            className="flex-1 flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-slate-50 text-left font-bold text-sm text-slate-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900"
+                            data-testid={`mobile-nav-${cat.id}`}
+                          >
+                            <span className="text-slate-400">{cat.icon}</span>
+                            {cat.label}
+                          </button>
+                          {/* Ok: kategoriyi acip araclari listeler */}
+                          <button
+                            type="button"
+                            onClick={() => setOpenSection(isOpen ? null : cat.id)}
+                            aria-expanded={isOpen}
+                            aria-controls={panelId}
+                            aria-label={
+                              isEn
+                                ? `${isOpen ? "Hide" : "Show"} ${cat.label} tools`
+                                : `${cat.label} araçlarını ${isOpen ? "gizle" : "göster"}`
+                            }
+                            className="px-3 rounded-lg hover:bg-slate-50 text-slate-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-900"
+                            data-testid={`mobile-nav-toggle-${cat.id}`}
+                          >
+                            <ChevronDown
+                              className={`h-4 w-4 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}
+                            />
+                          </button>
+                        </div>
+
+                        {isOpen && (
+                          <ul id={panelId} className="pl-3 pb-2 space-y-0.5 list-none">
+                            {cat.tools.map((tool) => (
+                              <li key={tool.href}>
+                                <Link href={tool.href} onClick={closeMobile}>
+                                  <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-slate-50 text-[13px] font-semibold text-slate-600">
+                                    {tool.icon}
+                                    <span className="flex-1">{tool.title}</span>
+                                    {MAINTENANCE_HREFS.has(tool.href) && (
+                                      <span className="text-[9px] font-bold uppercase tracking-wide bg-amber-100 text-amber-600 px-1.5 py-0.5 rounded-full">
+                                        {isEn ? "Maint." : "Bakım"}
+                                      </span>
+                                    )}
+                                  </div>
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+
+                <div className="mt-3 pt-3 border-t space-y-0.5">
+                  {[
+                    { href: "/about", en: "About Us", tr: "Hakkımızda" },
+                    { href: "/contact", en: "Contact", tr: "İletişim" },
+                    { href: "/privacy-policy", en: "Privacy Policy", tr: "Gizlilik Politikası" },
+                    { href: "/terms", en: "Terms of Service", tr: "Kullanım Şartları" },
+                    { href: "/cookie-policy", en: "Cookie Policy", tr: "Çerez Politikası" },
+                  ].map((item) => (
+                    <Link key={item.href} href={item.href} onClick={closeMobile}>
+                      <div className="px-3 py-2 rounded-lg hover:bg-slate-50 text-[13px] font-semibold text-slate-500">
+                        {isEn ? item.en : item.tr}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </nav>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>
-    <BelowHeaderAd />
-    </>
   );
 }

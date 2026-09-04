@@ -4,6 +4,8 @@ import TermsOfService from "@/pages/TermsOfService";
 import CookiePolicy from "@/pages/CookiePolicy";
 import AboutUs from "@/pages/AboutUs";
 import Contact from "@/pages/Contact";
+import Resources from "@/pages/Resources";
+import ResourceArticle from "@/pages/ResourceArticle";
 import Home from "./pages/Home";
 import GenericPdfTool from "./pages/GenericPdfTool";
 import VideoTool from "./pages/VideoTool";
@@ -16,13 +18,14 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CanonicalTag } from "@/components/seo/CanonicalTag";
+import { CookieConsent } from "@/components/consent/CookieConsent";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={Home} />
       
-      {/* PDF Tools â€” Organize */}
+      {/* PDF Tools — Organize */}
       <Route path="/tools/merge-pdf">{() => <GenericPdfTool title="Merge PDF" desc="Combine multiple PDF files into one." />}</Route>
       <Route path="/tools/split-pdf">{() => <GenericPdfTool title="Split PDF" desc="Separate pages into individual files." />}</Route>
       <Route path="/tools/rotate-pdf">{() => <GenericPdfTool title="Rotate PDF" desc="Rotate pages of your PDF document." />}</Route>
@@ -30,19 +33,19 @@ function Router() {
       <Route path="/tools/delete-pages">{() => <GenericPdfTool title="Remove Pages" desc="Delete unwanted pages from PDF." />}</Route>
       <Route path="/tools/reorder-pages">{() => <GenericPdfTool title="Reorder Pages" desc="Rearrange PDF page order." />}</Route>
 
-      {/* PDF Tools â€” Convert FROM PDF */}
+      {/* PDF Tools — Convert FROM PDF */}
       <Route path="/tools/pdf-to-word">{() => <GenericPdfTool title="PDF to Word" desc="Convert PDF to editable Word files." />}</Route>
       <Route path="/tools/pdf-to-excel">{() => <GenericPdfTool title="PDF to Excel" desc="Convert PDF tables to Excel spreadsheets." />}</Route>
       <Route path="/tools/pdf-to-jpg">{() => <GenericPdfTool title="PDF to JPG" desc="Convert PDF pages to high-quality images." />}</Route>
       <Route path="/tools/pdf-to-text">{() => <GenericPdfTool title="PDF to Text" desc="Extract text from your PDF file." />}</Route>
 
-      {/* PDF Tools â€” Convert TO PDF */}
+      {/* PDF Tools — Convert TO PDF */}
       <Route path="/tools/word-to-pdf">{() => <GenericPdfTool title="Word to PDF" desc="Convert Word documents to PDF files." />}</Route>
       <Route path="/tools/ppt-to-pdf">{() => <GenericPdfTool title="PPT to PDF" desc="Convert PowerPoint presentations to PDF." />}</Route>
       <Route path="/tools/jpg-to-pdf">{() => <GenericPdfTool title="JPG to PDF" desc="Convert images to PDF documents." />}</Route>
       <Route path="/tools/html-to-pdf">{() => <GenericPdfTool title="HTML to PDF" desc="Convert web pages to PDF." />}</Route>
 
-      {/* PDF Tools â€” Security & Optimize */}
+      {/* PDF Tools — Security & Optimize */}
       <Route path="/tools/compress-pdf">{() => <GenericPdfTool title="Compress PDF" desc="Reduce the size of your PDF files." />}</Route>
       <Route path="/tools/remove-password">{() => <GenericPdfTool title="Unlock PDF" desc="Remove passwords and restrictions from PDFs." />}</Route>
       <Route path="/tools/add-watermark">{() => <GenericPdfTool title="Add Watermark" desc="Stamp text or image on your PDF." />}</Route>
@@ -86,6 +89,12 @@ function Router() {
 
       {/* Other Tools */}
 
+      {/* Rehberler. Not: server/static.ts sitemap.xml'i rota allowlist'i
+          olarak okuyor - buraya eklenen her adres sitemap'e de girmeli,
+          aksi halde uretimde 404 doner. */}
+      <Route path="/resources"><Resources /></Route>
+      <Route path="/resources/:slug"><ResourceArticle /></Route>
+
       <Route path="/privacy-policy"><PrivacyPolicy /></Route>
       <Route path="/terms"><TermsOfService /></Route>
       <Route path="/cookie-policy"><CookiePolicy /></Route>
@@ -104,6 +113,7 @@ export default function App() {
         <CanonicalTag />
         <Toaster />
         <Router />
+        <CookieConsent />
       </TooltipProvider>
     </QueryClientProvider>
   );

@@ -1,12 +1,34 @@
-﻿import { join } from "path";
+﻿import { createRequire } from "module";
+import { join } from "path";
+
+/**
+ * `_require` kullanimi bilincli, ayni kalip routes.ts ve contact-store.ts
+ * icinde de var: script/build.ts `_require(` cagrilarini `require(` olarak
+ * yeniden yaziyor ve better-sqlite3 bundle'a girmeyip calisma aninda
+ * node_modules'ten cozuluyor.
+ *
+ * Onceden burada `(globalThis as any)._require(...)` yaziyordu. Build sonrasi
+ * bu `globalThis.require(...)` haline geliyordu; `require` CJS'te modul yerel
+ * bir degisken olup globalThis uzerinde bulunmadigi icin cagri her seferinde
+ * TypeError firlatiyor, asagidaki try/catch bunu yutuyordu. Sonuc: uretimde
+ * hicbir olay kaydedilmiyordu.
+ */
+const _require = createRequire(import.meta.url);
+
+/**
+ * Varsayilan olarak calisma dizini; kalici disk icin ANALYTICS_DB_PATH verin.
+ * Docker imajinda WORKDIR /app oldugu icin varsayilan uretimde
+ * /app/analytics.db olarak cozulur - yani mevcut davranis aynen korunur.
+ * contact-store.ts icindeki CONTACT_DB_PATH ile ayni kalip.
+ */
+const DB_PATH = process.env.ANALYTICS_DB_PATH || join(process.cwd(), "analytics.db");
 
 let db: any = null;
 
 function getDb() {
   if (db) return db;
-  const Database = (globalThis as any)._require("better-sqlite3");
-  const dbPath = join(process.cwd(), "analytics.db");
-  db = new Database(dbPath);
+  const Database = _require("better-sqlite3");
+  db = new Database(DB_PATH);
   db.pragma("journal_mode = WAL");
   db.exec(`
     CREATE TABLE IF NOT EXISTS events (
