@@ -5,10 +5,11 @@ WORKDIR /app
 # Sistem bagimliliklari (Replit'te hazir gelen paketlerin karsiligi)
 #   libreoffice     -> libreoffice-convert (Office <-> PDF)
 #   ffmpeg          -> video/ses araclari
-#   python3         -> yt-dlp-exec preinstall + node-gyp
+#   python3         -> node-gyp (better-sqlite3 native derleme)
 #   build-essential -> better-sqlite3 native derleme
-# "python" symlink: yt-dlp-exec preinstall "npx bin-version-check-cli python >=2"
-# calistiriyor ve Debian "python" adinda binary birakmiyor.
+# "python" symlink: yt-dlp-exec kaldirildi, symlink artik gerekli degil ama
+# zararsiz oldugu ve node-gyp bazi ortamlarda "python" adini aradigi icin
+# birakildi.
 RUN apt-get update && apt-get install -y \
     libreoffice \
     ffmpeg \

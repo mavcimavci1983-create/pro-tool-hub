@@ -363,16 +363,17 @@ export const TOOL_SEO_DATA: Record<string, ToolSEOData> = {
     ]
   },
   "video resizer": {
-    title: "Resize and Re-encode Video",
-    description: "Change a video's format and encoding settings to suit the platform you are posting to.",
+    title: "Resize Video Dimensions",
+    description: "Change a video's pixel dimensions — scale it down to 1080p, 720p, 480p or 360p, or fit it to a square or vertical frame for social platforms.",
     howTo: [
       "Upload your video file.",
-      "Select the output settings you need.",
-      "Download the re-encoded video."
+      "Pick a target size: a height that keeps the original shape, or a 1:1 / 9:16 frame for social.",
+      "Download the resized video — the before and after dimensions are shown so you can check the change."
     ],
-    useCases: "Platforms have different expectations — a clip that plays fine on a desktop site may be rejected by a mobile app expecting a different container or bitrate.",
+    useCases: "A 4K phone clip is far larger than any feed needs; dropping it to 720p cuts the file size without a visible difference on a phone screen. The 1:1 and 9:16 presets matter when a platform crops or letterboxes anything that arrives in the wrong shape.",
     faqs: [
-      { q: "Does this crop the picture?", a: "No. It re-encodes the video rather than cutting the frame. To cut a section out, use Trim Video instead." },
+      { q: "Does this crop the picture?", a: "No. The height presets scale the whole frame and keep the original aspect ratio. The 1:1 and 9:16 presets pad the video with black bars rather than cutting anything off. To cut a section out, use Trim Video instead." },
+      { q: "Can I make a small video bigger?", a: "No, and deliberately so. Picking 1080p for a 480p clip leaves it at 480p. Upscaling invents pixels that were never recorded and makes the file larger without making it look better." },
       { q: "Is quality lost?", a: "Re-encoding is lossy by nature. Starting from the highest-quality source you have keeps the loss minimal." },
       { q: "How long does it take?", a: "Encoding runs in your browser, so a long or high-resolution clip may take several minutes. Leave the tab open." }
     ]

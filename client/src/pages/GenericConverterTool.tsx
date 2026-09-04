@@ -4,6 +4,7 @@ import { ToolWorkflow } from "@/components/tool/ToolWorkflow";
 import { CsvToJsonTool, JsonToCsvTool, XmlToJsonTool } from "@/components/home/ConverterTools";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { ToolSeoContent, hasToolSeo } from "@/components/tool/ToolSeoContent";
+import { ToolGuides } from "@/components/tool/ToolGuides";
 
 function getInlineConverterTool(title: string) {
   const t = title.toLowerCase();
@@ -44,7 +45,7 @@ export default function GenericConverterTool({ title = "Converter Tool", desc = 
                 <div className="grid md:grid-cols-2 gap-12 text-left">
                   <section>
                     <h2 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">Professional File Conversion</h2>
-                    <p className="text-md font-medium leading-relaxed">Fast, secure, and accurate file conversion suite. All processing happens locally or in secure temporary instances.</p>
+                    <p className="text-md font-medium leading-relaxed">The CSV, JSON and XML converters run entirely in your browser. Excel to PDF is handled on our server, because the conversion needs LibreOffice.</p>
                   </section>
                   <section className="bg-slate-50 p-8 rounded-2xl border border-slate-100">
                     <h3 className="text-lg font-bold text-slate-900 mb-3 tracking-tight">Secure & Private</h3>
@@ -52,6 +53,7 @@ export default function GenericConverterTool({ title = "Converter Tool", desc = 
                   </section>
                 </div>
                 )}
+                <ToolGuides />
               </article>
             </div>
 

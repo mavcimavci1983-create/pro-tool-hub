@@ -17,7 +17,19 @@ import { WatermarkTool, SignPdfTool, TranslatePdfTool, ComparePdfTool } from "@/
 
 const translations = translationsData as Record<string, any>;
 
-const CATEGORIES = ['PDF', 'Image', 'Video', 'Converter', 'AI Writing', 'Other'];
+/**
+ * Kategori sekmelerinin sirasi ve gorselleri. Hangilerinin cizilecegi burada
+ * degil, asagida `tools` dizisine bakilarak belirlenir - bos kategori sekmesi
+ * olusmaz.
+ */
+const CATEGORY_TABS = [
+  { id: 'PDF', label: 'PDF', icon: <FileText className="w-3.5 h-3.5" /> },
+  { id: 'Image', label: 'Image', icon: <ImageIcon className="w-3.5 h-3.5" /> },
+  { id: 'Video', label: 'Video', icon: <Video className="w-3.5 h-3.5" /> },
+  { id: 'Converter', label: 'Converter', icon: <RefreshCw className="w-3.5 h-3.5" /> },
+  { id: 'AI Writing', label: 'AI Writing', icon: <PenTool className="w-3.5 h-3.5" /> },
+  { id: 'Other', label: 'Other', icon: <Zap className="w-3.5 h-3.5" /> },
+];
 
 type PdfSubCategory = "organize" | "convert-from" | "convert-to" | "security";
 
@@ -259,14 +271,13 @@ export function ToolGrid() {
     }
   }, [activeTab, searchQuery]);
 
+  // Kategori sekmeleri gercek arac listesinden turetilir: icinde arac olmayan
+  // bir kategori sekme olarak hic cizilmez. "Other" kategorisinde arac
+  // bulunmadigi icin su an gorunmuyor; oraya bir arac eklenirse sekme
+  // kendiliginden geri gelir.
   const tabs = [
     { id: "All Tools", label: t.common.all_tools, icon: <Layout className="w-3.5 h-3.5" /> },
-    { id: "PDF", label: "PDF", icon: <FileText className="w-3.5 h-3.5" /> },
-    { id: "Image", label: "Image", icon: <ImageIcon className="w-3.5 h-3.5" /> },
-    { id: "Video", label: "Video", icon: <Video className="w-3.5 h-3.5" /> },
-    { id: "Converter", label: "Converter", icon: <RefreshCw className="w-3.5 h-3.5" /> },
-    { id: "AI Writing", label: "AI Writing", icon: <PenTool className="w-3.5 h-3.5" /> },
-    { id: "Other", label: "Other", icon: <Zap className="w-3.5 h-3.5" /> },
+    ...CATEGORY_TABS.filter((tab) => tools.some((tool) => tool.cat === tab.id)),
   ];
 
   // When category changes (e.g. Video selected from header), show first batch of results

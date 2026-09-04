@@ -6,6 +6,7 @@ import { useLanguageStore } from "@/lib/languageStore";
 import translationsData from "@/locales/translations.json";
 import { Helmet, HelmetProvider } from "react-helmet-async";
 import { TOOL_SEO_DATA } from "@/data/toolSEO";
+import { ToolGuides } from "@/components/tool/ToolGuides";
 
 const translations = translationsData as Record<string, any>;
 
@@ -225,11 +226,12 @@ export default function GenericPdfTool({ title = "PDF Tool", desc = "Professiona
 
                 {/* Güvenlik Kutusu */}
                 <div className="bg-slate-900 rounded-2xl p-8 text-white text-left">
-                  <h3 className="text-xl font-bold mb-3">Bank-Grade Security on Every File</h3>
+                  <h3 className="text-xl font-bold mb-3">What Happens to Your File</h3>
                   <p className="text-slate-300 leading-relaxed text-sm">
-                    File transfers are protected with SSL/TLS encryption. Files processed on our infrastructure are held in temporary storage only for as long as the operation takes.
+                    PDF tools do their work on our server, so your file is uploaded over an encrypted HTTPS connection. It is held in memory only for as long as the request takes, the result is sent straight back to you, and nothing in our code saves it afterwards. We do not read your file beyond what the tool needs to do its job. The <a href="/privacy-policy" className="underline hover:text-white">Privacy Policy</a> sets out the full detail.
                   </p>
                 </div>
+                <ToolGuides />
               </article>
             </div>
 

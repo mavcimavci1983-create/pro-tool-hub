@@ -97,7 +97,7 @@ function ProcessingCard({
         <Progress value={progress} className="h-3 rounded-full bg-slate-100" />
       </div>
       <div className="mt-12 flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-widest">
-        <ShieldCheck className="w-4 h-4" /> BANK-GRADE ENCRYPTION ACTIVE
+        <ShieldCheck className="w-4 h-4" /> ENCRYPTED CONNECTION
       </div>
     </Card>
   );

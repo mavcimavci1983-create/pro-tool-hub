@@ -18,7 +18,7 @@ export default function AboutUs() {
           <div>
             <h2 className="text-3xl font-bold text-slate-900 mb-6">Our Mission</h2>
             <p className="text-slate-600 leading-relaxed mb-4">ProToolHub was created with one goal: to give everyone access to professional-grade document and media tools without paywalls, subscriptions, or complicated software installations.</p>
-            <p className="text-slate-600 leading-relaxed mb-4">Whether you need to merge PDF files, compress images, convert videos, or remove backgrounds, ProToolHub handles it all — directly in your browser, with complete privacy.</p>
+            <p className="text-slate-600 leading-relaxed mb-4">Whether you need to merge PDF files, compress images, convert videos, or remove backgrounds, ProToolHub covers it. Where the work can be done on your own machine it is — image, video and file-conversion tools run inside the browser and never upload anything. The remaining PDF tools need our server, and our Privacy Policy explains exactly what happens to a file when they do.</p>
             <p className="text-slate-600 leading-relaxed">The toolkit currently covers 47 tools across PDF, image, video, file conversion, and AI-assisted writing. Image and video tools run entirely inside your browser, so those files never leave your device.</p>
           </div>
           <div className="grid grid-cols-2 gap-6">
@@ -39,7 +39,7 @@ export default function AboutUs() {
 
         <div className="bg-slate-900 rounded-3xl p-12 text-center text-white">
           <h2 className="text-3xl font-bold mb-4">Built for Everyone</h2>
-          <p className="text-slate-400 max-w-2xl mx-auto text-lg">From a student needing to compress a PDF for email submission, to a designer removing backgrounds for a client project — ProToolHub is your go-to toolkit. Free, fast, and always available.</p>
+          <p className="text-slate-400 max-w-2xl mx-auto text-lg">From a student compressing a PDF for an email submission to a designer removing backgrounds for a client project, these are everyday jobs that should not need an account or an installer. Free to use, with no sign-up.</p>
         </div>
       </main>
       <Footer />

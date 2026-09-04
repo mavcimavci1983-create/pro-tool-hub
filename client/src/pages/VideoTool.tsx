@@ -11,13 +11,18 @@ import {
   MuteVideoTool,
   TrimVideoTool,
   RotateVideoTool,
+  VideoResizerTool,
 } from "@/components/home/VideoTools";
 import { ToolSeoContent, hasToolSeo } from "@/components/tool/ToolSeoContent";
+import { ToolGuides } from "@/components/tool/ToolGuides";
 
 const translations = translationsData as Record<string, any>;
 
 function getInlineTool(title: string) {
   const t = title.toLowerCase();
+  // "resiz" once kontrol edilir: Video Resizer daha once asagidaki "convert"
+  // dalina dusup format donusturucuyu ciziyordu.
+  if (t.includes("resiz"))                                return <VideoResizerTool />;
   if (t.includes("compress"))                             return <CompressVideoTool />;
   if (t.includes("mute"))                                 return <MuteVideoTool />;
   if (t.includes("trim"))                                 return <TrimVideoTool />;
@@ -25,7 +30,6 @@ function getInlineTool(title: string) {
   if (t.includes("to gif") || t.includes("gif"))          return <VideoToGifTool />;
   if (t.includes("to mp3") || t.includes("mp3"))          return <VideoToMp3Tool />;
   if (t.includes("mp4 to webm") || t.includes("convert")) return <VideoConverterTool />;
-  if (t.includes("resizer"))                              return <VideoConverterTool />;
   return null;
 }
 
@@ -63,14 +67,15 @@ export default function VideoTool({ title = "Video Tool", desc = "Free online vi
                 <div className="grid md:grid-cols-2 gap-12 text-left">
                   <section>
                     <h2 className="text-2xl font-bold text-slate-900 mb-4 tracking-tight">Professional Video Processing</h2>
-                    <p className="text-md font-medium leading-relaxed">All video processing runs entirely in your browser using FFmpeg WebAssembly - nothing is uploaded to any server. Zero watermarks, 100% privacy.</p>
+                    <p className="text-md font-medium leading-relaxed">All video processing runs in your browser using FFmpeg compiled to WebAssembly, so your video is never uploaded to our server. No watermarks are added to the output.</p>
                   </section>
                   <section className="bg-slate-50 p-8 rounded-2xl border border-slate-100">
                     <h3 className="text-lg font-bold text-slate-900 mb-3 tracking-tight">100% Client-Side</h3>
-                    <p className="text-sm font-medium text-slate-500 leading-relaxed italic">Your videos never leave your device. FFmpeg runs locally in your browser - no uploads, no servers, no data collection.</p>
+                    <p className="text-sm font-medium text-slate-500 leading-relaxed italic">Your videos never leave your device. FFmpeg runs locally in your browser, so there is no upload and no server involved in the conversion itself.</p>
                   </section>
                 </div>
                 )}
+                <ToolGuides />
               </article>
             </div>
           </div>

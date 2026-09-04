@@ -13,7 +13,8 @@ import {
 } from "./contact-store";
 const _require = createRequire(import.meta.url);
 const pdfParse = _require("pdf-parse/lib/pdf-parse.js");
-const { PDFDocument, rgb, StandardFonts, degrees } = _require("pdf-lib");
+const { PDFDocument, rgb, StandardFonts, degrees, PDFName, PDFRawStream, PDFNumber } =
+  _require("pdf-lib");
 
 const __routes_filename = fileURLToPath(import.meta.url);
 const __routes_dirname = dirname(__routes_filename);
@@ -146,390 +147,118 @@ function handleMultiMulterError(req: any, res: any, next: any) {
   });
 }
 
-const nodeFetch = (_require("node-fetch") as typeof import("node-fetch")).default;
+// ─── PDF sikistirma ────────────────────────────────────────────────────────
+//
+// Onceki hali pdf-lib ile dosyayi yukleyip tekrar kaydediyordu. Bu hicbir sey
+// sikistirmaz: gomulu gorseller aynen kopyalanir, cikti cogu zaman girdiyle
+// ayni, bazen daha buyuk olur - kullaniciya "hazir" denip daha buyuk bir dosya
+// verilir.
+//
+// Gercek kazanc PDF'lerin buyuk cogunlugunda gomulu JPEG gorsellerinden gelir
+// (taranmis belgeler, telefonla cekilmis fisler, gorsel agirlikli raporlar).
+// Burada /DCTDecode filtreli gorsel XObject'leri sharp ile yeniden kodluyoruz
+// ve cok buyukleri kucultuyoruz. sharp zaten bir bagimlilik - yeni paket yok.
+//
+// Metin agirlikli bir PDF'te kazanilacak bir sey yoktur; o durumda fonksiyon
+// girdiyi aynen geri dondurur ve cagiran taraf kullaniciya durumu durustce
+// soyler. Kucultemedigimizde "sikistirildi" demeyiz.
+const COMPRESS_JPEG_QUALITY = 72;
+const COMPRESS_MAX_IMAGE_DIM = 2000;
+/** Bu esigin altindaki kazanc gorunmez; orijinali dondurmek daha durust. */
+const COMPRESS_MIN_GAIN = 0.02;
 
-function isYouTubeUrl(url: string): boolean {
-  try {
-    const u = new URL(url.trim());
-    const host = u.hostname.replace(/^www\./, "");
-    return host === "youtube.com" || host === "youtu.be" || host === "m.youtube.com" || host === "music.youtube.com";
-  } catch {
-    return false;
-  }
+interface CompressResult {
+  output: Buffer;
+  imagesRecompressed: number;
+  /** Cikti gercekten kuculduyse true; false ise output === girdi. */
+  reduced: boolean;
 }
 
-function normalizeYouTubeUrl(url: string): string {
-  try {
-    const u = new URL(url.trim());
-    const v = u.searchParams.get("v");
-    if (v) return `https://www.youtube.com/watch?v=${v}`;
-    if (u.hostname.replace(/^www\./, "") === "youtu.be") {
-      const id = u.pathname.slice(1).split("/")[0];
-      if (id) return `https://www.youtube.com/watch?v=${id}`;
+async function compressPdfBuffer(input: Buffer): Promise<CompressResult> {
+  const sharp = _require("sharp");
+  const pdfDoc = await PDFDocument.load(input, { ignoreEncryption: true, updateMetadata: false });
+  const context = pdfDoc.context;
+
+  const entries: Array<[any, any]> = context.enumerateIndirectObjects();
+
+  // /SMask ve /Mask olarak kullanilan gorseller atlanir: seffaflik maskesini
+  // kayipli JPEG'e cevirmek nesne kenarlarinda hale birakir.
+  const maskRefs = new Set<string>();
+  for (const [, obj] of entries) {
+    const dict = (obj as any)?.dict;
+    if (!dict?.get) continue;
+    for (const key of ["SMask", "Mask"]) {
+      const value = dict.get(PDFName.of(key));
+      if (value?.tag) maskRefs.add(String(value.tag));
     }
-  } catch {}
-  return url.trim();
-}
+  }
 
-const USER_AGENTS = [
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0",
-  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36",
-  "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-];
+  const replacements: Array<[any, any]> = [];
 
-function getRandomUserAgent(): string {
-  return USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)]!;
-}
+  for (const [ref, obj] of entries) {
+    if (!(obj instanceof PDFRawStream)) continue;
+    if (maskRefs.has(String(ref.tag))) continue;
 
-function normalizeCookie(c: Record<string, unknown>): { name: string; value: string; domain?: string; path?: string; expirationDate?: number; secure?: boolean; httpOnly?: boolean; sameSite?: string; hostOnly?: boolean } | null {
-  const name = typeof c.name === "string" ? c.name : (c as any).key;
-  const value = typeof c.value === "string" ? c.value : (c as any).content;
-  if (typeof name !== "string" || typeof value !== "string") return null;
-  const domain = typeof c.domain === "string" ? c.domain : ".youtube.com";
-  const path = typeof c.path === "string" ? c.path : "/";
-  let expirationDate: number | undefined;
-  if (typeof (c as any).expirationDate === "number") expirationDate = (c as any).expirationDate;
-  else if (typeof (c as any).expiry === "number") expirationDate = (c as any).expiry;
-  else if (typeof (c as any).expirationDate === "string") expirationDate = Math.floor(new Date((c as any).expirationDate).getTime() / 1000);
+    const dict = obj.dict;
+    if (String(dict.get(PDFName.of("Subtype"))) !== "/Image") continue;
+    if (dict.get(PDFName.of("ImageMask"))) continue;
+
+    // Yalnizca tek filtreli DCTDecode islenir - stream'in kendisi zaten bir
+    // JPEG dosyasidir. Filtre zinciri, Flate veya JPX once cozulmeliydi;
+    // bunlari yanlis yeniden yazmak PDF'i bozar, o yuzden dokunmuyoruz.
+    if (String(dict.get(PDFName.of("Filter"))) !== "/DCTDecode") continue;
+
+    // CMYK atlanir: sharp ciktiyi RGB'ye cevirir, PDF'teki /ColorSpace girdisi
+    // ise CMYK kalir ve renkler bozulur.
+    const colorSpace = String(dict.get(PDFName.of("ColorSpace")) ?? "");
+    if (colorSpace.includes("CMYK")) continue;
+
+    const originalBytes = Buffer.from(obj.getContents());
+    if (originalBytes.length < 8 * 1024) continue; // ufak gorselde kazanc yok
+
+    try {
+      const image = sharp(originalBytes, { failOn: "none" });
+      const meta = await image.metadata();
+      if (!meta.width || !meta.height) continue;
+      if (meta.space === "cmyk" || meta.channels === 4) continue;
+      if (meta.hasAlpha) continue; // JPEG alfa tasiyamaz
+
+      const longest = Math.max(meta.width, meta.height);
+      const scale = longest > COMPRESS_MAX_IMAGE_DIM ? COMPRESS_MAX_IMAGE_DIM / longest : 1;
+      const targetW = Math.max(1, Math.round(meta.width * scale));
+      const targetH = Math.max(1, Math.round(meta.height * scale));
+
+      let pipeline = image;
+      if (scale < 1) pipeline = pipeline.resize(targetW, targetH, { fit: "fill" });
+
+      // PDF okuyucularinin tamami progressive JPEG'i acmaz - baseline sart.
+      const newBytes = await pipeline
+        .jpeg({ quality: COMPRESS_JPEG_QUALITY, progressive: false, mozjpeg: false })
+        .toBuffer();
+
+      if (newBytes.length >= originalBytes.length) continue;
+
+      dict.set(PDFName.of("Width"), PDFNumber.of(targetW));
+      dict.set(PDFName.of("Height"), PDFNumber.of(targetH));
+      dict.set(PDFName.of("Length"), PDFNumber.of(newBytes.length));
+      dict.delete(PDFName.of("DecodeParms"));
+      replacements.push([ref, PDFRawStream.of(dict, new Uint8Array(newBytes))]);
+    } catch {
+      // Tek bir gorsel cozulemezse onu atla, belgenin kalanini isle.
+      continue;
+    }
+  }
+
+  for (const [ref, stream] of replacements) context.assign(ref, stream);
+
+  const saved = Buffer.from(await pdfDoc.save({ useObjectStreams: true }));
+  const reduced = saved.length < input.length * (1 - COMPRESS_MIN_GAIN);
+
   return {
-    name,
-    value,
-    domain: domain.startsWith(".") ? domain : `.${domain}`,
-    path,
-    expirationDate,
-    secure: c.secure === true,
-    httpOnly: c.httpOnly === true,
-    sameSite: typeof c.sameSite === "string" ? c.sameSite : "lax",
-    hostOnly: c.hostOnly === true,
+    output: reduced ? saved : input,
+    imagesRecompressed: replacements.length,
+    reduced,
   };
-}
-
-let _cookieLoadLogged = false;
-
-const RED_BOLD = "\x1b[1m\x1b[31m";
-const GREEN_BOLD = "\x1b[1m\x1b[32m";
-const RESET = "\x1b[0m";
-
-const COOKIE_PATHS = [
-  "youtube-cookies.json",
-  "server/youtube-cookies.json",
-] as const;
-
-function loadYouTubeCookies(): Array<Record<string, unknown>> {
-  const fs = _require("fs");
-  const path = _require("path");
-  const cwd = process.cwd();
-  let raw: string | undefined = process.env.YOUTUBE_COOKIES?.trim();
-  let fullPath: string | null = null;
-  if (!raw) {
-    for (const rel of COOKIE_PATHS) {
-      const p = path.join(cwd, rel);
-      if (fs.existsSync(p)) {
-        fullPath = p;
-        try {
-          raw = fs.readFileSync(p, "utf8").trim();
-          break;
-        } catch (e: any) {
-          console.error("[ytdl-core] Cookies file read failed:", e?.message ?? e, "Path:", p);
-          fullPath = null;
-        }
-      }
-    }
-    if (!raw) {
-      const tried = COOKIE_PATHS.map((rel) => path.join(cwd, rel)).join(" / ");
-      console.error(RED_BOLD + "[ERROR] COOKIE FILE NOT FOUND. LOOKED AT: " + tried + RESET);
-      return [];
-    }
-  }
-  if (!raw) return [];
-  try {
-    const data = JSON.parse(raw);
-    const arr = Array.isArray(data) ? data : (data.cookies && Array.isArray(data.cookies) ? data.cookies : []);
-    const out = arr.map((c: Record<string, unknown>) => normalizeCookie(c)).filter(Boolean) as Record<string, unknown>[];
-    if (!process.env.YOUTUBE_COOKIES && out.length > 0 && !_cookieLoadLogged) {
-      _cookieLoadLogged = true;
-      console.log(GREEN_BOLD + "[ytdl-core] COOKIES LOADED SUCCESSFULLY (" + out.length + " cookies from " + (fullPath ?? "env") + ")" + RESET);
-    }
-    return out;
-  } catch (e: any) {
-    console.error("[ytdl] YOUTUBE_COOKIES parse failed:", e?.message);
-    return [];
-  }
-}
-
-function getCookiePathForYtDlp(): string | undefined {
-  const fs = _require('fs');
-  const path = _require('path');
-  const cwd = process.cwd();
-
-  // 1. Ãƒ"“nce doğrudan Netscape formatında dosya var mı bak (tarayıcıdan export)
-  const netscapePaths = [
-    'server/youtube-cookies-netscape.txt',
-    'youtube-cookies-netscape.txt',
-    'server/cookies.txt',
-    'cookies.txt',
-  ];
-  for (const rel of netscapePaths) {
-    const p = path.join(cwd, rel);
-    if (!fs.existsSync(p)) continue;
-    try {
-      const content = fs.readFileSync(p, 'utf8').trim();
-      if (!content.includes('# Netscape HTTP Cookie File')) continue;
-      // Expiry değerlerini float'tan int'e çevir (yt-dlp gereksinimi)
-      const fixed = content.replace(/([\t])(\d+)\.\d+([\t])/g, (_: string, pre: string, num: string, post: string) => pre + num + post);
-      // Düzeltilmiş halini geri yaz
-      if (fixed !== content) {
-        fs.writeFileSync(p, fixed, 'utf8');
-        console.log('[cookies] Netscape dosyası float expiry düzeltildi:', p);
-      }
-      console.log('[cookies] Netscape cookie dosyası bulundu:', p);
-      return p;
-    } catch {}
-  }
-
-  // 2. JSON dosyasını Netscape formatına çevir
-  let raw: string | undefined;
-  for (const rel of COOKIE_PATHS) {
-    const p = path.join(cwd, rel);
-    if (!fs.existsSync(p)) continue;
-    try { raw = fs.readFileSync(p, 'utf8').trim(); break; } catch {}
-  }
-  if (!raw) return undefined;
-
-  try {
-    const data = JSON.parse(raw);
-    const arr = Array.isArray(data) ? data : (data.cookies && Array.isArray(data.cookies) ? data.cookies : []);
-    const cookies = arr.map((c: Record<string, unknown>) => normalizeCookie(c)).filter(Boolean) as Array<{ name: string; value: string; domain?: string; path?: string; expirationDate?: number; secure?: boolean }>;
-    if (cookies.length === 0) return undefined;
-
-    const lines = ['# Netscape HTTP Cookie File'];
-    const placeholder = /^(YOUR_VALUE_HERE|gercek_deger_buraya|xxx|placeholder)$/i;
-    for (const c of cookies) {
-      if (placeholder.test(c.value.trim())) continue;
-      const domain = '.' + (c.domain ?? 'youtube.com').replace(/^./, '');
-      const pathVal = (c.path ?? '/').replace(/	/g, '');
-      const secure = c.secure === true ? 'TRUE' : 'FALSE';
-      // Float expiry Ã¢" "™ tam sayı (yt-dlp gereksinimi)
-      let exp = c.expirationDate
-        ? (c.expirationDate > 10000000000
-            ? Math.floor(c.expirationDate / 1000)   // milisaniye Ã¢" "™ saniye
-            : Math.floor(c.expirationDate))           // zaten saniye ama float
-        : 0;
-      if (!exp || exp < 1000000000) exp = 9999999999;
-      const name = (c.name || '').replace(/\t/g, '');
-      const value = (c.value || '').replace(/\n/g, ' ').replace(/\r/g, '');
-      if (!name) continue;
-      lines.push([domain, 'TRUE', pathVal, secure, String(exp), name, value].join('	'));
-    }
-    if (lines.length <= 1) return undefined;
-
-    const outPath = path.join(cwd, 'server', 'youtube-cookies-netscape.txt');
-    try {
-      fs.mkdirSync(path.dirname(outPath), { recursive: true });
-      fs.writeFileSync(outPath, lines.join('\n'), 'utf8');
-      console.log('[cookies] Netscape dosyası oluşturuldu:', outPath, '(' + (lines.length - 1) + ' cookie)');
-      return outPath;
-    } catch {}
-  } catch {}
-  return undefined;
-}
-
-let _ytDlpBinaryLogged = false;
-
-function getYtDlpBinaryPath(): string | null {
-  const path = _require("path");
-  const fs = _require("fs");
-  try {
-    const constants = _require(path.join(process.cwd(), "node_modules", "yt-dlp-exec", "src", "constants.js"));
-    const binaryPath = constants.YOUTUBE_DL_PATH;
-    if (binaryPath && fs.existsSync(binaryPath)) return binaryPath;
-  } catch {}
-  // Fallback: bin/ klasöründe ara
-  const binCandidates = [
-    path.join(process.cwd(), "bin", "yt-dlp"),
-    path.join(process.cwd(), "bin", "yt-dlp.exe"),
-  ];
-  for (const p of binCandidates) {
-    if (fs.existsSync(p)) return p;
-  }
-  return null;
-}
-
-async function getYtDlpInfo(url: string): Promise<{ title: string; formats: Array<{ format_id?: string; height?: number; url?: string; vcodec?: string; format_note?: string }> } | null> {
-  const videoUrl = normalizeYouTubeUrl(url);
-  if (!_ytDlpBinaryLogged) {
-    _ytDlpBinaryLogged = true;
-    const bin = getYtDlpBinaryPath();
-    if (bin) console.log("[yt-dlp] Binary bulundu:", bin);
-    else console.error("[yt-dlp] Binary BULUNAMADI.");
-  }
-  const binaryPath = getYtDlpBinaryPath();
-  if (!binaryPath) return null;
-
-  const cookiePath = getCookiePathForYtDlp();
-
-  const buildArgs = (withCookies: boolean) => {
-    const a = [
-      "--dump-single-json",
-      "--no-warnings",
-      "--no-check-certificate", "--extractor-args", "youtube:player_client=tv_embedded", "--user-agent", getRandomUserAgent(),
-    ];
-    if (withCookies && cookiePath) a.push("--cookies", cookiePath);
-    a.push(videoUrl);
-    return a;
-  };
-
-  const runYtDlp = async (args: string[]) => {
-    const { execFile } = _require("child_process");
-    const { promisify } = _require("util");
-    const execFileP = promisify(execFile);
-    const { stdout } = await execFileP(binaryPath, args, {
-      encoding: "utf8",
-      maxBuffer: 50 * 1024 * 1024,
-      timeout: 60000,
-    });
-    return typeof stdout === "string" ? stdout : String(stdout);
-  };
-
-  try {
-    let stdout: string;
-    try {
-      stdout = await runYtDlp(buildArgs(true));
-    } catch (cookieErr: any) {
-      const stderr = (cookieErr.stderr || cookieErr.message || "").toString();
-      if (stderr.includes("cookiejar") || stderr.includes("cookies") || stderr.includes("CookieLoadError")) {
-        console.warn("[yt-dlp] Cookie dosyasi gecersiz, cookie olmadan deneniyor.");
-        stdout = await runYtDlp(buildArgs(false));
-      } else {
-        throw cookieErr;
-      }
-    }
-    const trimmed = stdout.trim();
-    if (!trimmed || (!trimmed.startsWith("{") && !trimmed.startsWith("["))) {
-      console.error("DETAYLI YT-DLP HATASI: stdout JSON degil (ilk 200 karakter):", trimmed.slice(0, 200));
-      return null;
-    }
-    const info = JSON.parse(trimmed);
-    const title = (info && info.title) ? String(info.title) : "YouTube video";
-    const formats = Array.isArray(info.formats) ? info.formats : [];
-    // Debug: ses formatı var mı kontrol et
-    const audioCount = formats.filter((f) => f.acodec && f.acodec !== 'none' && f.vcodec === 'none').length;
-    const videoCount = formats.filter((f) => f.vcodec && f.vcodec !== 'none').length;
-    console.log('[yt-dlp] Toplam format:', formats.length, '| Video:', videoCount, '| Ses:', audioCount);
-    return { title, formats };
-  } catch (e: any) {
-    console.error("YT-DLP FULL ERROR:", e);
-    console.error("YT-DLP STDERR:", e?.stderr || "(boş)");
-    console.error("YT-DLP EXIT CODE:", e?.code || e?.exitCode || "?");
-    const stderr = (e?.stderr || e?.message || "").toString();
-    _lastYtDlpStderr = stderr.slice(0, 500);
-    return null;
-  }
-}
-
-let _lastYtDlpStderr = "";
-
-async function resolveYouTube(url: string): Promise<{ title: string; videoUrl: string | null; hint?: string }> {
-  const info = await getYtDlpInfo(url);
-  if (!info || info.formats.length === 0) {
-    return {
-      title: "YouTube",
-      videoUrl: null,
-      hint: "YouTube download is limited on this server (rate limit or region). Try again later or use a direct video link from another site.",
-    };
-  }
-  const withUrl = info.formats.filter((f: any) => f.url);
-  const best = withUrl.find((f: any) => f.height) ?? withUrl[0];
-  return { title: info.title, videoUrl: best?.url ?? null };
-}
-
-async function getYouTubeFormats(url: string): Promise<{ title: string; formats: Array<{ qualityLabel: string; height?: number; url: string; formatIndex: number }>; hint?: string }> {
-  _lastYtDlpStderr = "";
-  const info = await getYtDlpInfo(url);
-  if (!info) {
-    let hint = "Could not load formats. The video may be restricted or unavailable. Try again later.";
-    const err = _lastYtDlpStderr.toLowerCase();
-    if (err.includes("sign in") || err.includes("age") || err.includes("confirm your age")) {
-      hint = "This video may be age-restricted or require login. Export cookies from YouTube (see YOUTUBE_COOKIES_SETUP.md) and add youtube-cookies.json to the project root.";
-    } else if (err.includes("unavailable") || err.includes("private") || err.includes("removed")) {
-      hint = "Video is unavailable, private, or has been removed.";
-    } else if (err.includes("timeout") || err.includes("timed out")) {
-      hint = "Request timed out. Try again or use a shorter video.";
-    }
-    return { title: "YouTube", formats: [], hint };
-  }
-  const withVideo = info.formats.filter((f: any) => (f.height != null || (f.vcodec && f.vcodec !== "none")) && (f.url != null || f.format_id));
-  const byHeight = withVideo
-    .map((f: any) => ({
-      qualityLabel: f.height ? `${f.height}p` : (f.format_note || "Unknown"),
-      height: f.height,
-      url: f.url || "",
-      formatIndex: info.formats.indexOf(f),
-    }))
-    .filter((f: any) => f.formatIndex >= 0);
-  const seen = new Set<number>();
-  const uniq: Array<{ qualityLabel: string; height?: number; url: string; formatIndex: number }> = [];
-  for (const f of byHeight.sort((a: any, b: any) => (b.height || 0) - (a.height || 0))) {
-    const h = f.height || 0;
-    if (seen.has(h)) continue;
-    seen.add(h);
-    uniq.push(f);
-  }
-  if (uniq.length === 0) {
-    const fallback = info.formats.find((f: any) => f.url || f.format_id);
-    if (fallback) {
-      const idx = info.formats.indexOf(fallback);
-      uniq.push({ qualityLabel: "Best", height: undefined, url: (fallback as any).url || "", formatIndex: idx >= 0 ? idx : 0 });
-    }
-  }
-  if (uniq.length === 0 && info.formats.length > 0) {
-    info.formats.forEach((f: any, idx: number) => {
-      uniq.push({
-        qualityLabel: f.height ? `${f.height}p` : (f.format_note || f.format_id || "Format " + idx),
-        height: f.height,
-        url: f.url || "",
-        formatIndex: idx,
-      });
-    });
-  }
-  return { title: info.title, formats: uniq };
-}
-
-function extractOgVideo(html: string, requestedUrl?: string): { title: string; videoUrl: string | null } {
-  const titleMatch = html.match(/<meta\s+property="og:title"\s+content="([^"]*)"/i) || html.match(/<meta\s+content="([^"]*)"\s+property="og:title"/i);
-  const title = titleMatch ? decodeURIComponent(titleMatch[1].replace(/&amp;/g, "&")) : "Video";
-  let videoUrl: string | null = null;
-
-  const ogVideo = html.match(/<meta\s+property="og:video:url"\s+content="([^"]*)"/i)
-    || html.match(/<meta\s+property="og:video:secure_url"\s+content="([^"]*)"/i)
-    || html.match(/<meta\s+content="([^"]*)"\s+property="og:video"/i)
-    || html.match(/<meta\s+property="og:video"\s+content="([^"]*)"/i);
-  if (ogVideo) videoUrl = ogVideo[1].trim();
-
-  if (!videoUrl) {
-    const twitterStream = html.match(/<meta\s+property="twitter:player:stream"\s+content="([^"]*)"/i) || html.match(/<meta\s+content="([^"]*)"\s+property="twitter:player:stream"/i);
-    if (twitterStream) videoUrl = twitterStream[1].trim();
-  }
-  if (!videoUrl) {
-    const videoUrlInJson = html.match(/"video_url"\s*:\s*"([^"]+)"/) || html.match(/"playback_url"\s*:\s*"([^"]+)"/) || html.match(/"contentUrl"\s*:\s*"([^"]+)"/);
-    if (videoUrlInJson) videoUrl = videoUrlInJson[1].replace(/\\u0026/g, "&").replace(/\\\//g, "/").replace(/\\"/g, '"').trim();
-  }
-  if (!videoUrl && (requestedUrl || "").includes("twitter.com")) {
-    const twimgAlt = html.match(/https?:\/\/[^"'\s]+\.twimg\.com[^"'\s]*\.mp4/);
-    if (twimgAlt) videoUrl = twimgAlt[0].trim();
-    if (!videoUrl) {
-      const twimgEscaped = html.match(/https?:\\?\/\\?\/[^"'\s]*twimg[^"'\s]*\.mp4/);
-      if (twimgEscaped) videoUrl = twimgEscaped[0].replace(/\\\//g, "/").replace(/\\u0026/g, "&").trim();
-    }
-  }
-  if (!videoUrl) {
-    const anyMp4 = html.match(/"url"\s*:\s*"(https?:[^"]*\.mp4[^"]*)"/);
-    if (anyMp4) videoUrl = anyMp4[1].replace(/\\\//g, "/").replace(/\\u0026/g, "&").trim();
-  }
-  return { title, videoUrl };
 }
 
 export async function registerRoutes(
@@ -537,38 +266,6 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
   const TIMEOUT_MS = 55_000;
-
-  function sendJson(res: any, status: number, body: object) {
-    res.setHeader("Content-Type", "application/json");
-    res.status(status).json(body);
-  }
-
-  app.get("/api/resolve-video", async (req, res) => {
-    const url = req.query.url as string;
-    if (!url || typeof url !== "string") {
-      return sendJson(res, 400, { error: "Missing url query parameter." });
-    }
-    try {
-      if (isYouTubeUrl(url)) {
-        const result = await resolveYouTube(url);
-        return sendJson(res, 200, { title: result.title, videoUrl: result.videoUrl, hint: result.hint });
-      }
-      const response = await (nodeFetch as any)(url, {
-        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36" },
-        redirect: "follow",
-        timeout: 15_000,
-      });
-      const html = await response.text();
-      const { title, videoUrl } = extractOgVideo(html, url);
-      const hint = !videoUrl && (url || "").includes("twitter.com")
-        ? "Twitter often blocks automated access. Try opening the tweet in a browser, or use a direct video link from another site."
-        : undefined;
-      return sendJson(res, 200, { title, videoUrl, hint });
-    } catch (e: any) {
-      return sendJson(res, 422, { error: e?.message ?? "Could not fetch URL." });
-    }
-  });
-
 
   app.post("/api/convert", handleMulterError, async (req, res) => {
     if (!req.file) {
@@ -695,11 +392,13 @@ export async function registerRoutes(
     }
   });
 
-  app.post("/api/convert-image", handleMulterError, async (_req, res) => {
-    return res.status(503).json({
-      error: "PDF to Image server conversion is temporarily disabled on this environment.",
-    });
-  });
+  // NOT — /api/convert-image kaldirildi.
+  //
+  // Rota zaten 503 donuyordu: pdfjs'i Node'da rasterize etmek node-canvas
+  // gerektiriyor ve bu imajda kurulu degil. PDF -> JPG artik tamamen
+  // tarayicida calisiyor (ToolWorkflow.tsx icindeki pdfToImageClient), tum
+  // sayfalari donusturuyor ve birden fazla sayfayi ZIP olarak veriyor.
+  // Istemci bu adresi hic cagirmiyordu; olu rotayi birakmanin faydasi yok.
 
   // Ã¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢ÂÃ¢"¢Â
   // POST /api/translate-pdf
@@ -711,7 +410,7 @@ export async function registerRoutes(
     fileFilter: (_req: any, file: any, cb: any) =>
       file.mimetype === "application/pdf"
         ? cb(null, true)
-        : cb(new Error("Yalnızca PDF kabul edilir")),
+        : cb(new Error("Only PDF files are accepted.")),
   });
 
   const SUPPORTED_LANGS = new Set([
@@ -758,7 +457,7 @@ export async function registerRoutes(
     handleTranslateMulterError,
     async (req: any, res: any): Promise<void> => {
       if (!req.file) {
-        res.status(400).json({ error: "PDF dosyası bulunamadı" }); return;
+        res.status(400).json({ error: "No PDF file was uploaded." }); return;
       }
 
       const { targetLang = "en" } = req.body as Record<string, string>;
@@ -774,7 +473,7 @@ export async function registerRoutes(
       try {
         const TIMEOUT = 55_000;
         const timeoutPromise = new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error("Çeviri zaman aşımına uğradı (55s)")), TIMEOUT)
+          setTimeout(() => reject(new Error("Translation timed out after 55 seconds. Try a shorter PDF.")), TIMEOUT)
         );
 
         const translatePromise = (async () => {
@@ -782,11 +481,11 @@ export async function registerRoutes(
           try {
             data = await pdfParse(req.file!.buffer);
           } catch (e: any) {
-            throw new Error(`PDF okunamadı: ${e.message}`);
+            throw new Error(`The PDF could not be read: ${e.message}`);
           }
 
           const rawText = data.text ?? "";
-          if (!rawText.trim()) throw new Error("PDF'den metin çıkarılamadı.");
+          if (!rawText.trim()) throw new Error("No text could be extracted from this PDF. If it is a scan, the pages are images rather than text.");
 
           const lines = rawText.replace(/\r\n?/g, "\n").split("\n");
           const chunks: string[] = [];
@@ -1089,9 +788,15 @@ export async function registerRoutes(
         }
 
         case "compress": {
-          const pdfDoc = await PDFDocument.load(files[0].buffer, { ignoreEncryption: true });
-          const compressedBytes = await pdfDoc.save();
-          return Buffer.from(compressedBytes);
+          const { output, imagesRecompressed, reduced } = await compressPdfBuffer(files[0].buffer);
+          const saving = reduced
+            ? `${(100 * (1 - output.length / files[0].buffer.length)).toFixed(1)}% smaller`
+            : "no meaningful reduction, original returned";
+          console.log(
+            `[compress] ${files[0].originalname}: ${files[0].buffer.length} -> ${output.length} bytes ` +
+              `(${imagesRecompressed} image(s) re-encoded, ${saving})`,
+          );
+          return output;
         }
 
         case "protect": {
@@ -1191,14 +896,14 @@ export async function registerRoutes(
         const { promisify } = _require("util");
         libreConvert.convertAsync = (buf, fmt, filter, opts) => new Promise((resolve, reject) => { libreConvert.convertWithOptions(buf, fmt, filter, opts, (err, result) => { if (err) reject(err); else resolve(result); }); });
       } catch {
-        throw new Error("libreoffice-convert yüklenemedi.");
+        throw new Error("The document conversion service is unavailable right now. Please try again later.");
       }
     }
     if (!htmlToDocx) {
       try {
         htmlToDocx = _require("html-to-docx");
       } catch {
-        throw new Error("html-to-docx yüklenemedi.");
+        throw new Error("The document conversion service is unavailable right now. Please try again later.");
       }
     }
   }
@@ -1215,7 +920,7 @@ export async function registerRoutes(
       if (CONVERT_TO_PDF_EXTS.has(ext)) {
         cb(null, true);
       } else {
-        cb(new Error(`Desteklenmeyen dosya türü: ${ext}`));
+        cb(new Error(`Unsupported file type: ${ext}`));
       }
     },
   });
@@ -1244,7 +949,7 @@ export async function registerRoutes(
 
   app.post("/api/convert-to-pdf", uploadToPdf.single("file"), async (req: any, res: any) => {
     if (!req.file) {
-      res.status(400).json({ error: "Dosya bulunamadı. FormData field adı 'file' olmalı." });
+      res.status(400).json({ error: "No file was uploaded." });
       return;
     }
 
@@ -1260,7 +965,7 @@ export async function registerRoutes(
 
       const TIMEOUT = 55_000;
       const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error("Dönüşüm zaman aşımına uğradı (55s)")), TIMEOUT)
+        setTimeout(() => reject(new Error("Conversion timed out after 55 seconds. Try a smaller file.")), TIMEOUT)
       );
 
       const convertPromise = (async () => {
@@ -1274,7 +979,7 @@ export async function registerRoutes(
       const pdfBuffer = await Promise.race([convertPromise, timeoutPromise]);
 
       if (!pdfBuffer || pdfBuffer.length < 100) {
-        throw new Error("PDF çıktısı boş — LibreOffice dönüşümü başarısız");
+        throw new Error("Conversion produced an empty PDF. This file may be corrupt or password-protected.");
       }
 
       const baseName = req.file.originalname.replace(/\.[^.]+$/, "");
@@ -1483,7 +1188,7 @@ export async function registerRoutes(
     );
     res.json({
       success: true,
-      message: "Message received! We will get back to you within 24-48 hours.",
+      message: "Message received. Thank you - we read everything that comes in.",
     });
   });
 
@@ -1531,6 +1236,75 @@ export async function registerRoutes(
     if (aiHits.size > 5000) aiHits.clear(); // kaba bellek koruması
     return false;
   }
+
+  // ── Belge -> duz metin ────────────────────────────────────────────────────
+  //
+  // AI yazma araclarindaki "Upload Document" sekmesi icin. Onceki hali dosyayi
+  // ToolWorkflow'a veriyordu; orada hicbir kurala uymadigi icin "identity"ye
+  // dusuyor ve kullaniciya KENDI dosyasi geri veriliyordu. Artik belgenin metni
+  // cikarilip AI kutusuna yaziliyor, kullanici duzenleyip uretimi baslatiyor.
+  //
+  // Yeni bagimlilik yok: pdf-parse ve mammoth zaten kurulu ve baska rotalarda
+  // kullaniliyor.
+  const uploadDocument = multer({
+    storage: multer.memoryStorage(),
+    limits: { fileSize: 10 * 1024 * 1024 },
+    fileFilter: (_req: any, file: any, cb: any) => {
+      const ok = /\.(txt|md|pdf|docx)$/i.test(file.originalname || "");
+      cb(ok ? null : new Error("Only .txt, .md, .pdf and .docx files are supported."), ok);
+    },
+  });
+
+  function handleDocumentMulterError(req: any, res: any, next: any) {
+    uploadDocument.single("file")(req, res, (err: any) => {
+      if (err) {
+        if (err.code === "LIMIT_FILE_SIZE") {
+          return res.status(413).json({ error: "File too large. Maximum size is 10MB." });
+        }
+        return res.status(400).json({ error: err.message || "Upload failed" });
+      }
+      next();
+    });
+  }
+
+  app.post("/api/extract-text", handleDocumentMulterError, async (req: any, res: any) => {
+    if (!req.file) return res.status(400).json({ error: "No document uploaded." });
+
+    const name: string = req.file.originalname || "";
+    try {
+      let text = "";
+
+      if (/\.pdf$/i.test(name)) {
+        const parsed = await pdfParse(req.file.buffer);
+        text = String(parsed?.text ?? "");
+      } else if (/\.docx$/i.test(name)) {
+        const mammoth = _require("mammoth");
+        const result = await mammoth.extractRawText({ buffer: req.file.buffer });
+        text = String(result?.value ?? "");
+      } else {
+        text = req.file.buffer.toString("utf8");
+      }
+
+      // Fazla bos satirlari topla; model girdisinde yer kaplamasinlar.
+      text = text.replace(/\r\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+
+      if (!text) {
+        return res.status(422).json({
+          error:
+            "No text could be read from this document. If it is a scanned PDF, the pages are images rather than text.",
+        });
+      }
+
+      // AI girdisiyle ayni sinir; kesildiginde kullaniciya soyleriz.
+      const truncated = text.length > AI_INPUT_MAX;
+      if (truncated) text = text.slice(0, AI_INPUT_MAX);
+
+      res.json({ text, truncated, characters: text.length });
+    } catch (err: any) {
+      console.error("[/api/extract-text]", err?.message);
+      res.status(422).json({ error: "This document could not be read. Please try a different file." });
+    }
+  });
 
   app.post("/api/ai-generate", async (req: any, res: any) => {
     const apiKey = process.env.ANTHROPIC_API_KEY;

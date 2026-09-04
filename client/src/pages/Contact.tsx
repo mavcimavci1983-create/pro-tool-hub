@@ -1,7 +1,7 @@
 ﻿import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { Helmet, HelmetProvider } from "react-helmet-async";
-import { Mail, MessageSquare, Clock, CheckCircle, AlertCircle } from "lucide-react";
+import { Mail, MessageSquare, Shield, CheckCircle, AlertCircle } from "lucide-react";
 import { useState } from "react";
 
 export default function Contact() {
@@ -46,7 +46,7 @@ export default function Contact() {
           {[
             { icon: <Mail className="w-8 h-8 text-blue-500" />, title: "General Inquiries", desc: "hello@protoolhub.net" },
             { icon: <MessageSquare className="w-8 h-8 text-green-500" />, title: "Bug Reports", desc: "bugs@protoolhub.net" },
-            { icon: <Clock className="w-8 h-8 text-orange-500" />, title: "Response Time", desc: "Within 24-48 hours" },
+            { icon: <Shield className="w-8 h-8 text-orange-500" />, title: "Privacy Requests", desc: "privacy@protoolhub.net" },
           ].map((item, i) => (
             <div key={i} className="text-center bg-slate-50 rounded-2xl p-8 border border-slate-100">
               <div className="flex justify-center mb-4">{item.icon}</div>
@@ -62,7 +62,7 @@ export default function Contact() {
             <div className="text-center py-12">
               <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
               <h3 className="text-2xl font-bold text-slate-900 mb-2">Message Sent!</h3>
-              <p className="text-slate-600 mb-6">Thank you for reaching out. We will get back to you within 24-48 hours.</p>
+              <p className="text-slate-600 mb-6">Thank you for reaching out — your message reached us and we read everything that comes in.</p>
               <button onClick={() => setStatus("idle")} className="bg-slate-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-slate-700 transition-colors">Send Another Message</button>
             </div>
           ) : (

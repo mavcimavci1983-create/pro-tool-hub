@@ -12,3 +12,11 @@ analytics.db
 analytics.db-*
 contact.db
 contact.db-*
+
+# Browser-exported cookie/session files. These carry live authentication
+# credentials and must never be committed. A set was tracked here previously
+# (cookies/youtube.com_cookies.txt) - see git history if it needs purging.
+cookies/*
+!cookies/.gitkeep
+*_cookies.txt
+*cookies*.json

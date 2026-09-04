@@ -70,7 +70,7 @@ function loadImageSafe(file: File): Promise<HTMLImageElement> {
     const url = URL.createObjectURL(file);
     const img = new Image();
     img.onload  = () => { URL.revokeObjectURL(url); resolve(img); };
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("Görüntü yüklenemedi / Image load failed")); };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("The image could not be loaded. It may be corrupt or in an unsupported format.")); };
     img.src = url;
   });
 }
@@ -104,7 +104,7 @@ function cvToBlob(cv: HTMLCanvasElement, mime: string, q = 0.92): Promise<Blob> 
     cv.toBlob(
       b => b && b.size > 0
         ? resolve(b)
-        : reject(new Error("Canvas → Blob başarısız. Dosya formatı desteklenmiyor olabilir.")),
+        : reject(new Error("The browser could not export this image. The format may not be supported here.")),
       mime, q
     );
   });
@@ -1039,7 +1039,7 @@ export function HeicToJpgTool() {
           const s   = document.createElement("script");
           s.src     = "https://cdnjs.cloudflare.com/ajax/libs/heic2any/0.0.4/heic2any.min.js";
           s.onload  = () => resolve();
-          s.onerror = () => reject(new Error("heic2any CDN yüklenemedi — internet bağlantısını kontrol edin"));
+          s.onerror = () => reject(new Error("Could not load the HEIC converter. Check your internet connection and try again."));
           document.head.appendChild(s);
         });
       }

@@ -20,6 +20,12 @@ function trackEvent(name: string, params?: Record<string, unknown>) {
   } catch {}
 }
 
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+}
+
 export type ToolCategory = "organize" | "convert-from" | "convert-to" | "security";
 
 export type ToolType =
@@ -44,7 +50,7 @@ const MULTI_FILE_TOOLS = new Set<ToolType>(["merge", "compare-pdf"]);
 const SERVER_TOOLS = new Set<ToolType>([
   "merge", "split", "rotate", "delete-pages", "reorder", "page-numbers",
   "compress", "protect", "unlock", "watermark",
-  "pdf-to-word", "pdf-to-excel", "pdf-to-image", "pdf-to-text",
+  "pdf-to-word", "pdf-to-excel", "pdf-to-text",
   "word-to-pdf", "excel-to-pdf", "ppt-to-pdf", "html-to-pdf",
   "translate-pdf",
   "compare-pdf",
@@ -78,7 +84,7 @@ export const TOOL_CATALOG: ToolDefinition[] = [
   // ── Convert FROM PDF ──────────────────────────────────────────────────────
   { type: "pdf-to-word",  category: "convert-from", label: "PDF to Word",      labelTr: "PDF → Word",       accepts: ".pdf", endpoint: "/api/convert" },
   { type: "pdf-to-excel", category: "convert-from", label: "PDF to Excel",     labelTr: "PDF → Excel",      accepts: ".pdf", endpoint: "/api/convert-excel" },
-  { type: "pdf-to-image", category: "convert-from", label: "PDF to JPG",       labelTr: "PDF → JPG",        accepts: ".pdf", endpoint: "/api/convert-image" },
+  { type: "pdf-to-image", category: "convert-from", label: "PDF to JPG",       labelTr: "PDF → JPG",        accepts: ".pdf" },
   { type: "pdf-to-text",  category: "convert-from", label: "PDF to Text",      labelTr: "PDF → Metin",      accepts: ".pdf", endpoint: "/api/convert-text" },
   { type: "identity",     category: "convert-from", label: "PDF to PPT",       labelTr: "PDF → PPT",        accepts: ".pdf" },
   { type: "pdf-to-pdfa",  category: "convert-from", label: "PDF to PDF/A",     labelTr: "PDF → PDF/A",      accepts: ".pdf" },
@@ -276,36 +282,92 @@ async function jsonToCsv(file: File): Promise<Blob> {
   return new Blob([[headers.join(","), ...data.map(r => headers.map(h => r[h] ?? "").join(","))].join("\n")], { type: "text/csv" });
 }
 
-async function pdfToImageClient(file: File): Promise<Blob> {
+/**
+ * PDF -> JPG, tamamen tarayicida.
+ *
+ * Sunucu tarafi (/api/convert-image) bu ortamda calismiyor: pdfjs'i Node'da
+ * rasterize etmek node-canvas gerektiriyor ve o kurulu degil. Islem bu yuzden
+ * pdfjs + Canvas API ile kullanicinin cihazinda yapiliyor - gorsel araclarinin
+ * geri kalaniyla ayni model, dosya sunucuya hic gitmiyor.
+ *
+ * TUM sayfalar donusturulur:
+ *   - tek sayfali PDF  -> tek bir image/jpeg blob
+ *   - cok sayfali PDF  -> her sayfa ayri JPG, application/zip icinde
+ *
+ * Cikti uzantisini getOutputExtension zaten blob tipine bakarak seciyor
+ * (application/zip -> .zip, aksi halde .jpg), bu yuzden indirme davranisi
+ * degismedi.
+ *
+ * Onceki hali cok sayfali her PDF icin ham "MULTI_PAGE" metnini firlatiyordu;
+ * kullanici arayuzde "Processing failed: MULTI_PAGE" goruyordu.
+ */
+const PDF_RENDER_SCALE = 2.5;
+const PDF_JPEG_QUALITY = 0.92;
+/** Cok buyuk sayfalarda tarayici canvas sinirina takilmamak icin ust sinir. */
+const PDF_MAX_CANVAS_PX = 4096;
+
+function canvasToJpegBlob(canvas: HTMLCanvasElement): Promise<Blob> {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(
+      b => (b && b.size > 0 ? resolve(b) : reject(new Error("Canvas export failed"))),
+      "image/jpeg",
+      PDF_JPEG_QUALITY,
+    );
+  });
+}
+
+async function pdfToImageClient(
+  file: File,
+  onProgress?: (pct: number) => void,
+): Promise<Blob> {
   const pdfjsLib = await import("pdfjs-dist");
   pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
   const arrayBuffer = await file.arrayBuffer();
   const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(arrayBuffer) }).promise;
   const totalPages = pdf.numPages;
+  if (totalPages < 1) throw new Error("This PDF has no pages to convert.");
 
-  if (totalPages > 1) {
-    throw new Error("MULTI_PAGE");
+  const canvas = document.createElement("canvas");
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("Your browser blocked canvas rendering, so the PDF could not be converted.");
+
+  const pageBlobs: Blob[] = [];
+
+  for (let pageNo = 1; pageNo <= totalPages; pageNo++) {
+    const page = await pdf.getPage(pageNo);
+
+    // Cok buyuk sayfalarda olcegi kucult; aksi halde canvas.toBlob null doner.
+    const base = page.getViewport({ scale: 1 });
+    const fit = Math.min(
+      PDF_RENDER_SCALE,
+      PDF_MAX_CANVAS_PX / base.width,
+      PDF_MAX_CANVAS_PX / base.height,
+    );
+    const viewport = page.getViewport({ scale: Math.max(1, fit) });
+
+    canvas.width = Math.floor(viewport.width);
+    canvas.height = Math.floor(viewport.height);
+    // JPEG saydamligi desteklemez - saydam alanlar siyah cikmasin diye beyaz zemin.
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    await page.render({ canvasContext: ctx, viewport }).promise;
+
+    pageBlobs.push(await canvasToJpegBlob(canvas));
+    page.cleanup();
+    onProgress?.(Math.round((pageNo / totalPages) * 90));
   }
 
-  const page = await pdf.getPage(1);
-  const scale = 2.5;
-  const viewport = page.getViewport({ scale });
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.floor(viewport.width);
-  canvas.height = Math.floor(viewport.height);
-  const ctx = canvas.getContext("2d")!;
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  await page.render({ canvasContext: ctx, viewport }).promise;
+  if (pageBlobs.length === 1) return pageBlobs[0];
 
-  return new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob(
-      b => (b && b.size > 0 ? resolve(b) : reject(new Error("Canvas export failed"))),
-      "image/jpeg",
-      0.93
-    );
+  const JSZip = (await import("jszip")).default;
+  const zip = new JSZip();
+  const pad = String(totalPages).length;
+  pageBlobs.forEach((blob, i) => {
+    zip.file(`page_${String(i + 1).padStart(pad, "0")}.jpg`, blob);
   });
+  onProgress?.(95);
+  return zip.generateAsync({ type: "blob", compression: "STORE" });
 }
 
 function uploadFiles(
@@ -368,12 +430,12 @@ async function convertFile(
     );
   }
 
+  // PDF -> JPG tarayicida calisir; endpoint kontrolunden ONCE ele alinmali.
+  if (toolType === "pdf-to-image") {
+    return pdfToImageClient(file, onProgress);
+  }
+
   if (toolDef?.endpoint) {
-    if (toolType === "pdf-to-image") {
-      const blob = await pdfToImageClient(file);
-      if (blob.size >= 5_000) return blob;
-      throw new Error("Export failed or file too small. Try a single-page PDF.");
-    }
     return uploadFiles(toolDef.multiFile ? files : [file], toolDef.endpoint, extraParams, onProgress);
   }
 
@@ -653,7 +715,7 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess, extraPara
             <Progress value={progress} className="h-3 rounded-full bg-slate-100" />
           </div>
           <div className="mt-12 flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-widest">
-            <ShieldCheck className="w-4 h-4" /> BANK-GRADE ENCRYPTION ACTIVE
+            <ShieldCheck className="w-4 h-4" /> ENCRYPTED CONNECTION
           </div>
         </Card>
         <TrustBadges />
@@ -668,9 +730,36 @@ export function ToolWorkflow({ toolName, acceptedFileTypes, onProcess, extraPara
           <CheckCircle2 className="w-12 h-12" />
         </div>
         <h3 className="text-3xl font-bold text-slate-900 mb-2 tracking-tight">{t.common.ready}</h3>
-        <p className="text-slate-500 mb-10 font-medium" data-testid="text-filename">
+        <p className="text-slate-500 mb-4 font-medium" data-testid="text-filename">
           {files.length > 1 ? `${files.length} ${isEn ? "files" : "dosya"}` : files[0]?.name}
         </p>
+
+        {/* Sikistirma sonucu her zaman olculerek gosterilir. Dosya kuculmediyse
+            bunu acikca soyleriz - "hazir" deyip ayni boyutta dosya vermeyiz. */}
+        {toolType === "compress" && files[0] && resultBlobRef.current && (
+          <div className="mb-8 max-w-md" data-testid="text-compression-result">
+            {resultBlobRef.current.size < files[0].size ? (
+              <div className="flex items-center justify-center gap-3 text-sm">
+                <span className="px-3 py-1.5 bg-slate-100 text-slate-500 rounded-full font-mono">
+                  {formatBytes(files[0].size)}
+                </span>
+                <span className="text-slate-300">→</span>
+                <span className="px-3 py-1.5 bg-emerald-100 text-emerald-700 rounded-full font-mono font-bold">
+                  {formatBytes(resultBlobRef.current.size)}
+                </span>
+                <span className="px-2.5 py-1 bg-emerald-500 text-white rounded-full text-xs font-black">
+                  −{Math.round((1 - resultBlobRef.current.size / files[0].size) * 100)}%
+                </span>
+              </div>
+            ) : (
+              <p className="text-sm text-slate-500 font-medium leading-relaxed">
+                {isEn
+                  ? `This PDF is already about as small as it gets — it is ${formatBytes(files[0].size)} and mostly text, with no oversized images to re-compress. Your original file is returned unchanged rather than a larger one.`
+                  : `Bu PDF zaten olabildigince kucuk — ${formatBytes(files[0].size)} boyutunda ve agirlikli olarak metin; yeniden sikistirilacak buyuk gorsel yok. Daha buyuk bir dosya vermek yerine orijinaliniz oldugu gibi donduruldu.`}
+              </p>
+            )}
+          </div>
+        )}
         <div className="flex flex-col sm:flex-row gap-4 w-full justify-center mb-10">
           <Button
             size="lg"

@@ -4,6 +4,8 @@ import TermsOfService from "@/pages/TermsOfService";
 import CookiePolicy from "@/pages/CookiePolicy";
 import AboutUs from "@/pages/AboutUs";
 import Contact from "@/pages/Contact";
+import Resources from "@/pages/Resources";
+import ResourceArticle from "@/pages/ResourceArticle";
 import Home from "./pages/Home";
 import GenericPdfTool from "./pages/GenericPdfTool";
 import VideoTool from "./pages/VideoTool";
@@ -16,6 +18,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CanonicalTag } from "@/components/seo/CanonicalTag";
+import { CookieConsent } from "@/components/consent/CookieConsent";
 
 function Router() {
   return (
@@ -86,6 +89,12 @@ function Router() {
 
       {/* Other Tools */}
 
+      {/* Rehberler. Not: server/static.ts sitemap.xml'i rota allowlist'i
+          olarak okuyor - buraya eklenen her adres sitemap'e de girmeli,
+          aksi halde uretimde 404 doner. */}
+      <Route path="/resources"><Resources /></Route>
+      <Route path="/resources/:slug"><ResourceArticle /></Route>
+
       <Route path="/privacy-policy"><PrivacyPolicy /></Route>
       <Route path="/terms"><TermsOfService /></Route>
       <Route path="/cookie-policy"><CookiePolicy /></Route>
@@ -104,6 +113,7 @@ export default function App() {
         <CanonicalTag />
         <Toaster />
         <Router />
+        <CookieConsent />
       </TooltipProvider>
     </QueryClientProvider>
   );
